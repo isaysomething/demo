@@ -104,7 +104,7 @@ func provideApp(
 	captchaManager *captchas.Manager,
 ) *frontend.Application {
 	app := newApp(logger, db, view, sessionManager, userStore, mailer, captchaManager)
-	return &frontend.Application{app}
+	return &frontend.Application{Application: app}
 }
 
 func provideBackendApp(
@@ -117,7 +117,7 @@ func provideBackendApp(
 	captchaManager *captchas.Manager,
 ) *backend.Application {
 	app := newApp(logger, db, view.Manager, sessionManager, userStore, mailer, captchaManager)
-	return &backend.Application{app}
+	return &backend.Application{Application: app}
 }
 
 func newApp(
