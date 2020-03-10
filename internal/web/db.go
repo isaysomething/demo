@@ -2,7 +2,13 @@ package web
 
 import "github.com/jmoiron/sqlx"
 
+// DBConfig is a database config.
+type DBConfig struct {
+	Driver string `koanf:"driver"`
+	DSN    string `koanf:"dsn"`
+}
+
+// NewDB returns a sqlx.DB with the given config.
 func NewDB(cfg DBConfig) (*sqlx.DB, error) {
-	//return sql.Open(cfg.Driver, cfg.DSN)
 	return sqlx.Open(cfg.Driver, cfg.DSN)
 }

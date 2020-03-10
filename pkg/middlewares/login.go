@@ -1,6 +1,11 @@
 package middlewares
 
-import "net/http"
+import (
+	"log"
+	"net/http"
+
+	"github.com/clevergo/clevergo"
+)
 
 type LoginChecker struct {
 	loginUrl string
@@ -11,7 +16,7 @@ type LoginChecker struct {
 
 func NewLoginChecker(handler http.Handler, isGuest func(r *http.Request, w http.ResponseWriter) bool, skipper Skipper) *LoginChecker {
 	return &LoginChecker{
-		loginUrl: "/admin/login",
+		loginUrl: "/login",
 		isGuest:  isGuest,
 		skipper:  skipper,
 		handler:  handler,
@@ -24,8 +29,20 @@ func LoginCheckerMiddleware(isGuest func(r *http.Request, w http.ResponseWriter)
 	}
 }
 
+func LoginCheckerMiddlewareFunc(isGuest func(r *http.Request, w http.ResponseWriter) bool, skipper Skipper) func(ctx *clevergo.Context) error {
+	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println(2)
+	})
+	checker := NewLoginChecker(handler, isGuest, skipper)
+	return func(ctx *clevergo.Context) error {
+		checker.ServeHTTP(ctx.Response, ctx.Request)
+		log.Println(1)
+		return nil
+	}
+}
+
 func (lc *LoginChecker) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if lc.isGuest(r, w) && !lc.skipper(r) {
+	if lc.isGuest(r, w) && (lc.skipper == nil || !lc.skipper(r)) {
 		http.Redirect(w, r, lc.loginUrl, http.StatusFound)
 		return
 	}

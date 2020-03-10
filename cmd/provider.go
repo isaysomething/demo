@@ -35,7 +35,6 @@ import (
 	"github.com/go-mail/mail"
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
-	"github.com/gorilla/handlers"
 	"go.uber.org/zap"
 )
 
@@ -86,7 +85,12 @@ func provideRouter(
 	}
 
 	router.ServeFiles("/console/static/*filepath", http.Dir(path.Join(cfg.AdminView.Directory, "static")))
-	console := router.Group("/console")
+	console := router.Group("/console", clevergo.RouteGroupMiddleware(
+		middlewares.LoginCheckerMiddlewareFunc((func(r *http.Request, w http.ResponseWriter) bool {
+			user, _ := app.UserStore().Get(r, w)
+			return user.IsGuest()
+		}), nil),
+	))
 	for _, route := range backendRoutes {
 		route.Register(console)
 	}
@@ -159,7 +163,7 @@ func newApp(
 }
 
 func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userStore *users.Store) (v []func(http.Handler) http.Handler, err error) {
-	v = append(v, handlers.RecoveryHandler())
+	// v = append(v, handlers.RecoveryHandler())
 	if cfg.Gzip {
 		v = append(v, middleware.Compress(cfg.GzipLevel))
 	}
