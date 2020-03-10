@@ -5,7 +5,7 @@ CleverGo Application Project Template[WIP]
 [![Coverage Status](https://coveralls.io/repos/github/clevergo/demo/badge.svg?branch=master)](https://coveralls.io/github/clevergo/demo?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/clevergo/demo)](https://goreportcard.com/report/github.com/clevergo/demo)
 
-CleverGo Demo is an MVC and RESTful API application project template.
+CleverGo Demo is a MVC and RESTful API application project template.
 
 ## TODO
 
