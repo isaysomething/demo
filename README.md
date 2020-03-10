@@ -10,7 +10,7 @@ CleverGo Demo is a MVC and RESTful API application project template.
 
 - [x] Routing: [CleverGo](https://github.com/clevergo/clevergo).
 - [x] Configuration: [spf13/cobra](https://github.com/spf13/cobra) and [knadh/koanf](https://github.com/knadh/koanf).
-- [x] Dependency Injection: [wire](github.com/google/wire).
+- [x] Dependency Injection: [wire](https://github.com/google/wire).
 - [x] Session Manager: [alexedwards/scs](https://github.com/alexedwards/scs).
 - [x] I18N: [clevergo/i18n](https://github.com/clevergo/log).
 - [x] Form Validation: [clevergo/form](https://github.com/clevergo/form) and [ozzo/validation](https://github.com/go-ozzo/ozzo-validation).
