@@ -87,7 +87,7 @@ func provideRouter(
 	router.ServeFiles("/console/static/*filepath", http.Dir(path.Join(cfg.AdminView.Directory, "static")))
 	console := router.Group("/console", clevergo.RouteGroupMiddleware(
 		middlewares.LoginCheckerMiddlewareFunc((func(r *http.Request, w http.ResponseWriter) bool {
-			user, _ := app.UserStore().Get(r, w)
+			user, _ := app.UserManager().Get(r, w)
 			return user.IsGuest()
 		}), nil),
 	))
@@ -103,11 +103,11 @@ func provideApp(
 	db *sqlx.DB,
 	view *views.Manager,
 	sessionManager *scs.SessionManager,
-	userStore *users.Store,
+	userManager *users.Manager,
 	mailer *mail.Dialer,
 	captchaManager *captchas.Manager,
 ) *frontend.Application {
-	app := newApp(logger, db, view, sessionManager, userStore, mailer, captchaManager)
+	app := newApp(logger, db, view, sessionManager, userManager, mailer, captchaManager)
 	return &frontend.Application{Application: app}
 }
 
@@ -116,11 +116,11 @@ func provideBackendApp(
 	db *sqlx.DB,
 	view *AdminView,
 	sessionManager *scs.SessionManager,
-	userStore *users.Store,
+	userManager *users.Manager,
 	mailer *mail.Dialer,
 	captchaManager *captchas.Manager,
 ) *backend.Application {
-	app := newApp(logger, db, view.Manager, sessionManager, userStore, mailer, captchaManager)
+	app := newApp(logger, db, view.Manager, sessionManager, userManager, mailer, captchaManager)
 	return &backend.Application{Application: app}
 }
 
@@ -129,7 +129,7 @@ func newApp(
 	db *sqlx.DB,
 	view *views.Manager,
 	sessionManager *scs.SessionManager,
-	userStore *users.Store,
+	userManager *users.Manager,
 	mailer *mail.Dialer,
 	captchaManager *captchas.Manager,
 ) *web.Application {
@@ -147,12 +147,12 @@ func newApp(
 			viewCtx["translate"] = func(key string) string {
 				return translator.Sprintf("%m", key)
 			}
-			user, _ := userStore.Get(ctx.Request, ctx.Response)
+			user, _ := userManager.Get(ctx.Request, ctx.Response)
 			viewCtx["user"] = user.GetIdentity()
 			viewCtx["flashes"] = app.Flashes(ctx)
 			viewCtx["csrf"] = csrf.TemplateField(ctx.Request)
 		}),
-		web.UserStore(userStore),
+		web.UserManager(userManager),
 	}
 	if view != nil {
 		opts = append(opts, web.ViewManager(view))
@@ -162,7 +162,7 @@ func newApp(
 	return app
 }
 
-func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userStore *users.Store) (v []func(http.Handler) http.Handler, err error) {
+func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userManager *users.Manager) (v []func(http.Handler) http.Handler, err error) {
 	// v = append(v, handlers.RecoveryHandler())
 	if cfg.Gzip {
 		v = append(v, middleware.Compress(cfg.GzipLevel))
@@ -178,7 +178,7 @@ func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Tr
 		v = append(v, middleware.Logging(accessLog))
 	}
 	login := middlewares.LoginCheckerMiddleware(func(r *http.Request, w http.ResponseWriter) bool {
-		user, _ := userStore.Get(r, w)
+		user, _ := userManager.Get(r, w)
 		return user.IsGuest()
 	}, middlewares.NewPathSkipper("/*"))
 	v = append(v, sessionManager.LoadAndSave, provideI18NMiddleware(translators), login)
@@ -273,11 +273,11 @@ func provideIdentityStore(db *sqlx.DB) auth.IdentityStore {
 	return common.NewIdentityStore(db)
 }
 
-func provideUserStore(identityStore auth.IdentityStore, sessionManager *scs.SessionManager) *users.Store {
-	userStore := users.NewStore(identityStore)
-	userStore.SetSessionManager(sessionManager)
+func provideUserManager(identityStore auth.IdentityStore, sessionManager *scs.SessionManager) *users.Manager {
+	m := users.New(identityStore)
+	m.SetSessionManager(sessionManager)
 
-	return userStore
+	return m
 }
 
 func provideAuthenticator(identityStore auth.IdentityStore) auth.Authenticator {

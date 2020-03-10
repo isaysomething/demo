@@ -16,7 +16,7 @@ func init() {
 	gob.Register(time.Time{})
 }
 
-type Store struct {
+type Manager struct {
 	identityStore            auth.IdentityStore
 	sessionManager           *scs.SessionManager
 	authIDParam              string
@@ -30,8 +30,8 @@ type Store struct {
 	onAfterLogout            []func(*LogoutEvent)
 }
 
-func NewStore(identityStore auth.IdentityStore) *Store {
-	return &Store{
+func New(identityStore auth.IdentityStore) *Manager {
+	return &Manager{
 		identityStore:    identityStore,
 		authIDParam:      "_auth_id",
 		authTimeout:      15 * time.Minute,
@@ -39,103 +39,103 @@ func NewStore(identityStore auth.IdentityStore) *Store {
 	}
 }
 
-func (s *Store) SetSessionManager(manager *scs.SessionManager) {
-	s.sessionManager = manager
+func (m *Manager) SetSessionManager(manager *scs.SessionManager) {
+	m.sessionManager = manager
 }
 
-func (s *Store) Get(r *http.Request, w http.ResponseWriter) (user *User, err error) {
-	user = s.userFromContext(r.Context())
+func (m *Manager) Get(r *http.Request, w http.ResponseWriter) (user *User, err error) {
+	user = m.userFromContext(r.Context())
 	if user == nil {
-		user, err = s.userFromSession(r, w)
+		user, err = m.userFromSession(r, w)
 		if err != nil {
 			log.Println(err)
 		}
 		if user == nil {
-			user = NewUser(s, nil)
+			user = newUser(m, nil)
 		}
-		*r = *r.WithContext(context.WithValue(r.Context(), s, user))
+		*r = *r.WithContext(context.WithValue(r.Context(), m, user))
 	}
 	return
 }
 
-func (s *Store) userFromContext(ctx context.Context) *User {
-	user, _ := ctx.Value(s).(*User)
+func (m *Manager) userFromContext(ctx context.Context) *User {
+	user, _ := ctx.Value(m).(*User)
 	return user
 }
 
-func (s *Store) userFromSession(r *http.Request, w http.ResponseWriter) (*User, error) {
-	if s.sessionManager == nil {
+func (m *Manager) userFromSession(r *http.Request, w http.ResponseWriter) (*User, error) {
+	if m.sessionManager == nil {
 		return nil, errors.New("session was disabled")
 	}
 	ctx := r.Context()
-	if !s.sessionManager.Exists(ctx, s.authIDParam) {
+	if !m.sessionManager.Exists(ctx, m.authIDParam) {
 		return nil, errors.New("no auth")
 	}
-	id := s.sessionManager.GetString(ctx, s.authIDParam)
-	if s.authTimeout > 0 {
-		expire := s.sessionManager.GetTime(ctx, s.authTimeoutParam)
+	id := m.sessionManager.GetString(ctx, m.authIDParam)
+	if m.authTimeout > 0 {
+		expire := m.sessionManager.GetTime(ctx, m.authTimeoutParam)
 		if time.Now().After(expire) {
 			return nil, errors.New("auth expired")
 		}
 	}
-	if s.sessionManager.Exists(ctx, s.absoluteAuthTimeoutParam) {
-		absoluteAuthTimeout := s.sessionManager.GetTime(ctx, s.absoluteAuthTimeoutParam)
+	if m.sessionManager.Exists(ctx, m.absoluteAuthTimeoutParam) {
+		absoluteAuthTimeout := m.sessionManager.GetTime(ctx, m.absoluteAuthTimeoutParam)
 		if time.Now().After(absoluteAuthTimeout) {
 			return nil, errors.New("auth expired")
 		}
 	}
-	identity, err := s.identityStore.GetIdentity(id)
+	identity, err := m.identityStore.GetIdentity(id)
 	if err != nil {
 		return nil, err
 	}
 
-	if s.authTimeout > 0 {
-		s.sessionManager.Put(r.Context(), s.authTimeoutParam, time.Now().Add(s.authTimeout))
+	if m.authTimeout > 0 {
+		m.sessionManager.Put(r.Context(), m.authTimeoutParam, time.Now().Add(m.authTimeout))
 	}
 
-	return NewUser(s, identity), nil
+	return newUser(m, identity), nil
 }
 
-func (s *Store) RegisterOnBeforeLogin(f func(*LoginEvent) error) {
-	s.onBeforeLogin = append(s.onBeforeLogin, f)
+func (m *Manager) RegisterOnBeforeLogin(f func(*LoginEvent) error) {
+	m.onBeforeLogin = append(m.onBeforeLogin, f)
 }
 
-func (s *Store) RegisterOnAfterLogin(f func(*LoginEvent)) {
-	s.onAfterLogin = append(s.onAfterLogin, f)
+func (m *Manager) RegisterOnAfterLogin(f func(*LoginEvent)) {
+	m.onAfterLogin = append(m.onAfterLogin, f)
 }
 
-func (s *Store) RegisterOnBeforeLogout(f func(*LogoutEvent) error) {
-	s.onBeforeLogout = append(s.onBeforeLogout, f)
+func (m *Manager) RegisterOnBeforeLogout(f func(*LogoutEvent) error) {
+	m.onBeforeLogout = append(m.onBeforeLogout, f)
 }
 
-func (s *Store) RegisterOnAfterLogout(f func(*LogoutEvent)) {
-	s.onAfterLogout = append(s.onAfterLogout, f)
+func (m *Manager) RegisterOnAfterLogout(f func(*LogoutEvent)) {
+	m.onAfterLogout = append(m.onAfterLogout, f)
 }
 
-func (s *Store) Login(r *http.Request, w http.ResponseWriter, user *User, duration time.Duration) (err error) {
-	if err = s.beforeLogin(user, duration); err != nil {
+func (m *Manager) Login(r *http.Request, w http.ResponseWriter, user *User, duration time.Duration) (err error) {
+	if err = m.beforeLogin(user, duration); err != nil {
 		return
 	}
 
-	*r = *r.WithContext(context.WithValue(r.Context(), s, user))
-	if s.sessionManager != nil {
+	*r = *r.WithContext(context.WithValue(r.Context(), m, user))
+	if m.sessionManager != nil {
 		ctx := r.Context()
-		s.sessionManager.Put(ctx, s.authIDParam, user.identity.GetID())
-		if s.authTimeout > 0 {
-			s.sessionManager.Put(ctx, s.authTimeoutParam, time.Now().Add(s.authTimeout))
+		m.sessionManager.Put(ctx, m.authIDParam, user.identity.GetID())
+		if m.authTimeout > 0 {
+			m.sessionManager.Put(ctx, m.authTimeoutParam, time.Now().Add(m.authTimeout))
 		}
 		if duration > 0 {
-			s.sessionManager.Put(ctx, s.absoluteAuthTimeoutParam, time.Now().Add(duration))
+			m.sessionManager.Put(ctx, m.absoluteAuthTimeoutParam, time.Now().Add(duration))
 		}
 	}
 
-	s.afterLogin(user, duration)
+	m.afterLogin(user, duration)
 	return nil
 }
 
-func (s *Store) beforeLogin(user *User, duration time.Duration) (err error) {
+func (m *Manager) beforeLogin(user *User, duration time.Duration) (err error) {
 	event := &LoginEvent{user, duration}
-	for _, f := range s.onBeforeLogin {
+	for _, f := range m.onBeforeLogin {
 		if err = f(event); err != nil {
 			return
 		}
@@ -144,15 +144,15 @@ func (s *Store) beforeLogin(user *User, duration time.Duration) (err error) {
 	return
 }
 
-func (s *Store) afterLogin(user *User, duration time.Duration) {
+func (m *Manager) afterLogin(user *User, duration time.Duration) {
 	event := &LoginEvent{user, duration}
-	for _, f := range s.onAfterLogin {
+	for _, f := range m.onAfterLogin {
 		f(event)
 	}
 }
 
-func (s *Store) Logout(r *http.Request, w http.ResponseWriter) (err error) {
-	user, err := s.Get(r, w)
+func (m *Manager) Logout(r *http.Request, w http.ResponseWriter) (err error) {
+	user, err := m.Get(r, w)
 	if err != nil {
 		return err
 	}
@@ -160,22 +160,22 @@ func (s *Store) Logout(r *http.Request, w http.ResponseWriter) (err error) {
 		return
 	}
 
-	if err = s.beforeLogout(user); err != nil {
+	if err = m.beforeLogout(user); err != nil {
 		return
 	}
 
-	if s.sessionManager != nil {
-		s.sessionManager.Remove(r.Context(), s.authIDParam)
-		s.sessionManager.Remove(r.Context(), s.authTimeoutParam)
+	if m.sessionManager != nil {
+		m.sessionManager.Remove(r.Context(), m.authIDParam)
+		m.sessionManager.Remove(r.Context(), m.authTimeoutParam)
 	}
 
-	s.afterLogout(user)
+	m.afterLogout(user)
 	return nil
 }
 
-func (s *Store) beforeLogout(user *User) (err error) {
+func (m *Manager) beforeLogout(user *User) (err error) {
 	event := &LogoutEvent{user}
-	for _, f := range s.onBeforeLogout {
+	for _, f := range m.onBeforeLogout {
 		if err = f(event); err != nil {
 			return
 		}
@@ -184,9 +184,9 @@ func (s *Store) beforeLogout(user *User) (err error) {
 	return
 }
 
-func (s *Store) afterLogout(user *User) {
+func (m *Manager) afterLogout(user *User) {
 	event := &LogoutEvent{user}
-	for _, f := range s.onAfterLogout {
+	for _, f := range m.onAfterLogout {
 		f(event)
 	}
 }

@@ -10,9 +10,10 @@ import (
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/internal/web"
 	"github.com/google/wire"
+)
 
+import (
 	_ "github.com/go-sql-driver/mysql"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -32,15 +33,15 @@ func initializeServer() (*web.Server, func(), error) {
 	store := provideSessionStore()
 	sessionManager := provideSessionManager(store)
 	identityStore := provideIdentityStore(db)
-	usersStore := provideUserStore(identityStore, sessionManager)
+	usersManager := provideUserManager(identityStore, sessionManager)
 	dialer := provideMailer()
 	captchasManager := provideCaptchaManager()
-	application := provideApp(logger, db, manager, sessionManager, usersStore, dialer, captchasManager)
+	application := provideApp(logger, db, manager, sessionManager, usersManager, dialer, captchasManager)
 	site := controllers.NewSite(application)
 	user := controllers.NewUser(application)
 	cmdFrontendRoutes := provideFrontendRoutes(site, user)
 	adminView := provideAdminView(logger)
-	backendApplication := provideBackendApp(logger, db, adminView, sessionManager, usersStore, dialer, captchasManager)
+	backendApplication := provideBackendApp(logger, db, adminView, sessionManager, usersManager, dialer, captchasManager)
 	controllersSite := controllers2.NewSite(backendApplication)
 	post := controllers2.NewPost(backendApplication)
 	cmdBackendRoutes := provideBackendRoutes(controllersSite, post)
@@ -51,7 +52,7 @@ func initializeServer() (*web.Server, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	v, err := provideMiddlewares(sessionManager, translators, usersStore)
+	v, err := provideMiddlewares(sessionManager, translators, usersManager)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -68,6 +69,6 @@ func initializeServer() (*web.Server, func(), error) {
 
 var superSet = wire.NewSet(
 	provideServer, provideRouter, provideMiddlewares, provideI18N,
-	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserStore,
+	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
 	provideIdentityStore, provideMailer, provideCaptchaManager,
 )

@@ -8,12 +8,12 @@ import (
 )
 
 type User struct {
-	store    *Store
+	manager  *Manager
 	identity auth.Identity
 }
 
-func NewUser(store *Store, identity auth.Identity) *User {
-	return &User{store, identity}
+func newUser(manager *Manager, identity auth.Identity) *User {
+	return &User{manager, identity}
 }
 
 func (u *User) GetIdentity() auth.Identity {
@@ -26,9 +26,9 @@ func (u *User) IsGuest() bool {
 
 func (u *User) Login(r *http.Request, w http.ResponseWriter, identity auth.Identity, duration time.Duration) error {
 	u.identity = identity
-	return u.store.Login(r, w, u, duration)
+	return u.manager.Login(r, w, u, duration)
 }
 
 func (u *User) Logout(r *http.Request, w http.ResponseWriter) error {
-	return u.store.Logout(r, w)
+	return u.manager.Logout(r, w)
 }

@@ -9,7 +9,7 @@ import (
 
 var superSet = wire.NewSet(
 	provideServer, provideRouter, provideMiddlewares, provideI18N,
-	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserStore,
+	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
 	provideIdentityStore, provideMailer, provideCaptchaManager,
 )
 

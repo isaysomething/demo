@@ -21,7 +21,7 @@ type Application struct {
 	logger         log.Logger
 	sessionManager *scs.SessionManager
 	mailer         *mail.Dialer
-	userStore      *users.Store
+	userManager    *users.Manager
 	captchaManager *captchas.Manager
 	params         params.Params
 	viewManager    *views.Manager
@@ -68,12 +68,12 @@ func (app *Application) SessionManager() *scs.SessionManager {
 	return app.sessionManager
 }
 
-func (app *Application) UserStore() *users.Store {
-	return app.userStore
+func (app *Application) UserManager() *users.Manager {
+	return app.userManager
 }
 
 func (app *Application) User(ctx *clevergo.Context) (*users.User, error) {
-	return app.userStore.Get(ctx.Request, ctx.Response)
+	return app.userManager.Get(ctx.Request, ctx.Response)
 }
 
 func (app *Application) Flashes(ctx *clevergo.Context) (flashes Flashes) {

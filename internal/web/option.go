@@ -49,9 +49,9 @@ func Logger(logger log.Logger) Option {
 	}
 }
 
-func UserStore(store *users.Store) Option {
+func UserManager(m *users.Manager) Option {
 	return func(app *Application) {
-		app.userStore = store
+		app.userManager = m
 	}
 }
 
