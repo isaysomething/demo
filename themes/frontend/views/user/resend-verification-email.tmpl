@@ -1,0 +1,25 @@
+{{ define "title" }}
+{{ call .translate "text.resendVerificationEmail" }}
+{{ end }}
+
+{{ define "content" }}
+<h1 class="text-center">
+  {{ call .translate "text.resendVerificationEmail" }}
+</h1>
+<hr>
+<form action="{{ url "resend-verification-email" }}" method="POST">
+  {{ .csrf }}
+  <div class="form-group row">
+    <input type="email" class="form-control" id="email" placeholder="{{ call .translate "text.email" }}" name="email" value="{{ .form.Email }}">
+  </div>
+  <div class="form-group row">
+      <input type="text" class="form-control col-2" placeholder="{{ call .translate "text.captcha" }}" name="captcha">
+      <div class="col-10">
+        {{ .captcha.HTMLField "captcha_id" }}
+      </div>
+  </div>
+  <div class="form-group row">
+    <button type="submit" class="btn btn-primary">{{ call .translate "Send" }}</button>
+  </div>
+</form>
+{{ end }}

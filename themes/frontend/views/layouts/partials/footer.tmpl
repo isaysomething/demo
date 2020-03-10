@@ -1,0 +1,13 @@
+{{ define "footer" }}
+<footer class="footer">
+    <div class="container text-center">
+      <div class="text-mutex">
+        {{ param "title" }} <i class="fas fa-copyright"></i> {{ param "since" }}-{{ now.Year }} 
+      </div>
+      <div class="text-mutex">
+        Powered by <a href="https://github.com/clevergo" target="_blank">CleverGo</a> | 
+        Created by <a href="https://github.com/razonyang" target="_blank">Razon Yang</a>
+      </div>
+    </div>
+  </footer>
+{{ end }}

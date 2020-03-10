@@ -1,0 +1,13 @@
+{{ define "title" }}
+{{ call .translate "text.setting" }}
+{{ end }}
+
+{{ define "content" }}
+<h1 class="text-center">
+  {{ call .translate "text.setting" }}
+</h1>
+<hr>
+<p>
+    <a href="{{ url "change-password" }}">Change Password</a>
+</p>
+{{ end }}

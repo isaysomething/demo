@@ -1,0 +1,5 @@
+{{ define "alert" }}
+{{ range . }}
+    {{ .Message | safeHTML }}
+{{ end }}
+{{ end }}

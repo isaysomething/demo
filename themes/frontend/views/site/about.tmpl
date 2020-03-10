@@ -1,0 +1,11 @@
+{{ define "title" }}
+{{ call .translate "text.about" }}
+{{ end }}
+
+{{ define "content" }}
+<h1>{{ call .translate "text.about" }}</h1>
+<hr>
+<p>
+  {{ param "title" }}  is an application project template.
+</p>
+{{ end }}

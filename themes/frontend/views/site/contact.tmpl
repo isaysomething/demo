@@ -1,0 +1,37 @@
+{{ define "title" }}
+{{ call .translate "text.contact" }}
+{{ end }}
+
+{{ define "content" }}
+<h1>{{ call .translate "text.contact" }}</h1>
+<hr>
+<form action="{{ url "contact" }}" method="POST">
+  {{ .csrf }}
+  <div class="form-group">
+    <label for="email">{{ call .translate "text.email" }}</label>
+    <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" value="{{ .form.Email }}">
+    <small id="emailHelp" class="form-text text-muted">We'll reply to this email address.</small>
+  </div>
+  <div class="form-group">
+    <label for="subject">{{ call .translate "text.subject" }}</label>
+    <input type="text" class="form-control" id="subject" name="subject" value="{{ .form.Subject }}">
+  </div>
+  <div class="form-group">
+    <label for="content">{{ call .translate "text.content" }}</label>
+    <textarea class="form-control" id="content" name="content" rows="8">
+      {{ .form.Content }}
+    </textarea>
+  </div>
+  <div class="form-group">
+    <div class="row">
+      <div class="col-2">
+        <input type="text" class="form-control" placeholder="Captcha" name="captcha">
+      </div>
+      <div class="col-10">
+        {{ .captcha.HTMLField "captcha_id" }}
+      </div>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">{{ call .translate "text.submit" }}</button>
+</form>
+{{ end }}

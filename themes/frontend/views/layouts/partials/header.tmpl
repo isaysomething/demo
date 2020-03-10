@@ -1,0 +1,77 @@
+{{ define "navbar" }}
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="/">{{ param "title" }}</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/">
+          <i class="fas fa-home"></i> {{ call .translate "text.home" }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url "about" }}">
+          <i class="fas fa-info-circle"></i> {{ call .translate "text.about" }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url "contact" }}">
+          <i class="fas fa-envelope"></i> {{ call .translate "text.contact" }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url "/console/home" }}">
+          <i class="fas fa-cogs"></i> {{ call .translate "text.console" }}
+        </a>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-language"></i> {{ call .translate "text.language" }}
+        </a>
+        <div id="langSelector" class="dropdown-menu" aria-labelledby="languageDropdown">
+          <a class="dropdown-item" data-id="en" >English</a>
+          <a class="dropdown-item" data-id="zh-Hans" >简体中文</a>
+          <a class="dropdown-item" data-id="zh-Hant" >繁體中文</a>
+        </div>
+      </li>
+    </ul>
+
+    <ul class="navbar-nav ml-auto">
+      {{ if .user }}
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-user"></i> {{ .user.Username }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="userDropdown">
+          <a class="dropdown-item" href="{{ url "setting" }}">
+            <i class="fas fa-cog"></i> {{ .translator.Sprintf "%m" "Setting" }}
+          </a>
+          <div class="dropdown-divider"></div>
+            <form action="{{ url "logout" }}" method="POST">
+              {{ .csrf }}
+              <button type="submit" class="dropdown-item btn btn-link btn-logout">
+                <i class="fas fa-sign-out-alt"></i> {{ .translator.Sprintf "%m" "Logout" }}
+              </button>
+            </form>
+        </div>
+      </li>
+      {{ else }}
+      <li class="nav-item">
+        <a class="nav-link" href="/login">
+          <i class="fas fa-sign-in-alt"></i> {{ call .translate "text.login" }}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/sign-up">
+          <i class="fas fa-user"></i> {{ call .translate "text.signup" }}
+        </a>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+</nav>
+{{ end }}

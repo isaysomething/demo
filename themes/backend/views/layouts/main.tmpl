@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {{ template "head" . }}
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+  <div class="wrapper">
+    {{ template "header" . }}
+
+    <div class="content-wrapper">
+      <section class="content-header">
+        <div class="container-fluid">
+          <div class="row mb-2">
+            <div class="col-sm-6">
+              <h1>{{ block "title" . }}{{ end }}</h1>
+            </div>
+            <div class="col-sm-6">
+              <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="{{ url "/console/home" }}">Home</a></li>
+                <li class="breadcrumb-item active">{{ block "title" . }}{{ end }}</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content">
+        {{ template "alert" . }}
+
+        {{ template "content" . }}
+      </section>
+    </div>
+
+    {{ template "footer" . }}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.11.0/js/OverlayScrollbars.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.0.2/dist/js/adminlte.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.0.2/dist/js/pages/dashboard.js"></script>
+</body>
+</html>
