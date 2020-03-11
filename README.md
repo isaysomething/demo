@@ -21,5 +21,9 @@ CleverGo Demo is a MVC and RESTful API application project template.
 - [x] Migration: [go-migrate](https://github.com/golang-migrate/migrate).
 - [x] Logging: [clevergo/log](https://github.com/clevergo/log) interface, supports [zap](https://github.com/clevergo/log/tree/master/zapadapter) and [logrus](https://github.com/clevergo/log/tree/master/logrusadapter).
 - [x] Develop tools: [modd](https://github.com/cortesi/modd).
+- [ ] Embed static resources, view files etc.
 - [ ] Tests
 - [ ] Documents
+- [ ] Frontend
+- [ ] Backend
+- [ ] API
