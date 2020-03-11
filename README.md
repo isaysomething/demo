@@ -25,5 +25,26 @@ CleverGo Demo is a MVC and RESTful API application project template.
 - [ ] Tests
 - [ ] Documents
 - [ ] Frontend
+  - [x] Home
+  - [x] Contact
+  - [x] About
+  - [ ] Post
+    - [ ] Post List
+    - [ ] Post Content
+  - [ ] User
+    - [x] Signup
+    - [x] Login
+    - [x] Logout
+    - [x] Change Password
+    - [ ] Reset Password
+    - [x] Email Verification
+    - [x] Resend Verification Email
 - [ ] Backend
+  - [ ] Home
+  - [ ] Post
+    - [ ] Post List
+    - [ ] Create/Edit Post
+    - [ ] Delete Post
 - [ ] API
+  - [ ] User APIs
+  - [ ] Post APIs
