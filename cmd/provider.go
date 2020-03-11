@@ -6,11 +6,17 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"regexp"
 	"time"
 
 	// database drivers.
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/tdewolff/minify/v2"
+	"github.com/tdewolff/minify/v2/css"
+	"github.com/tdewolff/minify/v2/html"
+	"github.com/tdewolff/minify/v2/js"
+	"github.com/tdewolff/minify/v2/svg"
 
 	redissessionstore "github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
@@ -65,7 +71,14 @@ func provideRouter(
 	backendRoutes backendRoutes,
 ) *clevergo.Router {
 	router := clevergo.NewRouter()
-	router.NotFound = http.FileServer(http.Dir(cfg.Root))
+	m := minify.New()
+	m.AddFunc("text/css", css.Minify)
+	m.AddFunc("text/html", html.Minify)
+	m.AddFunc("image/svg+xml", svg.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
+	//m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
+	//m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
+	router.NotFound = m.Middleware(http.FileServer(http.Dir(cfg.Root)))
 
 	urlFunc := func(name string, args ...string) string {
 		url, err := router.URL(name, args...)
@@ -141,16 +154,16 @@ func newApp(
 		web.AssetManager(&asset.AssetManager{}),
 		web.Mailer(mailer),
 		web.CaptchaManager(captchaManager),
-		web.BeforeRender(func(app *web.Application, ctx *clevergo.Context, view string, layout bool, viewCtx views.Context) {
+		web.BeforeRender(func(app *web.Application, ctx *clevergo.Context, view string, layout bool, data web.ViewData) {
 			translator := i18n.GetTranslator(ctx.Request)
-			viewCtx["translator"] = translator
-			viewCtx["translate"] = func(key string) string {
+			data["translator"] = translator
+			data["translate"] = func(key string) string {
 				return translator.Sprintf("%m", key)
 			}
 			user, _ := userManager.Get(ctx.Request, ctx.Response)
-			viewCtx["user"] = user.GetIdentity()
-			viewCtx["flashes"] = app.Flashes(ctx)
-			viewCtx["csrf"] = csrf.TemplateField(ctx.Request)
+			data["user"] = user.GetIdentity()
+			data["flashes"] = app.Flashes(ctx)
+			data["csrf"] = csrf.TemplateField(ctx.Request)
 		}),
 		web.UserManager(userManager),
 	}
@@ -164,9 +177,15 @@ func newApp(
 
 func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userManager *users.Manager) (v []func(http.Handler) http.Handler, err error) {
 	// v = append(v, handlers.RecoveryHandler())
+	m := minify.New()
+	m.AddFunc("text/css", css.Minify)
+	m.AddFunc("text/html", html.Minify)
+	m.AddFunc("image/svg+xml", svg.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	if cfg.Gzip {
 		v = append(v, middleware.Compress(cfg.GzipLevel))
 	}
+	v = append(v, m.Middleware)
 	if cfg.AccessLog {
 		var accessLog io.Writer = os.Stdout
 		if cfg.AccessLogFile != "" {

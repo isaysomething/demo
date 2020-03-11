@@ -8,8 +8,8 @@ import (
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/listeners"
 	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/bootstrap"
-	"github.com/clevergo/views/v2"
 )
 
 type User struct {
@@ -35,7 +35,7 @@ func (u *User) ResendVerificationEmail(ctx *clevergo.Context) error {
 			u.Logger().Error(err)
 		}
 	}
-	return u.Render(ctx, "user/resend-verification-email", views.Context{
+	return u.Render(ctx, "user/resend-verification-email", web.ViewData{
 		"form":    form,
 		"error":   err,
 		"captcha": captcha,
@@ -64,7 +64,7 @@ func (u *User) Login(ctx *clevergo.Context) error {
 		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
 	}
 
-	return u.Render(ctx, "user/login", views.Context{
+	return u.Render(ctx, "user/login", web.ViewData{
 		"form":    form,
 		"error":   err,
 		"captcha": captcha,
@@ -106,7 +106,7 @@ func (u *User) SignUp(ctx *clevergo.Context) error {
 		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
 	}
 
-	return u.Render(ctx, "user/sign-up", views.Context{
+	return u.Render(ctx, "user/sign-up", web.ViewData{
 		"form":    form,
 		"error":   err,
 		"captcha": captcha,
@@ -199,7 +199,7 @@ func (u *User) ChangePassword(ctx *clevergo.Context) error {
 		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
 	}
 
-	return u.Render(ctx, "user/change-password", views.Context{
+	return u.Render(ctx, "user/change-password", web.ViewData{
 		"form": form,
 	})
 }

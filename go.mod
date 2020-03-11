@@ -17,23 +17,22 @@ require (
 	github.com/clevergo/log v0.3.0
 	github.com/clevergo/log/zapadapter v0.3.0
 	github.com/clevergo/middleware v1.0.1
-	github.com/clevergo/views/v2 v2.0.4
+	github.com/clevergo/views/v2 v2.1.1
 	github.com/eko/gocache v1.0.0
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-ozzo/ozzo-validation/v4 v4.1.0
 	github.com/go-redis/redis/v7 v7.2.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/gobuffalo/packr/v2 v2.8.0
 	github.com/golang-migrate/migrate/v4 v4.9.1
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/wire v0.4.0
 	github.com/gorilla/csrf v1.6.2
-	github.com/gorilla/handlers v1.4.2
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/knadh/koanf v0.8.1
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/tdewolff/minify/v2 v2.7.2
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.14.0

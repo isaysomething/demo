@@ -25,7 +25,7 @@ type Application struct {
 	captchaManager *captchas.Manager
 	params         params.Params
 	viewManager    *views.Manager
-	beforeRender   func(app *Application, ctx *clevergo.Context, view string, layout bool, viewCtx views.Context)
+	beforeRender   func(app *Application, ctx *clevergo.Context, view string, layout bool, data ViewData)
 	accessManager  *access.AccessManager
 	assetManager   *asset.AssetManager
 }
@@ -86,29 +86,29 @@ func (app *Application) AddFlash(ctx *clevergo.Context, flash Flash) {
 	app.sessionManager.Put(ctx.Request.Context(), "_flash", flashes)
 }
 
-func (app *Application) Render(ctx *clevergo.Context, view string, viewCtx views.Context) error {
-	return app.render(ctx, view, true, viewCtx)
+func (app *Application) Render(ctx *clevergo.Context, view string, data ViewData) error {
+	return app.render(ctx, view, true, data)
 }
 
-func (app *Application) RenderPartial(ctx *clevergo.Context, view string, viewCtx views.Context) error {
-	return app.render(ctx, view, false, viewCtx)
+func (app *Application) RenderPartial(ctx *clevergo.Context, view string, data ViewData) error {
+	return app.render(ctx, view, false, data)
 }
 
-func (app *Application) render(ctx *clevergo.Context, view string, layout bool, viewCtx views.Context) error {
+func (app *Application) render(ctx *clevergo.Context, view string, layout bool, data ViewData) error {
 	ctx.SetContentTypeHTML()
-	if viewCtx == nil && app.beforeRender != nil {
-		viewCtx = views.Context{}
+	if data == nil && app.beforeRender != nil {
+		data = ViewData{}
 	}
 
 	if app.beforeRender != nil {
-		app.beforeRender(app, ctx, view, layout, viewCtx)
+		app.beforeRender(app, ctx, view, layout, data)
 	}
 
 	if layout {
-		return app.ViewManager().Render(ctx.Response, view, viewCtx)
+		return app.ViewManager().Render(ctx.Response, view, data)
 	}
 
-	return app.ViewManager().RenderPartial(ctx.Response, view, viewCtx)
+	return app.ViewManager().RenderPartial(ctx.Response, view, data)
 }
 
 func (app *Application) Params() params.Params {

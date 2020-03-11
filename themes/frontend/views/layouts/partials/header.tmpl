@@ -9,7 +9,8 @@
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
         <a class="nav-link" href="/">
-          <i class="fas fa-home"></i> {{ call .translate "text.home" }}
+          <i class="fas fa-home fa-fw"></i>
+          <span>{{ call .translate "text.home" }}</span>
         </a>
       </li>
       <li class="nav-item">
@@ -19,18 +20,21 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{{ url "contact" }}">
-          <i class="fas fa-envelope"></i> {{ call .translate "text.contact" }}
+          <i class="fas fa-envelope"></i>&nbsp;
+          {{ call .translate "text.contact" }}
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{{ url "/console/home" }}">
-          <i class="fas fa-cogs"></i> {{ call .translate "text.console" }}
+          <i class="fas fa-cogs"></i>&nbsp;
+          {{ call .translate "text.console" }}
         </a>
       </li>
 
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-language"></i> {{ call .translate "text.language" }}
+          <i class="fas fa-language"></i>&nbsp;
+          {{ call .translate "text.language" }}
         </a>
         <div id="langSelector" class="dropdown-menu" aria-labelledby="languageDropdown">
           <a class="dropdown-item" data-id="en" >English</a>
@@ -44,17 +48,17 @@
       {{ if .user }}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-user"></i> {{ .user.Username }}
+          <i class="fas fa-user"></i>&nbsp;{{ .user.Username }}
         </a>
         <div class="dropdown-menu" aria-labelledby="userDropdown">
           <a class="dropdown-item" href="{{ url "setting" }}">
-            <i class="fas fa-cog"></i> {{ .translator.Sprintf "%m" "Setting" }}
+            <i class="fas fa-cog"></i>&nbsp;{{ .translator.Sprintf "%m" "Setting" }}
           </a>
           <div class="dropdown-divider"></div>
             <form action="{{ url "logout" }}" method="POST">
               {{ .csrf }}
               <button type="submit" class="dropdown-item btn btn-link btn-logout">
-                <i class="fas fa-sign-out-alt"></i> {{ .translator.Sprintf "%m" "Logout" }}
+                <i class="fas fa-sign-out-alt"></i>&nbsp;{{ .translator.Sprintf "%m" "Logout" }}
               </button>
             </form>
         </div>
@@ -62,12 +66,12 @@
       {{ else }}
       <li class="nav-item">
         <a class="nav-link" href="/login">
-          <i class="fas fa-sign-in-alt"></i> {{ call .translate "text.login" }}
+          <i class="fas fa-sign-in-alt"></i>&nbsp;{{ call .translate "text.login" }}
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/sign-up">
-          <i class="fas fa-user"></i> {{ call .translate "text.signup" }}
+          <i class="fas fa-user"></i>&nbsp;{{ call .translate "text.signup" }}
         </a>
       </li>
       {{ end }}

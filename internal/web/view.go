@@ -4,8 +4,13 @@ import (
 	"path"
 
 	"github.com/clevergo/views/v2"
+	"github.com/gobuffalo/packr/v2"
 )
 
+// ViewData is an alias of map.
+type ViewData map[string]interface{}
+
+// ViewConfig contains views manager's settings.
 type ViewConfig struct {
 	Directory string   `koanf:"directory"`
 	Suffix    string   `koanf:"suffix"`
@@ -17,6 +22,7 @@ type ViewConfig struct {
 	Cache bool `koanf:"cache"`
 }
 
+// NewView returns a views manager with the given config.
 func NewView(cfg ViewConfig) *views.Manager {
 	viewOpts := []views.Option{
 		views.Cache(cfg.Cache),
@@ -27,7 +33,8 @@ func NewView(cfg ViewConfig) *views.Manager {
 	if len(cfg.Delims) == 2 {
 		viewOpts = append(viewOpts, views.Delims(cfg.Delims[0], cfg.Delims[1]))
 	}
-	m := views.New(path.Join(cfg.Directory, "views"), viewOpts...)
+	viewPath := path.Join(cfg.Directory, "views")
+	m := views.New(packr.New("views", viewPath), viewOpts...)
 	for _, l := range cfg.Layouts {
 		m.AddLayout(l.Name, l.Partials...)
 	}

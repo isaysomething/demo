@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/views/v2"
 )
 
 type ErrorHandler struct {
@@ -36,7 +35,7 @@ func (eh *ErrorHandler) Handle(ctx *clevergo.Context, err error) {
 		}
 	}
 
-	if err := eh.app.Render(ctx, eh.viewName, views.Context{
+	if err := eh.app.Render(ctx, eh.viewName, ViewData{
 		"error": errinfo,
 	}); err != nil {
 		ctx.Error(err.Error(), http.StatusInternalServerError)

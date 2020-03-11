@@ -90,7 +90,7 @@ func CaptchaManager(manager *captchas.Manager) Option {
 	}
 }
 
-func BeforeRender(f func(app *Application, ctx *clevergo.Context, view string, layout bool, viewCtx views.Context)) Option {
+func BeforeRender(f func(app *Application, ctx *clevergo.Context, view string, layout bool, data ViewData)) Option {
 	return func(app *Application) {
 		app.beforeRender = f
 	}

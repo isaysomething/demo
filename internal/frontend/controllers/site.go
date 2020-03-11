@@ -6,8 +6,8 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/frontend"
+	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/bootstrap"
-	"github.com/clevergo/views/v2"
 )
 
 type Site struct {
@@ -42,7 +42,7 @@ func (s *Site) Contact(ctx *clevergo.Context) error {
 		s.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
 		s.Logger().Error(err)
 	}
-	return s.Render(ctx, "site/contact", views.Context{
+	return s.Render(ctx, "site/contact", web.ViewData{
 		"form":    form,
 		"error":   err,
 		"captcha": captcha,
