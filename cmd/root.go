@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -42,7 +41,6 @@ func Execute() {
 		log.Fatalf("failed parse config: %s", err)
 	}
 
-	fmt.Println(cfg.Session)
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("failed execute: %s", err)
 	}

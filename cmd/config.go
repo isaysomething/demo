@@ -6,22 +6,23 @@ import (
 )
 
 type Config struct {
-	Addr string `koanf:"addr"`
+	Server struct {
+		Addr string `koanf:"addr"`
+		Root string `koanf:"root"`
 
-	Root string `koanf:"root"`
+		SSL         bool   `koanf:"ssl"`
+		SSLCertFile string `koanf:"ssl_cert_file"`
+		SSLKeyFile  string `koanf:"ssl_key_file"`
 
-	SSL         bool   `koanf:"ssl"`
-	SSLCertFile string `koanf:"ssl_cert_file"`
-	SSLKeyFile  string `koanf:"ssl_key_file"`
+		Log web.LogConfig `koanf:"log"`
 
-	Log web.LogConfig `koanf:"log"`
+		AccessLog         bool   `koanf:"access_log"`
+		AccessLogFile     string `koanf:"access_log_file"`
+		AccessLogFileMode uint32 `koanf:"access_log_file_mode"`
 
-	AccessLog         bool   `koanf:"access_log"`
-	AccessLogFile     string `koanf:"access_log_file"`
-	AccessLogFileMode uint32 `koanf:"access_log_file_mode"`
-
-	Gzip      bool `koanf:"gzip"`
-	GzipLevel int  `koanf:"gzip_level"`
+		Gzip      bool `koanf:"gzip"`
+		GzipLevel int  `koanf:"gzip_level"`
+	} `koanf:"server"`
 
 	Params params.Params `koanf:"params"`
 

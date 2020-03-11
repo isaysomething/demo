@@ -1,0 +1,13 @@
+[server]
+    addr = "localhost:8080"
+    root = "public"
+
+    ssl = false
+    ssl_cert_file = ""
+    ssl_key_file = ""
+
+    access_log = true
+    access_log_file = ""
+    access_log_file_mode = 644
+
+    gzip = true

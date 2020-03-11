@@ -15,3 +15,6 @@ gzip_level = 1
 [log]
     file = ""
     file_mode = 644
+
+[server]
+    addr = "localhost:8080"

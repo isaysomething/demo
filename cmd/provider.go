@@ -47,7 +47,7 @@ import (
 
 func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *web.Server {
 	srv := web.NewServer(router, logger)
-	srv.Addr = cfg.Addr
+	srv.Addr = cfg.Server.Addr
 	srv.Use(middlewares...)
 	return srv
 }
@@ -79,7 +79,7 @@ func provideRouter(
 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
-	router.NotFound = m.Middleware(http.FileServer(http.Dir(cfg.Root)))
+	router.NotFound = m.Middleware(http.FileServer(http.Dir(cfg.Server.Root)))
 
 	urlFunc := func(name string, args ...string) string {
 		url, err := router.URL(name, args...)
@@ -183,14 +183,14 @@ func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Tr
 	m.AddFunc("text/html", html.Minify)
 	m.AddFunc("image/svg+xml", svg.Minify)
 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
-	if cfg.Gzip {
-		v = append(v, middleware.Compress(cfg.GzipLevel))
+	if cfg.Server.Gzip {
+		v = append(v, middleware.Compress(cfg.Server.GzipLevel))
 	}
 	v = append(v, m.Middleware)
-	if cfg.AccessLog {
+	if cfg.Server.AccessLog {
 		var accessLog io.Writer = os.Stdout
-		if cfg.AccessLogFile != "" {
-			accessLog, err = os.OpenFile(cfg.AccessLogFile, os.O_CREATE|os.O_APPEND, os.FileMode(cfg.AccessLogFileMode))
+		if cfg.Server.AccessLogFile != "" {
+			accessLog, err = os.OpenFile(cfg.Server.AccessLogFile, os.O_CREATE|os.O_APPEND, os.FileMode(cfg.Server.AccessLogFileMode))
 			if err != nil {
 				return
 			}
