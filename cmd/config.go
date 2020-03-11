@@ -41,10 +41,7 @@ type Config struct {
 		Password string
 	} `koanf:"mail"`
 
-	Captcha struct {
-		Height int
-		Width  int
-	} `koanf:"captcha"`
+	Captcha web.CaptchaConfig `koanf:"captcha"`
 
 	Migration struct {
 		DB     string

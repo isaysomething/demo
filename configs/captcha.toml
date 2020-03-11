@@ -1,3 +1,22 @@
 [captcha]
-    height = 50
-    width = 120
+    driver = "digit"
+    [captcha.digit]
+        height = 80
+        width = 260
+        length = 6
+    [captcha.math]
+        height = 60
+        width = 240
+        noise_count = 100
+    [captcha.chinese]
+        height = 60
+        width = 240
+        length = 4
+    [captcha.audio]
+        height = 60
+        width = 240
+        length = 4
+    [captcha.string]
+        height = 60
+        width = 240
+        length = 6

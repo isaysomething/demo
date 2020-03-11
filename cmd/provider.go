@@ -24,8 +24,6 @@ import (
 	"github.com/clevergo/auth"
 	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/captchas"
-	"github.com/clevergo/captchas/drivers"
-	"github.com/clevergo/captchas/memstore"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/backend"
 	"github.com/clevergo/demo/internal/common"
@@ -53,11 +51,7 @@ func provideServer(router *clevergo.Router, logger log.Logger, middlewares []fun
 }
 
 func provideCaptchaManager() *captchas.Manager {
-	manager := captchas.New(
-		memstore.New(),
-		drivers.NewDigit(),
-	)
-	return manager
+	return web.NewCaptchaManager(cfg.Captcha)
 }
 
 func provideMailer() *mail.Dialer {
