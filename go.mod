@@ -30,6 +30,7 @@ require (
 	github.com/gorilla/csrf v1.6.2
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/knadh/koanf v0.8.1
+	github.com/memwey/casbin-sqlx-adapter v0.2.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5

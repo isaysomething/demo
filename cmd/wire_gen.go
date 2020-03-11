@@ -37,12 +37,6 @@ func initializeServer() (*web.Server, func(), error) {
 	usersManager := provideUserManager(identityStore, sessionManager)
 	dialer := provideMailer()
 	captchasManager := provideCaptchaManager()
-	application := provideApp(logger, db, manager, sessionManager, usersManager, dialer, captchasManager)
-	site := controllers.NewSite(application)
-	user := controllers.NewUser(application)
-	cmdFrontendRoutes := provideFrontendRoutes(site, user)
-	backendView := provideBackendView(logger)
-	backendApplication := provideBackendApp(logger, db, backendView, sessionManager, usersManager, dialer, captchasManager)
 	enforcer, err := provideEnforcer()
 	if err != nil {
 		cleanup2()
@@ -50,9 +44,16 @@ func initializeServer() (*web.Server, func(), error) {
 		return nil, nil, err
 	}
 	accessManager := access.New(enforcer, usersManager)
+	application := provideApp(logger, db, manager, sessionManager, usersManager, dialer, captchasManager, accessManager)
+	site := controllers.NewSite(application)
+	user := controllers.NewUser(application)
+	cmdFrontendRoutes := provideFrontendRoutes(site, user)
+	backendView := provideBackendView(logger)
+	backendApplication := provideBackendApp(logger, db, backendView, sessionManager, usersManager, dialer, captchasManager, accessManager)
 	controllersSite := controllers2.NewSite(backendApplication)
 	post := controllers2.NewPost(backendApplication)
-	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post)
+	controllersUser := controllers2.NewUser(backendApplication)
+	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post, controllersUser)
 	router := provideRouter(application, cmdFrontendRoutes, backendApplication, cmdBackendRoutes)
 	translators, err := provideI18N()
 	if err != nil {

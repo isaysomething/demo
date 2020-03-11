@@ -4,7 +4,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/pkg/asset"
+	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/params"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
@@ -25,7 +25,7 @@ type Application struct {
 	params         params.Params
 	viewManager    *views.Manager
 	beforeRender   func(app *Application, ctx *clevergo.Context, view string, layout bool, data ViewData)
-	assetManager   *asset.AssetManager
+	accessManager  *access.Manager
 }
 
 func New(opts ...Option) *Application {
@@ -68,6 +68,10 @@ func (app *Application) SessionManager() *scs.SessionManager {
 
 func (app *Application) UserManager() *users.Manager {
 	return app.userManager
+}
+
+func (app *Application) AccessManager() *access.Manager {
+	return app.accessManager
 }
 
 func (app *Application) User(ctx *clevergo.Context) (*users.User, error) {

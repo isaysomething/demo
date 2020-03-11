@@ -19,3 +19,13 @@ func NewPost(app *backend.Application) *Post {
 func (p *Post) Index(ctx *clevergo.Context) error {
 	return p.app.Render(ctx, "post/index", nil)
 }
+
+// Index displays posts page.
+func (p *Post) Create(ctx *clevergo.Context) error {
+	return p.app.Render(ctx, "post/create", nil)
+}
+
+// Index displays posts page.
+func (p *Post) Edit(ctx *clevergo.Context) error {
+	return p.app.Render(ctx, "post/edit", nil)
+}

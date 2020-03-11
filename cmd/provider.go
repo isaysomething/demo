@@ -30,7 +30,7 @@ import (
 	"github.com/clevergo/demo/internal/common"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/web"
-	"github.com/clevergo/demo/pkg/asset"
+	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/middlewares"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/i18n"
@@ -41,6 +41,7 @@ import (
 	"github.com/go-mail/mail"
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
+	sqlxadapter "github.com/memwey/casbin-sqlx-adapter"
 	"go.uber.org/zap"
 )
 
@@ -52,7 +53,35 @@ func provideServer(router *clevergo.Router, logger log.Logger, middlewares []fun
 }
 
 func provideEnforcer() (*casbin.Enforcer, error) {
-	return casbin.NewEnforcer("casbin/model.conf", "casbin/policy.csv")
+	//return casbin.NewEnforcer("casbin/model.conf", "casbin/policy.csv")
+	opts := &sqlxadapter.AdapterOptions{
+		DriverName: "mysql",
+		DataSourceName: "root:123456@tcp(127.0.0.1:3306)/clevergo",
+		TableName: "casbin_rule",
+		// or reuse an existing connection:
+		// DB: myDBConn,
+	}
+	
+	a := sqlxadapter.NewAdapterFromOptions(opts)
+	e,err:= casbin.NewEnforcer("casbin/model.conf", a)
+	if err != nil {
+		return nil, err
+	}
+
+	// Reload the model from the model CONF file.
+	if err = e.LoadModel(); err != nil {
+		return nil, err
+	}
+
+	// Reload the policy from file/database.
+	if err = e.LoadPolicy(); err != nil {
+		return nil, err
+	}
+
+	// Save the current policy (usually after changed with Casbin API) back to file/database.
+	//e.SavePolicy()
+
+	return e, nil
 }
 
 func provideCaptchaManager() *captchas.Manager {
@@ -119,8 +148,9 @@ func provideApp(
 	userManager *users.Manager,
 	mailer *mail.Dialer,
 	captchaManager *captchas.Manager,
+	accessManager *access.Manager,
 ) *frontend.Application {
-	app := newApp(logger, db, view, sessionManager, userManager, mailer, captchaManager)
+	app := newApp(logger, db, view, sessionManager, userManager, mailer, captchaManager, accessManager)
 	return &frontend.Application{Application: app}
 }
 
@@ -132,8 +162,9 @@ func provideBackendApp(
 	userManager *users.Manager,
 	mailer *mail.Dialer,
 	captchaManager *captchas.Manager,
+	accessManager *access.Manager,
 ) *backend.Application {
-	app := newApp(logger, db, view.Manager, sessionManager, userManager, mailer, captchaManager)
+	app := newApp(logger, db, view.Manager, sessionManager, userManager, mailer, captchaManager, accessManager)
 	return &backend.Application{Application: app}
 }
 
@@ -145,13 +176,13 @@ func newApp(
 	userManager *users.Manager,
 	mailer *mail.Dialer,
 	captchaManager *captchas.Manager,
+	accessManager *access.Manager,
 ) *web.Application {
 	opts := []web.Option{
 		web.Params(cfg.Params),
 		web.Logger(logger),
 		web.DB(db),
 		web.SessionManager(sessionManager),
-		web.AssetManager(&asset.AssetManager{}),
 		web.Mailer(mailer),
 		web.CaptchaManager(captchaManager),
 		web.BeforeRender(func(app *web.Application, ctx *clevergo.Context, view string, layout bool, data web.ViewData) {
@@ -166,6 +197,7 @@ func newApp(
 			data["csrf"] = csrf.TemplateField(ctx.Request)
 		}),
 		web.UserManager(userManager),
+		web.AccessManager(accessManager),
 	}
 	if view != nil {
 		opts = append(opts, web.ViewManager(view))
