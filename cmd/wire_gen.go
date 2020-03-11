@@ -9,10 +9,12 @@ import (
 	controllers2 "github.com/clevergo/demo/internal/backend/controllers"
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/internal/web"
+	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
+)
 
+import (
 	_ "github.com/go-sql-driver/mysql"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -41,9 +43,16 @@ func initializeServer() (*web.Server, func(), error) {
 	cmdFrontendRoutes := provideFrontendRoutes(site, user)
 	backendView := provideBackendView(logger)
 	backendApplication := provideBackendApp(logger, db, backendView, sessionManager, usersManager, dialer, captchasManager)
+	enforcer, err := provideEnforcer()
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	accessManager := access.New(enforcer, usersManager)
 	controllersSite := controllers2.NewSite(backendApplication)
 	post := controllers2.NewPost(backendApplication)
-	cmdBackendRoutes := provideBackendRoutes(controllersSite, post)
+	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post)
 	router := provideRouter(application, cmdFrontendRoutes, backendApplication, cmdBackendRoutes)
 	translators, err := provideI18N()
 	if err != nil {
@@ -70,4 +79,5 @@ var superSet = wire.NewSet(
 	provideServer, provideRouter, provideMiddlewares, provideI18N,
 	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
 	provideIdentityStore, provideMailer, provideCaptchaManager,
+	provideEnforcer, access.New,
 )

@@ -45,5 +45,8 @@ func (r *Route) options() (opts []clevergo.RouteOption) {
 	if r.name != "" {
 		opts = append(opts, clevergo.RouteName(r.name))
 	}
+	if r.middlewares != nil {
+		opts = append(opts, clevergo.RouteMiddleware(r.middlewares...))
+	}
 	return
 }

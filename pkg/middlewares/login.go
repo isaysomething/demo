@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/clevergo/clevergo"
@@ -31,12 +30,10 @@ func LoginCheckerMiddleware(isGuest func(r *http.Request, w http.ResponseWriter)
 
 func LoginCheckerMiddlewareFunc(isGuest func(r *http.Request, w http.ResponseWriter) bool, skipper Skipper) func(ctx *clevergo.Context) error {
 	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println(2)
 	})
 	checker := NewLoginChecker(handler, isGuest, skipper)
 	return func(ctx *clevergo.Context) error {
 		checker.ServeHTTP(ctx.Response, ctx.Request)
-		log.Println(1)
 		return nil
 	}
 }

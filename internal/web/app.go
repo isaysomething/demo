@@ -4,7 +4,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/asset"
 	"github.com/clevergo/demo/pkg/params"
 	"github.com/clevergo/demo/pkg/users"
@@ -26,7 +25,6 @@ type Application struct {
 	params         params.Params
 	viewManager    *views.Manager
 	beforeRender   func(app *Application, ctx *clevergo.Context, view string, layout bool, data ViewData)
-	accessManager  *access.AccessManager
 	assetManager   *asset.AssetManager
 }
 

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	// database drivers.
+	"github.com/casbin/casbin/v2"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/jmoiron/sqlx"
@@ -48,6 +49,10 @@ func provideServer(router *clevergo.Router, logger log.Logger, middlewares []fun
 	srv.Addr = cfg.Server.Addr
 	srv.Use(middlewares...)
 	return srv
+}
+
+func provideEnforcer() (*casbin.Enforcer, error) {
+	return casbin.NewEnforcer("casbin/model.conf", "casbin/policy.csv")
 }
 
 func provideCaptchaManager() *captchas.Manager {

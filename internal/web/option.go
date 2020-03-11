@@ -6,7 +6,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/asset"
 	"github.com/clevergo/demo/pkg/params"
 	"github.com/clevergo/demo/pkg/users"
@@ -52,12 +51,6 @@ func Logger(logger log.Logger) Option {
 func UserManager(m *users.Manager) Option {
 	return func(app *Application) {
 		app.userManager = m
-	}
-}
-
-func AccessManager(manager *access.AccessManager) Option {
-	return func(app *Application) {
-		app.accessManager = manager
 	}
 }
 
