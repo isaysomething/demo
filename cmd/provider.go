@@ -26,6 +26,7 @@ import (
 	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
+	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/backend"
 	"github.com/clevergo/demo/internal/common"
 	"github.com/clevergo/demo/internal/frontend"
@@ -55,15 +56,15 @@ func provideServer(router *clevergo.Router, logger log.Logger, middlewares []fun
 func provideEnforcer() (*casbin.Enforcer, error) {
 	//return casbin.NewEnforcer("casbin/model.conf", "casbin/policy.csv")
 	opts := &sqlxadapter.AdapterOptions{
-		DriverName: "mysql",
+		DriverName:     "mysql",
 		DataSourceName: "root:123456@tcp(127.0.0.1:3306)/clevergo",
-		TableName: "casbin_rule",
+		TableName:      "casbin_rule",
 		// or reuse an existing connection:
 		// DB: myDBConn,
 	}
-	
+
 	a := sqlxadapter.NewAdapterFromOptions(opts)
-	e,err:= casbin.NewEnforcer("casbin/model.conf", a)
+	e, err := casbin.NewEnforcer("casbin/model.conf", a)
 	if err != nil {
 		return nil, err
 	}
@@ -98,6 +99,8 @@ func provideRouter(
 	frontendRoutes frontendRoutes,
 	backendApp *backend.Application,
 	backendRoutes backendRoutes,
+	apiApp *api.Application,
+	apiRoutes apiRoutes,
 ) *clevergo.Router {
 	router := clevergo.NewRouter()
 	m := minify.New()
@@ -135,6 +138,11 @@ func provideRouter(
 	))
 	for _, route := range backendRoutes {
 		route.Register(console)
+	}
+
+	api := router.Group("/api/v1", clevergo.RouteGroupMiddleware())
+	for _, route := range apiRoutes {
+		route.Register(api)
 	}
 
 	return router

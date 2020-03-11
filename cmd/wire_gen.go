@@ -6,6 +6,7 @@
 package cmd
 
 import (
+	controllers3 "github.com/clevergo/demo/internal/api/controllers"
 	controllers2 "github.com/clevergo/demo/internal/backend/controllers"
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/internal/web"
@@ -54,7 +55,11 @@ func initializeServer() (*web.Server, func(), error) {
 	post := controllers2.NewPost(backendApplication)
 	controllersUser := controllers2.NewUser(backendApplication)
 	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post, controllersUser)
-	router := provideRouter(application, cmdFrontendRoutes, backendApplication, cmdBackendRoutes)
+	apiApplication := provideAPIApp(logger, db, manager, sessionManager, usersManager, dialer, captchasManager, accessManager)
+	controllersPost := controllers3.NewPost(apiApplication)
+	user2 := controllers3.NewUser(apiApplication)
+	cmdApiRoutes := provideAPIRoutes(accessManager, controllersPost, user2)
+	router := provideRouter(application, cmdFrontendRoutes, backendApplication, cmdBackendRoutes, apiApplication, cmdApiRoutes)
 	translators, err := provideI18N()
 	if err != nil {
 		cleanup2()
