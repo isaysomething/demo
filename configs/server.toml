@@ -1,6 +1,6 @@
 [server]
     addr = "localhost:8080"
-    root = "public"
+    root = "../public"
 
     ssl = false
     ssl_cert_file = ""

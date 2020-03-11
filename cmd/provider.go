@@ -79,7 +79,7 @@ func provideRouter(
 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
-	router.NotFound = m.Middleware(http.FileServer(http.Dir(cfg.Server.Root)))
+	router.NotFound = m.Middleware(http.FileServer(packr.New("public", cfg.Server.Root)))
 
 	urlFunc := func(name string, args ...string) string {
 		url, err := router.URL(name, args...)
@@ -98,7 +98,7 @@ func provideRouter(
 		route.Register(router)
 	}
 
-	router.ServeFiles("/console/static/*filepath", packr.New("backend", path.Join(cfg.AdminView.Path, "static")))
+	router.ServeFiles("/console/static/*filepath", packr.New("backend", path.Join(cfg.BackendView.Path, "static")))
 	console := router.Group("/console", clevergo.RouteGroupMiddleware(
 		middlewares.LoginCheckerMiddlewareFunc((func(r *http.Request, w http.ResponseWriter) bool {
 			user, _ := app.UserManager().Get(r, w)
@@ -128,7 +128,7 @@ func provideApp(
 func provideBackendApp(
 	logger log.Logger,
 	db *sqlx.DB,
-	view *AdminView,
+	view *BackendView,
 	sessionManager *scs.SessionManager,
 	userManager *users.Manager,
 	mailer *mail.Dialer,
@@ -240,17 +240,19 @@ func provideView() *views.Manager {
 	return newView(cfg.View)
 }
 
-type AdminView struct {
+type BackendView struct {
 	*views.Manager
 }
 
-func provideAdminView(logger log.Logger) *AdminView {
-	view := newView(cfg.AdminView)
-	return &AdminView{view}
+func provideBackendView(logger log.Logger) *BackendView {
+	view := newView(cfg.BackendView)
+	return &BackendView{view}
 }
 
 func newView(cfg web.ViewConfig) *views.Manager {
-	view := web.NewView(cfg)
+	viewPath := path.Join(cfg.Path, "views")
+	fs := packr.New(viewPath, viewPath)
+	view := web.NewView(fs, cfg)
 	funcMap := template.FuncMap{
 		"safeHTMLAttr": func(s string) template.HTMLAttr {
 			return template.HTMLAttr(s)
@@ -269,7 +271,7 @@ func newView(cfg web.ViewConfig) *views.Manager {
 func provideI18N() (*i18n.Translators, error) {
 	i18nOpts := []i18n.Option{i18n.Fallback(cfg.I18N.Fallback)}
 	translators := i18n.New(i18nOpts...)
-	i18nStore := i18n.NewFileStore(cfg.I18N.Path, i18n.JSONFileDecoder{})
+	i18nStore := web.NewFileStore(cfg.I18N.Path, i18n.JSONFileDecoder{})
 	if err := translators.Import(i18nStore); err != nil {
 		return nil, err
 	}

@@ -1,5 +1,5 @@
 [view]
-    path = "themes/frontend"
+    path = "../themes/frontend"
     cache = true
     layouts = [
     ]

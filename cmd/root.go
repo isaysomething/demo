@@ -3,6 +3,7 @@ package cmd
 import (
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/knadh/koanf"
@@ -13,14 +14,14 @@ import (
 )
 
 var (
-	cfgFile string
+	cfgFile *string
 	cfg     = &Config{}
 	k       = koanf.New(".")
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "config.toml", "config file")
-
+	cfgFile = rootCmd.PersistentFlags().StringP("config", "c", "config.toml", "config file")
+	rootCmd.PersistentFlags().Parse(os.Args[1:])
 	rootCmd.AddCommand(
 		serveCmd,
 		migrateCmd,
@@ -28,19 +29,18 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "saysth",
-	Short: "SaySth is an fast and flexible CMS",
-	Long:  `SaySth is an fast and flexible CMS`,
+	Use:   "Demo",
+	Short: "Demo is a CleverGo application project template",
+	Long:  `Demo is a CleverGo application project template`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return parseConfig()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 	},
 }
 
 // Execute executes commands.
 func Execute() {
-	if err := parseConfig(); err != nil {
-		log.Fatalf("failed parse config: %s", err)
-	}
-
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatalf("failed execute: %s", err)
 	}
@@ -52,7 +52,7 @@ func parseConfig() error {
 	configFS := packr.New("configs", "./../configs")
 	// load default configurations.
 	for _, name := range configFS.List() {
-		log.Printf("loading configuration from %s\n", name)
+		log.Printf("loading default configuration: %s\n", name)
 		f, err := configFS.Open(name)
 		if err != nil {
 			return err
@@ -67,7 +67,7 @@ func parseConfig() error {
 		}
 	}
 
-	if err := k.Load(file.Provider(cfgFile), parser); err != nil {
+	if err := k.Load(file.Provider(*cfgFile), parser); err != nil {
 		return err
 	}
 

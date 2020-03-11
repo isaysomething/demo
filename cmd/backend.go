@@ -9,7 +9,7 @@ import (
 )
 
 var backendAppSet = wire.NewSet(
-	provideBackendApp, provideAdminView,
+	provideBackendApp, provideBackendView,
 	provideBackendRoutes,
 	controllers.NewSite, controllers.NewPost,
 )

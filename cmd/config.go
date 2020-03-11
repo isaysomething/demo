@@ -28,9 +28,9 @@ type Config struct {
 
 	DB web.DBConfig `koanf:"db"`
 
-	View      web.ViewConfig    `koanf:"view"`
-	AdminView web.ViewConfig    `koanf:"adminView"`
-	Session   web.SessionConfig `koanf:"session"`
+	View        web.ViewConfig    `koanf:"view"`
+	BackendView web.ViewConfig    `koanf:"backendView"`
+	Session     web.SessionConfig `koanf:"session"`
 
 	I18N web.I18NConfig `koanf:"i18n"`
 
