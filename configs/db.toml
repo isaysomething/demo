@@ -1,0 +1,16 @@
+[db]
+    # MySQL
+    #driver = "mysql"
+    #dsn = "username:password@(localhost)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+    
+    # SQL Server
+    #driver = "mssql"
+    #dsn = "sqlserver://username:password@localhost:1433?database=dbname"
+    
+    # SQLite 3
+    #driver = "sqlite3"
+    #dsn = "/tmp/clevergo.db"
+    
+    # PostgreSQL
+    #driver = "postgres"
+    #dsn = "host=localhost port=port user=username dbname=dbname password=password"

@@ -6,7 +6,7 @@ type LogConfig struct {
 }
 
 type I18NConfig struct {
-	Directory   string `koanf:"directory"`
+	Path        string `koanf:"path"`
 	Fallback    string `koanf:"fallback"`
 	Param       string `koanf:"param"`
 	CookieParam string `koanf:"cookie_param"`

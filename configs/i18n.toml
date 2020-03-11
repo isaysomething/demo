@@ -1,0 +1,5 @@
+[i18n]
+    path = "translations"
+    fallback = "en"
+    param = "lang"
+    cookie_param = "lang"

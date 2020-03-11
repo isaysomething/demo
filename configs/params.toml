@@ -1,0 +1,7 @@
+[params]
+    title = "CleverGo"
+    subtitle = "CleverGo Application Project Template"
+    since = 2020
+    titleSeparator = "-"
+    backendTitle = "CleverGo Console"
+    version = "v0.0.1"

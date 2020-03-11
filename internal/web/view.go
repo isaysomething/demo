@@ -12,10 +12,10 @@ type ViewData map[string]interface{}
 
 // ViewConfig contains views manager's settings.
 type ViewConfig struct {
-	Directory string   `koanf:"directory"`
-	Suffix    string   `koanf:"suffix"`
-	Delims    []string `koanf:"delims"`
-	Layouts   []struct {
+	Path    string   `koanf:"path"`
+	Suffix  string   `koanf:"suffix"`
+	Delims  []string `koanf:"delims"`
+	Layouts []struct {
 		Name     string   `koanf:"name"`
 		Partials []string `koanf:"partials"`
 	} `koanf:"layouts"`
@@ -33,7 +33,7 @@ func NewView(cfg ViewConfig) *views.Manager {
 	if len(cfg.Delims) == 2 {
 		viewOpts = append(viewOpts, views.Delims(cfg.Delims[0], cfg.Delims[1]))
 	}
-	viewPath := path.Join(cfg.Directory, "views")
+	viewPath := path.Join(cfg.Path, "views")
 	m := views.New(packr.New("views", viewPath), viewOpts...)
 	for _, l := range cfg.Layouts {
 		m.AddLayout(l.Name, l.Partials...)

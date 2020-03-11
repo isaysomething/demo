@@ -1,11 +1,15 @@
 package cmd
 
 import (
-	stdlog "log"
+	"fmt"
+	"io/ioutil"
+	"log"
 
+	"github.com/gobuffalo/packr/v2"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/spf13/cobra"
 )
 
@@ -35,20 +39,38 @@ var rootCmd = &cobra.Command{
 // Execute executes commands.
 func Execute() {
 	if err := parseConfig(); err != nil {
-		stdlog.Fatalf("failed parse config: %s", err)
+		log.Fatalf("failed parse config: %s", err)
 	}
 
+	fmt.Println(cfg.Session)
 	if err := rootCmd.Execute(); err != nil {
-		stdlog.Fatalf("failed execute: %s", err)
+		log.Fatalf("failed execute: %s", err)
 	}
+
 }
 
 func parseConfig() error {
 	parser := toml.Parser()
-	for _, f := range []string{"configs/config.toml", cfgFile} {
-		if err := k.Load(file.Provider(f), parser); err != nil {
+	configFS := packr.New("configs", "./../configs")
+	// load default configurations.
+	for _, name := range configFS.List() {
+		log.Printf("loading configuration from %s\n", name)
+		f, err := configFS.Open(name)
+		if err != nil {
 			return err
 		}
+		defer f.Close()
+		content, err := ioutil.ReadAll(f)
+		if err != nil {
+			return err
+		}
+		if err := k.Load(rawbytes.Provider(content), parser); err != nil {
+			return err
+		}
+	}
+
+	if err := k.Load(file.Provider(cfgFile), parser); err != nil {
+		return err
 	}
 
 	if err := k.Unmarshal("", cfg); err != nil {

@@ -1,0 +1,5 @@
+[migration]
+    db = "dbname"
+    driver = "mysql"
+    dsn = "user:password@tcp(localhost:3306)/dbname?multiStatements=true"
+    path = "migrations/mysql"

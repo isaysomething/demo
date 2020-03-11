@@ -1,0 +1,10 @@
+[session]
+    lifetime = 3600 # in seconds
+    idle_timeout = 1200 # in seconds
+    cookie_name = "session_id"
+    cookie_domain = ""
+    cookie_path = "/"
+    cookie_http_only = true
+    cookie_persist = true
+    cookie_secure = true # disable it in local develop environment.
+    cookie_same_site = 3 # see http.SameSite

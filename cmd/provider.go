@@ -11,6 +11,7 @@ import (
 
 	// database drivers.
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/tdewolff/minify/v2"
 	"github.com/tdewolff/minify/v2/css"
@@ -92,12 +93,12 @@ func provideRouter(
 	app.ViewManager().AddFunc("url", urlFunc)
 	backendApp.ViewManager().AddFunc("url", urlFunc)
 
-	router.ServeFiles("/static/*filepath", http.Dir(path.Join(cfg.View.Directory, "static")))
+	router.ServeFiles("/static/*filepath", packr.New("frontend", path.Join(cfg.View.Path, "static")))
 	for _, route := range frontendRoutes {
 		route.Register(router)
 	}
 
-	router.ServeFiles("/console/static/*filepath", http.Dir(path.Join(cfg.AdminView.Directory, "static")))
+	router.ServeFiles("/console/static/*filepath", packr.New("backend", path.Join(cfg.AdminView.Path, "static")))
 	console := router.Group("/console", clevergo.RouteGroupMiddleware(
 		middlewares.LoginCheckerMiddlewareFunc((func(r *http.Request, w http.ResponseWriter) bool {
 			user, _ := app.UserManager().Get(r, w)
@@ -268,7 +269,7 @@ func newView(cfg web.ViewConfig) *views.Manager {
 func provideI18N() (*i18n.Translators, error) {
 	i18nOpts := []i18n.Option{i18n.Fallback(cfg.I18N.Fallback)}
 	translators := i18n.New(i18nOpts...)
-	i18nStore := i18n.NewFileStore(cfg.I18N.Directory, i18n.JSONFileDecoder{})
+	i18nStore := i18n.NewFileStore(cfg.I18N.Path, i18n.JSONFileDecoder{})
 	if err := translators.Import(i18nStore); err != nil {
 		return nil, err
 	}
