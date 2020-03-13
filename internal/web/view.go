@@ -11,10 +11,10 @@ type ViewData map[string]interface{}
 
 // ViewConfig contains views manager's settings.
 type ViewConfig struct {
-	Path    string   `koanf:"path"`
-	Suffix  string   `koanf:"suffix"`
-	Delims  []string `koanf:"delims"`
-	Debug bool `koanf:"debug"`
+	Path   string   `koanf:"path"`
+	Suffix string   `koanf:"suffix"`
+	Delims []string `koanf:"delims"`
+	Debug  bool     `koanf:"debug"`
 }
 
 // ViewManager wraps jet.Set.
@@ -23,7 +23,7 @@ type ViewManager struct {
 	suffix string
 }
 
-// GetTemplate appends suffix to the view filename. 
+// GetTemplate appends suffix to the view filename.
 func (m *ViewManager) GetTemplate(name string) (*jet.Template, error) {
 	return m.Set.GetTemplate(name + m.suffix)
 }
