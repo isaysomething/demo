@@ -1,4 +1,4 @@
 [backendView]
     path = "../themes/backend"
     suffix = ".tmpl"
-    cache = true
+    debug = false
