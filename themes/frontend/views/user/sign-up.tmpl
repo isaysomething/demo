@@ -1,39 +1,41 @@
-{{ define "title" }}
-{{ call .translate "text.signup" }}
+{{ extends "layouts/main.tmpl" }}
+
+{{ block title() }}
+{{ T("text.signup") }}
 {{ end }}
 
-{{ define "content" }}
+{{ block body() }}
 <h1 class="text-center">
-  {{ call .translate "text.signup" }}
+  {{ T("text.signup") }}
 </h1>
 <hr>
 <div class="offset-md-2 col-md-8">
-<form action="{{ url "sign-up" }}" method="POST">
-  {{ .csrf }}
+<form action="{{ route("sign-up") }}" method="POST">
+  {{ csrf() | raw }}
   <div class="form-group row">
-    <label for="email" class="col-sm-2">{{ call .translate "text.email" }}</label>
+    <label for="email" class="col-sm-2">{{ T("text.email") }}</label>
     <input type="email" class="form-control col-sm-10" id="email" name="email" value="{{ .form.Email }}">
   </div>
   <div class="form-group row">
-    <label for="username" class="col-sm-2">{{ call .translate "text.username" }}</label>
+    <label for="username" class="col-sm-2">{{ T("text.username") }}</label>
     <input type="username" class="form-control col-sm-10" id="username" name="username" value="{{ .form.Username }}">
   </div>
   <div class="form-group row">
-    <label for="password" class="col-sm-2">{{ call .translate "text.password" }}</label>
+    <label for="password" class="col-sm-2">{{ T("text.password") }}</label>
     <input type="password" class="form-control col-sm-10" id="password" name="password" value="{{ .form.Password }}">
   </div>
   <div class="form-group row">
-    <label for="captcha" class="col-sm-2">{{ call .translate "text.captcha" }}</label>
+    <label for="captcha" class="col-sm-2">{{ T("text.captcha") }}</label>
       <input type="text" class="form-control col-2" name="captcha">
       <div class="col-8">
-        {{ .captcha.HTMLField "captcha_id" }}
+        {{ .captcha.HTMLField("captcha_id") | raw }}
       </div>
   </div>
-  <button type="submit" class="btn btn-primary btn-block">{{ call .translate "text.signup" }}</button>
+  <button type="submit" class="btn btn-primary btn-block">{{ T("text.signup") }}</button>
 </form>
 <div>
   <p>
-    Already have an account? <a href="{{ url "login" }}">Login now</a>.
+    Already have an account? <a href="{{ route("login") }}">Login now</a>.
   </p>
 </div>
 </div>

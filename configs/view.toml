@@ -1,5 +1,4 @@
 [view]
     path = "../themes/frontend"
+    suffix = ".tmpl"
     cache = true
-    layouts = [
-    ]

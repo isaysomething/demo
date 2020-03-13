@@ -1,8 +1,8 @@
-{{ define "footer" }}
+{{block footer()}}
 <footer class="footer">
     <div class="container text-center">
       <div class="text-mutex">
-        {{ param "title" }} <i class="fas fa-copyright"></i> {{ param "since" }}-{{ now.Year }} 
+        {{ "title" | param }} <i class="fas fa-copyright"></i> {{ "since" | param }}-{{ now().Year }} 
       </div>
       <div class="text-mutex">
         Powered by <a href="https://github.com/clevergo" target="_blank">CleverGo</a> | 

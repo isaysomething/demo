@@ -1,13 +1,15 @@
-{{ define "title" }}
-{{ call .translate "text.setting" }}
+{{ extends "layouts/main.tmpl" }}
+
+{{ block title() }}
+{{ T("text.setting") }}
 {{ end }}
 
-{{ define "content" }}
+{{ block body() }}
 <h1 class="text-center">
-  {{ call .translate "text.setting" }}
+  {{ T("text.setting") }}
 </h1>
 <hr>
 <p>
-    <a href="{{ url "change-password" }}">Change Password</a>
+    <a href="{{ route("change-password") }}">Change Password</a>
 </p>
 {{ end }}

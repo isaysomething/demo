@@ -1,10 +1,12 @@
-{{ define "title" }}
-{{ call .translate "text.emailVerification" }}
+{{ extends "layouts/main.tmpl" }}
+
+{{ block title() }}
+{{ T("text.emailVerification") }}
 {{ end }}
 
-{{ define "content" }}
+{{ block body() }}
 <h1 class="text-center">
-  {{ call .translate "text.emailVerification" }}
+  {{ T("text.emailVerification") }}
 </h1>
 <hr>
 {{ end }}

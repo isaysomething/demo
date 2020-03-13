@@ -1,5 +1,5 @@
-{{ define "alert" }}
-{{ range . }}
-    {{ .Message | safeHTML }}
+{{block alert()}}
+{{ range flashes() }}
+    {{ .Message() | raw }}
 {{ end }}
 {{ end }}

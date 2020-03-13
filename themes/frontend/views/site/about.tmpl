@@ -1,11 +1,13 @@
-{{ define "title" }}
-{{ call .translate "text.about" }}
+{{ extends "layouts/main.tmpl" }}
+
+{{ block title() }}
+{{ T("text.about") }}
 {{ end }}
 
-{{ define "content" }}
-<h1>{{ call .translate "text.about" }}</h1>
+{{ block body() }}
+<h1>{{ T("text.about") }}</h1>
 <hr>
 <p>
-  {{ param "title" }}  is an application project template.
+  {{ param("title") }}  is an application project template.
 </p>
 {{ end }}

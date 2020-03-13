@@ -7,11 +7,11 @@ import (
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/api/controllers"
+	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/routeutil"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
-	"github.com/clevergo/views/v2"
 	"github.com/go-mail/mail"
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
@@ -25,7 +25,7 @@ var apiSet = wire.NewSet(
 func provideAPIApp(
 	logger log.Logger,
 	db *sqlx.DB,
-	view *views.Manager,
+	view *web.ViewManager,
 	sessionManager *scs.SessionManager,
 	userManager *users.Manager,
 	mailer *mail.Dialer,

@@ -1,16 +1,16 @@
 package web
 
 import (
-	"strings"
+	"reflect"
+	"time"
 
+	"github.com/CloudyKit/jet/v3"
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/captchas"
-	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/params"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
-	"github.com/clevergo/views/v2"
 	"github.com/eko/gocache/store"
 	"github.com/go-mail/mail"
 	"github.com/jmoiron/sqlx"
@@ -60,13 +60,22 @@ func AccessManager(manager *access.Manager) Option {
 	}
 }
 
-func ViewManager(m *views.Manager) Option {
+func SetViewManager(m *ViewManager) Option {
 	return func(app *Application) {
-		m.AddFunc("param", func(name string) interface{} {
+		/*m.AddFunc("param", func(name string) interface{} {
 			val, _ := app.params.Get(name)
 			return val
+		})*/
+		//m.AddFunc("title", strings.Title)
+		m.AddGlobalFunc("param", func(a jet.Arguments) reflect.Value {
+			a.RequireNumOfArguments("param", 1, 1)
+			val, _ := app.params.Get(a.Get(0).String())
+
+			return reflect.ValueOf(val)
 		})
-		m.AddFunc("title", strings.Title)
+		m.AddGlobalFunc("now", func(_ jet.Arguments) reflect.Value {
+			return reflect.ValueOf(time.Now())
+		})
 		app.viewManager = m
 	}
 }
@@ -83,7 +92,7 @@ func CaptchaManager(manager *captchas.Manager) Option {
 	}
 }
 
-func BeforeRender(f func(app *Application, ctx *clevergo.Context, view string, layout bool, data ViewData)) Option {
+func BeforeRender(f func(*BeforeRenderEvent)) Option {
 	return func(app *Application) {
 		app.beforeRender = f
 	}

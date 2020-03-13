@@ -3,9 +3,13 @@ module github.com/clevergo/demo
 go 1.13
 
 require (
+	github.com/CloudyKit/fastprinter v0.0.0-20200109182630-33d98a066a53 // indirect
+	github.com/CloudyKit/jet v2.1.2+incompatible
+	github.com/CloudyKit/jet/v3 v3.0.0
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.3.0
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
+	github.com/casbin/casbin v1.9.1
 	github.com/casbin/casbin/v2 v2.2.1
 	github.com/clevergo/auth v0.2.0
 	github.com/clevergo/captchas v0.3.2
@@ -14,6 +18,8 @@ require (
 	github.com/clevergo/clevergo v1.4.0
 	github.com/clevergo/form v1.1.0
 	github.com/clevergo/i18n v1.0.2
+	github.com/clevergo/jet-fsloader v0.0.0-20200311202408-f0870e6e5682
+	github.com/clevergo/jet-packrloader v0.1.0
 	github.com/clevergo/log v0.3.0
 	github.com/clevergo/log/zapadapter v0.3.0
 	github.com/clevergo/middleware v1.0.1

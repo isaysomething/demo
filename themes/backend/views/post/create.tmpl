@@ -1,4 +1,9 @@
-{{ define "create" }}
-create
-{{ template "form" . }}
+{{ extends "layouts/main.tmpl" }}
+
+{{ block title() }}
+{{T("text.login")}}
+{{ end }}
+
+{{ block body() }}
+Create
 {{ end }}

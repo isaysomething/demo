@@ -6,11 +6,13 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"reflect"
 	"regexp"
-	"time"
 
 	// database drivers.
+	"github.com/CloudyKit/jet/v3"
 	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/jmoiron/sqlx"
@@ -38,7 +40,6 @@ import (
 	"github.com/clevergo/log"
 	"github.com/clevergo/log/zapadapter"
 	"github.com/clevergo/middleware"
-	"github.com/clevergo/views/v2"
 	"github.com/go-mail/mail"
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
@@ -62,15 +63,22 @@ func provideEnforcer() (*casbin.Enforcer, error) {
 		// or reuse an existing connection:
 		// DB: myDBConn,
 	}
-
-	a := sqlxadapter.NewAdapterFromOptions(opts)
-	e, err := casbin.NewEnforcer("casbin/model.conf", a)
+	conf := packr.New("rbac", "../conf")
+	content, err := conf.FindString("rbac_model.conf")
+	if err != nil {
+		return nil, err
+	}
+	m, err := model.NewModelFromString(content)
 	if err != nil {
 		return nil, err
 	}
 
-	// Reload the model from the model CONF file.
-	if err = e.LoadModel(); err != nil {
+	a := sqlxadapter.NewAdapterFromOptions(opts)
+	e, err := casbin.NewEnforcer()
+	if err != nil {
+		return nil, err
+	}
+	if err = e.InitWithModelAndAdapter(m, a); err != nil {
 		return nil, err
 	}
 
@@ -112,17 +120,22 @@ func provideRouter(
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
 	router.NotFound = m.Middleware(http.FileServer(packr.New("public", cfg.Server.Root)))
 
-	urlFunc := func(name string, args ...string) string {
-		url, err := router.URL(name, args...)
+	routeFunc := func(args jet.Arguments) reflect.Value {
+		args.RequireNumOfArguments("route", 1, 1)
+		var a []string
+		for i := 1; i < args.NumOfArguments(); i++ {
+			a = append(a, args.Get(i).String())
+		}
+		url, err := router.URL(args.Get(0).String(), a...)
 		if err != nil {
 			app.Logger().Infoln(err)
-			return ""
+			return reflect.ValueOf("")
 		}
-		return url.String()
+		return reflect.ValueOf(url.String())
 	}
 
-	app.ViewManager().AddFunc("url", urlFunc)
-	backendApp.ViewManager().AddFunc("url", urlFunc)
+	app.ViewManager().AddGlobalFunc("route", routeFunc)
+	backendApp.ViewManager().AddGlobalFunc("route", routeFunc)
 
 	router.ServeFiles("/static/*filepath", packr.New("frontend", path.Join(cfg.View.Path, "static")))
 	for _, route := range frontendRoutes {
@@ -151,7 +164,7 @@ func provideRouter(
 func provideApp(
 	logger log.Logger,
 	db *sqlx.DB,
-	view *views.Manager,
+	view *web.ViewManager,
 	sessionManager *scs.SessionManager,
 	userManager *users.Manager,
 	mailer *mail.Dialer,
@@ -172,14 +185,14 @@ func provideBackendApp(
 	captchaManager *captchas.Manager,
 	accessManager *access.Manager,
 ) *backend.Application {
-	app := newApp(logger, db, view.Manager, sessionManager, userManager, mailer, captchaManager, accessManager)
+	app := newApp(logger, db, view.ViewManager, sessionManager, userManager, mailer, captchaManager, accessManager)
 	return &backend.Application{Application: app}
 }
 
 func newApp(
 	logger log.Logger,
 	db *sqlx.DB,
-	view *views.Manager,
+	view *web.ViewManager,
 	sessionManager *scs.SessionManager,
 	userManager *users.Manager,
 	mailer *mail.Dialer,
@@ -193,22 +206,29 @@ func newApp(
 		web.SessionManager(sessionManager),
 		web.Mailer(mailer),
 		web.CaptchaManager(captchaManager),
-		web.BeforeRender(func(app *web.Application, ctx *clevergo.Context, view string, layout bool, data web.ViewData) {
-			translator := i18n.GetTranslator(ctx.Request)
-			data["translator"] = translator
-			data["translate"] = func(key string) string {
-				return translator.Sprintf("%m", key)
-			}
-			user, _ := userManager.Get(ctx.Request, ctx.Response)
-			data["user"] = user.GetIdentity()
-			data["flashes"] = app.Flashes(ctx)
-			data["csrf"] = csrf.TemplateField(ctx.Request)
+		web.BeforeRender(func(event *web.BeforeRenderEvent) {
+			user, _ := userManager.Get(event.Context.Request, event.Context.Response)
+			event.Data["user"] = user.GetIdentity()
+
+			event.Vars.SetFunc("csrf", func(_ jet.Arguments) reflect.Value {
+				return reflect.ValueOf(template.HTML(csrf.TemplateField(event.Context.Request)))
+			})
+
+			event.Vars.SetFunc("flashes", func(_ jet.Arguments) reflect.Value {
+				return reflect.ValueOf(event.App.Flashes(event.Context))
+			})
+
+			translator := i18n.GetTranslator(event.Context.Request)
+			event.Vars.SetFunc("T", func(args jet.Arguments) reflect.Value {
+				args.RequireNumOfArguments("T", 1, 1)
+				return reflect.ValueOf(translator.Sprintf("%m", args.Get(0).String()))
+			})
 		}),
 		web.UserManager(userManager),
 		web.AccessManager(accessManager),
 	}
 	if view != nil {
-		opts = append(opts, web.ViewManager(view))
+		opts = append(opts, web.SetViewManager(view))
 	}
 	app := web.New(opts...)
 
@@ -275,12 +295,12 @@ func provideDB() (*sqlx.DB, func(), error) {
 	}, nil
 }
 
-func provideView() *views.Manager {
+func provideView() *web.ViewManager {
 	return newView(cfg.View)
 }
 
 type BackendView struct {
-	*views.Manager
+	*web.ViewManager
 }
 
 func provideBackendView(logger log.Logger) *BackendView {
@@ -288,22 +308,24 @@ func provideBackendView(logger log.Logger) *BackendView {
 	return &BackendView{view}
 }
 
-func newView(cfg web.ViewConfig) *views.Manager {
+func newView(cfg web.ViewConfig) *web.ViewManager {
 	viewPath := path.Join(cfg.Path, "views")
-	fs := packr.New(viewPath, viewPath)
-	view := web.NewView(fs, cfg)
-	funcMap := template.FuncMap{
-		"safeHTMLAttr": func(s string) template.HTMLAttr {
-			return template.HTMLAttr(s)
-		},
-		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
-		},
-		"now": time.Now,
-	}
-	for name, f := range funcMap {
+	box := packr.New(viewPath, viewPath)
+	view := web.NewViewManager(box, cfg)
+	/*
+		funcMap := template.FuncMap{
+			"safeHTMLAttr": func(s string) template.HTMLAttr {
+				return template.HTMLAttr(s)
+			},
+			"safeHTML": func(s string) template.HTML {
+				return template.HTML(s)
+			},
+			"now": time.Now,
+		}
+		for name, f := range funcMap {
 		view.AddFunc(name, f)
-	}
+		}
+	*/
 	return view
 }
 

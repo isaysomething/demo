@@ -9,7 +9,7 @@ import (
 )
 
 var alertTemplate = template.Must(template.New("bootstrapAlert").Parse(`
-<div class="alert alert-{{.Style}} {{ if .Dismiss }} alert-dismissible{{end}}">
+<div class="alert alert-{{.Style}} {{ if .Dismiss }} alert-dismissible{{ end }}">
 	{{ if .Dismiss }}
 	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
 	{{ end }}

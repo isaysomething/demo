@@ -1,9 +1,9 @@
 package web
 
 import (
-	"net/http"
-
-	"github.com/clevergo/views/v2"
+	"github.com/CloudyKit/jet/v3"
+	packrloader "github.com/clevergo/jet-packrloader"
+	"github.com/gobuffalo/packr/v2"
 )
 
 // ViewData is an alias of map.
@@ -21,20 +21,21 @@ type ViewConfig struct {
 	Cache bool `koanf:"cache"`
 }
 
+type ViewManager struct {
+	*jet.Set
+	suffix string
+}
+
+func (m *ViewManager) GetTemplate(name string) (*jet.Template, error) {
+	return m.Set.GetTemplate(name + m.suffix)
+}
+
 // NewView returns a views manager with the given config.
-func NewView(fs http.FileSystem, cfg ViewConfig) *views.Manager {
-	viewOpts := []views.Option{
-		views.Cache(cfg.Cache),
+func NewViewManager(box *packr.Box, cfg ViewConfig) *ViewManager {
+	m := &ViewManager{
+		Set:    jet.NewHTMLSetLoader(packrloader.New(box)),
+		suffix: cfg.Suffix,
 	}
-	if cfg.Suffix != "" {
-		viewOpts = append(viewOpts, views.Suffix(cfg.Suffix))
-	}
-	if len(cfg.Delims) == 2 {
-		viewOpts = append(viewOpts, views.Delims(cfg.Delims[0], cfg.Delims[1]))
-	}
-	m := views.New(fs, viewOpts...)
-	for _, l := range cfg.Layouts {
-		m.AddLayout(l.Name, l.Partials...)
-	}
+	m.Set.SetDevelopmentMode(true)
 	return m
 }

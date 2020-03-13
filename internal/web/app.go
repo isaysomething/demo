@@ -1,18 +1,29 @@
 package web
 
 import (
+	"bytes"
+
+	"github.com/CloudyKit/jet/v3"
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/params"
 	"github.com/clevergo/demo/pkg/users"
+	"github.com/clevergo/i18n"
 	"github.com/clevergo/log"
-	"github.com/clevergo/views/v2"
 	"github.com/eko/gocache/store"
 	"github.com/go-mail/mail"
 	"github.com/jmoiron/sqlx"
 )
+
+type BeforeRenderEvent struct {
+	App     *Application
+	Context *clevergo.Context
+	View    string
+	Vars    jet.VarMap
+	Data    ViewData
+}
 
 type Application struct {
 	cache          store.StoreInterface
@@ -23,8 +34,8 @@ type Application struct {
 	userManager    *users.Manager
 	captchaManager *captchas.Manager
 	params         params.Params
-	viewManager    *views.Manager
-	beforeRender   func(app *Application, ctx *clevergo.Context, view string, layout bool, data ViewData)
+	viewManager    *ViewManager
+	beforeRender   func(*BeforeRenderEvent)
 	accessManager  *access.Manager
 }
 
@@ -46,10 +57,6 @@ func (app *Application) Cache() store.StoreInterface {
 	return app.cache
 }
 
-func (app *Application) ViewManager() *views.Manager {
-	return app.viewManager
-}
-
 func (app *Application) Logger() log.Logger {
 	return app.logger
 }
@@ -64,6 +71,10 @@ func (app *Application) CaptcpaManager() *captchas.Manager {
 
 func (app *Application) SessionManager() *scs.SessionManager {
 	return app.sessionManager
+}
+
+func (app *Application) ViewManager() *ViewManager {
+	return app.viewManager
 }
 
 func (app *Application) UserManager() *users.Manager {
@@ -89,28 +100,50 @@ func (app *Application) AddFlash(ctx *clevergo.Context, flash Flash) {
 }
 
 func (app *Application) Render(ctx *clevergo.Context, view string, data ViewData) error {
-	return app.render(ctx, view, true, data)
-}
-
-func (app *Application) RenderPartial(ctx *clevergo.Context, view string, data ViewData) error {
-	return app.render(ctx, view, false, data)
-}
-
-func (app *Application) render(ctx *clevergo.Context, view string, layout bool, data ViewData) error {
-	ctx.SetContentTypeHTML()
 	if data == nil && app.beforeRender != nil {
 		data = ViewData{}
 	}
 
+	vars := make(jet.VarMap)
 	if app.beforeRender != nil {
-		app.beforeRender(app, ctx, view, layout, data)
+		event := &BeforeRenderEvent{
+			App:     app,
+			Context: ctx,
+			View:    view,
+			Vars:    vars,
+			Data:    data,
+		}
+		app.beforeRender(event)
 	}
 
-	if layout {
-		return app.ViewManager().Render(ctx.Response, view, data)
+	tmpl, err := app.viewManager.GetTemplate(view)
+	if err != nil {
+		return err
 	}
 
-	return app.ViewManager().RenderPartial(ctx.Response, view, data)
+	var wr bytes.Buffer
+	t := i18n.GetTranslator(ctx.Request)
+	if err = tmpl.ExecuteI18N(&translator{ts: t}, &wr, vars, data); err != nil {
+		return err
+	}
+
+	ctx.SetContentTypeHTML()
+	if _, err = wr.WriteTo(ctx.Response); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type translator struct {
+	ts *i18n.Translator
+}
+
+func (t *translator) Msg(key, defaultValue string) string {
+	return t.ts.Printer.Sprintf("%m", key)
+}
+func (t *translator) Trans(format, defaultFormat string, v ...interface{}) string {
+	return t.ts.Printer.Sprintf("%m", v...)
 }
 
 func (app *Application) Params() params.Params {

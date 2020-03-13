@@ -29,7 +29,7 @@ func (m *Manager) Enforce(user, obj, act string) (bool, error) {
 }
 
 func (m *Manager) Add(user, role string) (bool, error) {
-	ok, err := m.enforcer.AddRoleForUser(m.userIDPrefix + user, role)
+	ok, err := m.enforcer.AddRoleForUser(m.userIDPrefix+user, role)
 	if err != nil {
 		return false, err
 	}

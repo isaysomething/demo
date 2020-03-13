@@ -12,10 +12,9 @@ import (
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
-)
 
-import (
 	_ "github.com/go-sql-driver/mysql"
+
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -31,11 +30,11 @@ func initializeServer() (*web.Server, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	manager := provideView()
+	viewManager := provideView()
 	store := provideSessionStore()
 	sessionManager := provideSessionManager(store)
 	identityStore := provideIdentityStore(db)
-	usersManager := provideUserManager(identityStore, sessionManager)
+	manager := provideUserManager(identityStore, sessionManager)
 	dialer := provideMailer()
 	captchasManager := provideCaptchaManager()
 	enforcer, err := provideEnforcer()
@@ -44,18 +43,18 @@ func initializeServer() (*web.Server, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	accessManager := access.New(enforcer, usersManager)
-	application := provideApp(logger, db, manager, sessionManager, usersManager, dialer, captchasManager, accessManager)
+	accessManager := access.New(enforcer, manager)
+	application := provideApp(logger, db, viewManager, sessionManager, manager, dialer, captchasManager, accessManager)
 	site := controllers.NewSite(application)
 	user := controllers.NewUser(application)
 	cmdFrontendRoutes := provideFrontendRoutes(site, user)
 	backendView := provideBackendView(logger)
-	backendApplication := provideBackendApp(logger, db, backendView, sessionManager, usersManager, dialer, captchasManager, accessManager)
+	backendApplication := provideBackendApp(logger, db, backendView, sessionManager, manager, dialer, captchasManager, accessManager)
 	controllersSite := controllers2.NewSite(backendApplication)
 	post := controllers2.NewPost(backendApplication)
 	controllersUser := controllers2.NewUser(backendApplication)
 	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post, controllersUser)
-	apiApplication := provideAPIApp(logger, db, manager, sessionManager, usersManager, dialer, captchasManager, accessManager)
+	apiApplication := provideAPIApp(logger, db, viewManager, sessionManager, manager, dialer, captchasManager, accessManager)
 	controllersPost := controllers3.NewPost(apiApplication)
 	user2 := controllers3.NewUser(apiApplication)
 	cmdApiRoutes := provideAPIRoutes(accessManager, controllersPost, user2)
@@ -66,7 +65,7 @@ func initializeServer() (*web.Server, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	v, err := provideMiddlewares(sessionManager, translators, usersManager)
+	v, err := provideMiddlewares(sessionManager, translators, manager)
 	if err != nil {
 		cleanup2()
 		cleanup()

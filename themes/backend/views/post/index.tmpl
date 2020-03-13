@@ -1,3 +1,9 @@
-{{ define "content" }}
+{{ extends "layouts/main.tmpl" }}
+
+{{ block title() }}
+{{T("text.post")}}
+{{ end }}
+
+{{ block body() }}
 Post
 {{ end }}
