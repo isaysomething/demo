@@ -49,7 +49,7 @@ func (m *Manager) Middleware(obj, act string) clevergo.MiddlewareFunc {
 			return err
 		}
 		if user.IsGuest() {
-			return clevergo.StatusError{http.StatusUnauthorized, errors.New("unauthorized")}
+			return clevergo.NewError(http.StatusUnauthorized, errors.New("unauthorized"))
 		}
 
 		fmt.Println(m.getUserID(user), obj, act)
@@ -59,7 +59,7 @@ func (m *Manager) Middleware(obj, act string) clevergo.MiddlewareFunc {
 			return err
 		}
 		if !ok {
-			return clevergo.StatusError{http.StatusForbidden, errors.New("you have no access to this page")}
+			return clevergo.NewError(http.StatusForbidden, errors.New("you have no access to this page"))
 		}
 
 		return nil
