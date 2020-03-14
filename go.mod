@@ -12,14 +12,16 @@ require (
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/memstore v0.3.2
-	github.com/clevergo/clevergo v1.4.1
+	github.com/clevergo/clevergo v1.4.2-0.20200313122213-dab786f8d8fa
 	github.com/clevergo/form v1.1.0
 	github.com/clevergo/i18n v1.0.2
 	github.com/clevergo/jet-packrloader v0.1.0
+	github.com/clevergo/jsend v1.0.2
 	github.com/clevergo/log v0.3.0
 	github.com/clevergo/log/zapadapter v0.3.0
 	github.com/clevergo/middleware v1.0.1
 	github.com/eko/gocache v1.0.0
+	github.com/fatih/color v1.9.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-ozzo/ozzo-validation/v4 v4.1.0
@@ -30,6 +32,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/wire v0.4.0
 	github.com/gorilla/csrf v1.6.2
+	github.com/gorilla/handlers v1.4.2
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/knadh/koanf v0.8.1
 	github.com/memwey/casbin-sqlx-adapter v0.2.0
@@ -37,6 +40,7 @@ require (
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tdewolff/minify/v2 v2.7.3
+	github.com/tencentcloud/tencentcloud-sdk-go v3.0.132+incompatible
 	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.14.0
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4

@@ -26,8 +26,6 @@ func provideBackendRoutes(
 	return backendRoutes{
 		routeutil.NewRoute(http.MethodGet, "/", site.Index).Name("home"),
 
-		routeutil.NewRoute(http.MethodGet, "/users/:user/:role", user.Index).Name("user"),
-
 		routeutil.NewRoute(http.MethodGet, "/post", post.Index).Name("post").Middlewares(
 			accessManager.Middleware("post", "read"),
 		),
@@ -37,5 +35,20 @@ func provideBackendRoutes(
 		routeutil.NewRoute(http.MethodPost, "/post/create", post.Create).Middlewares(
 			accessManager.Middleware("post", "read"),
 		),
+
+		routeutil.NewRoute(http.MethodGet, "/users/:user/:role", user.Index).Name("user"),
+		routeutil.NewRoute(http.MethodGet, "/login", user.Login).Name("login"),
+		routeutil.NewRoute(http.MethodPost, "/login", user.Login),
+		routeutil.NewRoute(http.MethodPost, "/logout", user.Logout).Name("logout"),
+		routeutil.NewRoute(http.MethodGet, "/signup", user.Signup).Name("signup"),
+		routeutil.NewRoute(http.MethodPost, "/signup", user.Signup),
+		routeutil.NewRoute(http.MethodGet, "/verify-email", user.VerifyEmail).Name("verify-email"),
+		routeutil.NewRoute(http.MethodGet, "/resend-verification-email", user.ResendVerificationEmail).Name("resend-verification-email"),
+		routeutil.NewRoute(http.MethodPost, "/resend-verification-email", user.ResendVerificationEmail),
+		routeutil.NewRoute(http.MethodGet, "/reset-password", user.ResetPassword).Name("reset-password"),
+		routeutil.NewRoute(http.MethodPost, "/reset-password", user.ResetPassword),
+		routeutil.NewRoute(http.MethodGet, "/change-password", user.ChangePassword).Name("change-password"),
+		routeutil.NewRoute(http.MethodPost, "/change-password", user.ChangePassword),
+		routeutil.NewRoute(http.MethodGet, "/setting", user.Setting).Name("setting"),
 	}
 }

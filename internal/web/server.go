@@ -6,6 +6,7 @@ import (
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/log"
+	"github.com/fatih/color"
 )
 
 type Server struct {
@@ -34,20 +35,30 @@ func (srv *Server) prepare() {
 	}
 }
 
-func (srv *Server) ListenAndServe() error {
+const banner = `
+  _______                 _____   
+ / ___/ /__ _  _____ ____/ ___/__ 
+/ /__/ / -_) |/ / -_) __/ (_ / _ \
+\___/_/\__/|___/\__/_/  \___/\___/
+`
+
+func (srv *Server) run() {
 	srv.prepare()
-	srv.logger.Infof("Server started on http://%s", srv.Addr)
+	srv.logger.Infoln(color.BlueString(banner))
+	srv.logger.Infof("server started on %s", srv.Addr)
+}
+
+func (srv *Server) ListenAndServe() error {
+	srv.run()
 	return srv.Server.ListenAndServe()
 }
 
 func (srv *Server) ListenAndServeTLS(certFile, keyFile string) error {
-	srv.prepare()
-	srv.logger.Infof("Server started on http://%s", srv.Addr)
+	srv.run()
 	return srv.Server.ListenAndServeTLS(certFile, keyFile)
 }
 
 func (srv *Server) ListenAndServeUnix() error {
-	srv.logger.Infof("Server started on https://%s", srv.Addr)
 	l, err := net.Listen("unix", srv.Addr)
 	if err != nil {
 		return err
@@ -56,6 +67,6 @@ func (srv *Server) ListenAndServeUnix() error {
 }
 
 func (srv *Server) Serve(l net.Listener) error {
-	srv.prepare()
+	srv.run()
 	return srv.Server.Serve(l)
 }

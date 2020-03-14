@@ -28,3 +28,7 @@ body>.container {
 .footer>.container>div {
     margin: 5px 0 10px;
 }
+
+.fas {
+    padding-right: 5px;
+}

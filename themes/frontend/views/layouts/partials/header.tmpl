@@ -15,26 +15,28 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{{route("about") }}">
-          <i class="fas fa-info-circle"></i> {{ T("text.about")  }}
+          <i class="fas fa-info-circle"></i> {{ T("text.about") }}
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{{route("contact") }}">
-          <i class="fas fa-envelope"></i>&nbsp;
-          {{ T("text.contact")  }}
+          <i class="fas fa-envelope"></i>
+          {{ T("text.contact") }}
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{route("/console/home") }}">
-          <i class="fas fa-cogs"></i>&nbsp;
-          {{ T("text.console")  }}
+        <a class="nav-link" href="{{route("/backend/home") }}">
+          <span>
+            <i class="fas fa-tachometer-alt"></i>
+            {{ T("text.console") }}
+          </span>
         </a>
       </li>
 
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-language"></i>&nbsp;
-          {{ T("text.language")  }}
+          <i class="fas fa-language"></i>
+          {{ T("text.language") }}
         </a>
         <div id="langSelector" class="dropdown-menu" aria-labelledby="languageDropdown">
           <a class="dropdown-item" data-id="en" >English</a>
@@ -48,17 +50,20 @@
       {{ if .user }}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-user"></i>&nbsp;{{ .user.Username }}
+          <i class="fas fa-user"></i>
+          {{ .user.Username }}
         </a>
         <div class="dropdown-menu" aria-labelledby="userDropdown">
           <a class="dropdown-item" href="{{route("setting") }}">
-            <i class="fas fa-cog"></i>&nbsp;{{ T("text.Setting")  }}
+            <i class="fas fa-cog"></i>
+            {{ T("text.Setting") }}
           </a>
           <div class="dropdown-divider"></div>
             <form action="{{route("logout") }}" method="POST">
               {{ csrf() | raw }}
               <button type="submit" class="dropdown-item btn btn-link btn-logout">
-                <i class="fas fa-sign-out-alt"></i>&nbsp;{{ T("text.logout")  }}
+                <i class="fas fa-sign-out-alt"></i>
+                {{ T("text.logout") }}
               </button>
             </form>
         </div>
@@ -66,12 +71,12 @@
       {{ else }}
       <li class="nav-item">
         <a class="nav-link" href="/login">
-          <i class="fas fa-sign-in-alt"></i>&nbsp;{{ T("text.login")  }}
+          <i class="fas fa-sign-in-alt"></i>&nbsp;{{ T("text.login") }}
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/sign-up">
-          <i class="fas fa-user"></i>&nbsp;{{ T("text.signup")  }}
+          <i class="fas fa-user"></i>&nbsp;{{ T("text.signup") }}
         </a>
       </li>
       {{ end }}

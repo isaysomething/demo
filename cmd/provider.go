@@ -28,13 +28,13 @@ import (
 	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/backend"
 	"github.com/clevergo/demo/internal/common"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/middlewares"
+	"github.com/clevergo/demo/pkg/tencentcaptcha"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/i18n"
 	"github.com/clevergo/log"
@@ -44,8 +44,21 @@ import (
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	sqlxadapter "github.com/memwey/casbin-sqlx-adapter"
+	v20190722 "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/captcha/v20190722"
+	tencentcommon "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
+	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
+
+func provideTencentClient() (*v20190722.Client, error) {
+	credential := tencentcommon.NewCredential(cfg.TencentCaptcha.SecretID, cfg.TencentCaptcha.SecretKey)
+	return v20190722.NewClient(credential, "", profile.NewClientProfile())
+}
+
+func provideTencentCaptcha(client *v20190722.Client) *tencentcaptcha.Captcha {
+	return tencentcaptcha.New(client, cfg.TencentCaptcha.AppID, cfg.TencentCaptcha.AppSecretKey)
+}
 
 func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *web.Server {
 	srv := web.NewServer(router, logger)
@@ -107,8 +120,6 @@ func provideRouter(
 	frontendRoutes frontendRoutes,
 	backendApp *backend.Application,
 	backendRoutes backendRoutes,
-	apiApp *api.Application,
-	apiRoutes apiRoutes,
 ) *clevergo.Router {
 	router := clevergo.NewRouter()
 	m := minify.New()
@@ -142,20 +153,15 @@ func provideRouter(
 		route.Register(router)
 	}
 
-	router.ServeFiles("/console/static/*filepath", packr.New("backend", path.Join(cfg.BackendView.Path, "static")))
-	console := router.Group("/console", clevergo.RouteGroupMiddleware(
+	router.ServeFiles("/backend/static/*filepath", packr.New("backend", path.Join(cfg.BackendView.Path, "static")))
+	console := router.Group("/backend", clevergo.RouteGroupName("/backend"), clevergo.RouteGroupMiddleware(
 		middlewares.LoginCheckerMiddlewareFunc((func(r *http.Request, w http.ResponseWriter) bool {
 			user, _ := app.UserManager().Get(r, w)
 			return user.IsGuest()
-		}), nil),
+		}), middlewares.NewPathSkipper("/backend/login", "/backend/reset-password", "/backend/signup")),
 	))
 	for _, route := range backendRoutes {
 		route.Register(console)
-	}
-
-	api := router.Group("/api/v1", clevergo.RouteGroupMiddleware())
-	for _, route := range apiRoutes {
-		route.Register(api)
 	}
 
 	return router
@@ -268,12 +274,15 @@ func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Tr
 }
 
 func provideLogger() (log.Logger, func(), error) {
-	sugar, err := zap.NewDevelopment(zap.AddCallerSkip(1))
+	config := zap.NewDevelopmentConfig()
+	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	sugar, err := config.Build()
 	if err != nil {
 		return nil, nil, err
 	}
 
 	undo := zap.RedirectStdLog(sugar)
+	sugar = sugar.WithOptions(zap.AddCallerSkip(1))
 
 	return zapadapter.New(sugar.Sugar()), func() {
 		if err := sugar.Sync(); err != nil {

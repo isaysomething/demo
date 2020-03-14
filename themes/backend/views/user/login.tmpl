@@ -1,0 +1,68 @@
+{{ import "layouts/partials/head.tmpl" }}
+{{ import "layouts/partials/alert.tmpl" }}
+{{ import "layouts/partials/adminlte.js.tmpl" }}
+
+{{ block title() }}
+Login
+{{ end }}
+
+<!DOCTYPE html>
+<html>
+<head>
+  {{ yield head() }}
+</head>
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            {{ param("title") }}
+        </div>
+        <!-- /.login-logo -->
+        <div class="card">
+            <div class="card-body login-card-body">
+            <p class="login-box-msg">Sign in to start your session</p>
+
+            {{ yield alert() }}
+
+            <form id="loginForm" action="{{ route("/backend/login") }}" method="post">
+                {{ csrf() | raw }}
+                <div class="input-group mb-3">
+                    <input type="email" name="email" class="form-control" placeholder="Email" required>
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <input type="hidden" name="captcha_ticket" id="captchaTicket">
+                    <input type="hidden" name="captcha_randstr" id="captchaRandstr">
+                    <button type="button" class="btn btn-primary btn-block" id="btnLogin">
+                        Login
+                    </button>
+                </div>
+            </form>
+
+            <p class="mb-1">
+                <a href="{{ route("/backend/reset-password") }}">Forgot password</a>
+            </p>
+            <p class="mb-0">
+                Don't have an account? <a href="{{ route("/backend/signup") }}" class="text-center">Create one now</a>
+            </p>
+            </div>
+        </div>
+    </div>
+
+    {{ yield adminlteJs() }}
+
+    <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+    <script src="/backend/static/js/login.js"></script>
+</body>
+</html>

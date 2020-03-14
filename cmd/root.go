@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/knadh/koanf"
@@ -51,8 +52,9 @@ func parseConfig() error {
 	parser := toml.Parser()
 	configFS := packr.New("configs", "./../configs")
 	// load default configurations.
-	for _, name := range configFS.List() {
-		log.Printf("loading default configuration: %s\n", name)
+	configs := configFS.List()
+	log.Printf("loading default configurations: %s\n", strings.Join(configs, ", "))
+	for _, name := range configs {
 		f, err := configFS.Open(name)
 		if err != nil {
 			return err

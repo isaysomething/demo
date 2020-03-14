@@ -15,7 +15,7 @@ type LoginChecker struct {
 
 func NewLoginChecker(handler http.Handler, isGuest func(r *http.Request, w http.ResponseWriter) bool, skipper Skipper) *LoginChecker {
 	return &LoginChecker{
-		loginUrl: "/login",
+		loginUrl: "/backend/login",
 		isGuest:  isGuest,
 		skipper:  skipper,
 		handler:  handler,

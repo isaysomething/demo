@@ -3,6 +3,7 @@ package validations
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/clevergo/demo/internal/models"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -30,17 +31,20 @@ func UserPassword(user *models.User) validation.RuleFunc {
 	}
 }
 
-func UniqueUsername(db *sqlx.DB) validation.RuleFunc {
+// IsUsernameTaken validates whether the username was taken.
+func IsUsernameTaken(db *sqlx.DB) validation.RuleFunc {
 	return func(value interface{}) error {
 		username, _ := value.(string)
-		if _, err := models.GetUserByUsername(db, username); err == nil || err != sql.ErrNoRows {
-			return ErrUsernameWasTaken
+		_, err := models.GetUserByUsername(db, username)
+		if err == nil {
+			return fmt.Errorf("username %s was taken", username)
 		}
 		return nil
 	}
 }
 
-func UniqueUserEmail(db *sqlx.DB) validation.RuleFunc {
+// IsUserEmailTaken validates whether the user email was taken.
+func IsUserEmailTaken(db *sqlx.DB) validation.RuleFunc {
 	return func(value interface{}) error {
 		email, _ := value.(string)
 		if _, err := models.GetUserByEmail(db, email); err == nil || err != sql.ErrNoRows {

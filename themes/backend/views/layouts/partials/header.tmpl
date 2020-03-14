@@ -20,7 +20,7 @@
       <div class="dropdown-menu" aria-labelledby="userDropdown">
         <a class="dropdown-item" href="#">Setting</a>
         <div class="dropdown-divider"></div>
-        <form action="{{ route("logout") }}" method="POST" style="display: inline;">
+        <form action="{{ route("/backend/logout") }}" method="POST" style="display: inline;">
           {{ csrf() | raw }}
           <button type="submit" class="dropdown-item">Logout</button>
         </form>
@@ -33,7 +33,7 @@
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
   <!-- Brand Logo -->
-  <a href="{{ route("/console/home") }}" class="brand-link elevation-4">
+  <a href="{{ route("/backend/home") }}" class="brand-link elevation-4">
     <img src="/img/logo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
     <span class="brand-text font-weight-light">{{ param("backendTitle") }}</span>
   </a>
@@ -46,7 +46,7 @@
         <!-- Add icons to the links using the .nav-icon class
              with font-awesome or any other icon font library -->
         <li class="nav-item has-treeview">
-          <a href="{{ route("/console/home") }}" class="nav-link active">
+          <a href="{{ route("/backend/home") }}" class="nav-link active">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>
               Dashboard
@@ -55,7 +55,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a href="{{ route("/console/post") }}" class="nav-link">
+          <a href="{{ route("/backend/post") }}" class="nav-link">
             <i class="nav-icon fas fa-th"></i>
             <p>
               Post Manage

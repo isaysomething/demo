@@ -1,5 +1,5 @@
 [server]
-    addr = "localhost:8080"
+    addr = ":8080"
     root = "../public"
 
     ssl = false

@@ -3,10 +3,10 @@ package forms
 import (
 	"time"
 
-	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
+	"github.com/clevergo/demo/pkg/tencentcaptcha"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/form"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -18,26 +18,31 @@ type Login struct {
 	db             *sqlx.DB
 	user           *users.User
 	identity       *models.User
-	captchaManager *captchas.Manager
-	CaptchaID      string `json:"captcha_id" xml:"captcha_id"`
-	Captcha        string `json:"captcha" xml:"captcha"`
+	captcha        *tencentcaptcha.Captcha
+	CaptchaTicket  string `json:"captcha_ticket" xml:"captcha_ticket"`
+	CaptchaRandstr string `json:"captcha_randstr" xml:"captcha_randstr"`
 	Email          string `json:"email" xml:"email"`
 	Password       string `json:"password" xml:"password"`
+	ipAddr string
 }
 
-func NewLogin(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *Login {
+func NewLogin(db *sqlx.DB, user *users.User, captcha *tencentcaptcha.Captcha) *Login {
 	return &Login{
-		db:             db,
-		user:           user,
-		captchaManager: captchaManager,
+		db:      db,
+		user:    user,
+		captcha: captcha,
 	}
 }
 
 func (l *Login) Validate() error {
 	return validation.ValidateStruct(l,
-		validation.Field(&l.Captcha, validation.Required, validation.By(validations.Captcha(l.captchaManager, l.CaptchaID))),
 		validation.Field(&l.Email, validation.Required, is.Email),
 		validation.Field(&l.Password, validation.Required, validation.By(validations.UserPassword(l.getIdentity()))),
+		validation.Field(&l.CaptchaRandstr, validation.Required),
+		validation.Field(&l.CaptchaTicket,
+			validation.Required,
+			validation.By(validations.TencentCaptcha(l.captcha, l.CaptchaRandstr, l.ipAddr)),
+		),
 	)
 }
 
@@ -70,6 +75,7 @@ func (l *Login) Handle(ctx *clevergo.Context) (*models.User, error) {
 	/*if _, err := govalidator.ValidateStruct(l); err != nil {
 		return nil, err
 	}*/
+	l.ipAddr = "127.0.0.1"
 	if err := l.Validate(); err != nil {
 		return nil, err
 	}

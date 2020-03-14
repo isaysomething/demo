@@ -12,9 +12,10 @@ import (
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
+)
 
+import (
 	_ "github.com/go-sql-driver/mysql"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -46,19 +47,21 @@ func initializeServer() (*web.Server, func(), error) {
 	accessManager := access.New(enforcer, manager)
 	application := provideApp(logger, db, viewManager, sessionManager, manager, dialer, captchasManager, accessManager)
 	site := controllers.NewSite(application)
-	user := controllers.NewUser(application)
-	cmdFrontendRoutes := provideFrontendRoutes(site, user)
+	cmdFrontendRoutes := provideFrontendRoutes(site)
 	backendView := provideBackendView(logger)
 	backendApplication := provideBackendApp(logger, db, backendView, sessionManager, manager, dialer, captchasManager, accessManager)
 	controllersSite := controllers2.NewSite(backendApplication)
 	post := controllers2.NewPost(backendApplication)
-	controllersUser := controllers2.NewUser(backendApplication)
-	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post, controllersUser)
-	apiApplication := provideAPIApp(logger, db, viewManager, sessionManager, manager, dialer, captchasManager, accessManager)
-	controllersPost := controllers3.NewPost(apiApplication)
-	user2 := controllers3.NewUser(apiApplication)
-	cmdApiRoutes := provideAPIRoutes(accessManager, controllersPost, user2)
-	router := provideRouter(application, cmdFrontendRoutes, backendApplication, cmdBackendRoutes, apiApplication, cmdApiRoutes)
+	client, err := provideTencentClient()
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	captcha := provideTencentCaptcha(client)
+	user := controllers2.NewUser(backendApplication, captcha)
+	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post, user)
+	router := provideRouter(application, cmdFrontendRoutes, backendApplication, cmdBackendRoutes)
 	translators, err := provideI18N()
 	if err != nil {
 		cleanup2()
@@ -78,11 +81,52 @@ func initializeServer() (*web.Server, func(), error) {
 	}, nil
 }
 
+func initializeAPIServer() (*web.Server, func(), error) {
+	logger, cleanup, err := provideLogger()
+	if err != nil {
+		return nil, nil, err
+	}
+	enforcer, err := provideEnforcer()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	db, cleanup2, err := provideDB()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	identityStore := provideIdentityStore(db)
+	store := provideSessionStore()
+	sessionManager := provideSessionManager(store)
+	manager := provideUserManager(identityStore, sessionManager)
+	accessManager := access.New(enforcer, manager)
+	cmdApiUserManager := provideAPIUserManager(identityStore)
+	dialer := provideMailer()
+	captchasManager := provideCaptchaManager()
+	application := provideAPIApp(logger, db, sessionManager, cmdApiUserManager, dialer, captchasManager, accessManager)
+	post := controllers3.NewPost(application)
+	client, err := provideTencentClient()
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	captcha := provideTencentCaptcha(client)
+	user := controllers3.NewUser(application, captcha)
+	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user)
+	server := provideAPIServer(logger, cmdApiRouteGroups)
+	return server, func() {
+		cleanup2()
+		cleanup()
+	}, nil
+}
+
 // wire.go:
 
 var superSet = wire.NewSet(
-	provideServer, provideRouter, provideMiddlewares, provideI18N,
+	provideRouter, provideMiddlewares, provideI18N,
 	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
 	provideIdentityStore, provideMailer, provideCaptchaManager,
-	provideEnforcer, access.New,
+	provideEnforcer, access.New, provideTencentClient, provideTencentCaptcha,
 )

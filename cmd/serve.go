@@ -24,5 +24,7 @@ var serveCmd = &cobra.Command{
 }
 
 func init() {
-	serveCmd.AddCommand()
+	serveCmd.AddCommand(
+		serveAPICmd,
+	)
 }

@@ -95,9 +95,9 @@ func GetUser(db *sqlx.DB, id int64) (*User, error) {
 }
 
 func GetUserByUsername(db *sqlx.DB, username string) (*User, error) {
-	user := &User{}
-	err := db.Get(user, "SELECT * FROM users WHERE username=?", username)
-	return user, err
+	u := &User{}
+	err := db.Get(u, "SELECT * FROM users WHERE username=?", username)
+	return u, err
 }
 
 func GetUserByEmail(db *sqlx.DB, email string) (*User, error) {
