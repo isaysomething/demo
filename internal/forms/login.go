@@ -3,10 +3,10 @@ package forms
 import (
 	"time"
 
+	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/demo/pkg/tencentcaptcha"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/form"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -18,19 +18,19 @@ type Login struct {
 	db             *sqlx.DB
 	user           *users.User
 	identity       *models.User
-	captcha        *tencentcaptcha.Captcha
-	CaptchaTicket  string `json:"captcha_ticket" xml:"captcha_ticket"`
-	CaptchaRandstr string `json:"captcha_randstr" xml:"captcha_randstr"`
-	Email          string `json:"email" xml:"email"`
-	Password       string `json:"password" xml:"password"`
-	ipAddr string
+	captchaManager *captchas.Manager
+	CaptchaID      string `json:"captcha_id"`
+	Captcha        string `json:"captcha"`
+	Email          string `json:"email"`
+	Password       string `json:"password"`
+	ipAddr         string
 }
 
-func NewLogin(db *sqlx.DB, user *users.User, captcha *tencentcaptcha.Captcha) *Login {
+func NewLogin(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *Login {
 	return &Login{
-		db:      db,
-		user:    user,
-		captcha: captcha,
+		db:             db,
+		user:           user,
+		captchaManager: captchaManager,
 	}
 }
 
@@ -38,10 +38,10 @@ func (l *Login) Validate() error {
 	return validation.ValidateStruct(l,
 		validation.Field(&l.Email, validation.Required, is.Email),
 		validation.Field(&l.Password, validation.Required, validation.By(validations.UserPassword(l.getIdentity()))),
-		validation.Field(&l.CaptchaRandstr, validation.Required),
-		validation.Field(&l.CaptchaTicket,
+		validation.Field(&l.CaptchaID, validation.Required),
+		validation.Field(&l.Captcha,
 			validation.Required,
-			validation.By(validations.TencentCaptcha(l.captcha, l.CaptchaRandstr, l.ipAddr)),
+			validation.By(validations.Captcha(l.captchaManager, l.CaptchaID)),
 		),
 	)
 }

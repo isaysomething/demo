@@ -25,6 +25,10 @@ func provideBackendRoutes(
 ) backendRoutes {
 	return backendRoutes{
 		routeutil.NewRoute(http.MethodGet, "/", site.Index).Name("home"),
+		routeutil.NewRoute(http.MethodPost, "/captcha", site.Captcha).Name("captcha"),
+		routeutil.NewRoute(http.MethodPost, "/check-captcha", site.CheckCaptcha),
+		routeutil.NewRoute(http.MethodPost, "/user/check-username", user.CheckUsername),
+		routeutil.NewRoute(http.MethodPost, "/user/check-email", user.CheckEmail),
 
 		routeutil.NewRoute(http.MethodGet, "/post", post.Index).Name("post").Middlewares(
 			accessManager.Middleware("post", "read"),

@@ -41,7 +41,7 @@ var serveAPICmd = &cobra.Command{
 
 var apiSet = wire.NewSet(
 	provideAPIApp, provideAPIRouteGroups, provideAPIUserManager,
-	controllers.NewUser, controllers.NewPost,
+	controllers.NewUser, controllers.NewPost, controllers.NewCaptcha,
 )
 
 func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups) *web.Server {
@@ -76,12 +76,15 @@ func provideAPIRouteGroups(
 	accessManager *access.Manager,
 	post *controllers.Post,
 	user *controllers.User,
+	captcha *controllers.Captcha,
 ) apiRouteGroups {
 	return apiRouteGroups{
 		routeutil.NewGroup("/v1", routeutil.Routes{
+			routeutil.NewRoute(http.MethodPost, "/captchas", captcha.Create).Name("captcha"),
+
 			routeutil.NewRoute(http.MethodPost, "/login", user.Login).Name("login"),
-			routeutil.NewRoute(http.MethodPost, "/check-username", user.CheckUsername),
-			routeutil.NewRoute(http.MethodPost, "/check-user-email", user.CheckUserEmail),
+			routeutil.NewRoute(http.MethodPost, "/user/check-username", user.CheckUsername),
+			routeutil.NewRoute(http.MethodPost, "/user/check-email", user.CheckEmail),
 
 			routeutil.NewRoute(http.MethodGet, "/logout", user.Logout).Name("logout"),
 			routeutil.NewRoute(http.MethodGet, "/users", user.Index).Name("users"),

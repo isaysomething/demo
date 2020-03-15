@@ -6,7 +6,6 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/forms"
-	"github.com/clevergo/demo/pkg/tencentcaptcha"
 	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
 )
@@ -14,12 +13,11 @@ import (
 // User controller.
 type User struct {
 	*api.Application
-	captcha *tencentcaptcha.Captcha
 }
 
 // NewUser returns an user controller.
-func NewUser(app *api.Application, captcha *tencentcaptcha.Captcha) *User {
-	return &User{app,captcha}
+func NewUser(app *api.Application) *User {
+	return &User{app}
 }
 
 // Index returns users list.
@@ -39,7 +37,7 @@ func (u *User) Login(ctx *clevergo.Context) error {
 		ctx.Redirect("/backend/", http.StatusFound)
 		return nil
 	}
-	form := forms.NewLogin(u.DB(), user, u.captcha)
+	form := forms.NewLogin(u.DB(), user, u.CaptcpaManager())
 	v, err := form.Handle(ctx)
 	if err != nil {
 		return err
@@ -61,7 +59,7 @@ func (u *User) CheckUsername(ctx *clevergo.Context) error {
 	return jsend.Success(ctx.Response, nil)
 }
 
-func (u *User) CheckUserEmail(ctx *clevergo.Context) error {
+func (u *User) CheckEmail(ctx *clevergo.Context) error {
 	f := forms.NewCheckUserEmail(u.DB())
 	err := form.Decode(ctx.Request, f)
 	if err != nil {

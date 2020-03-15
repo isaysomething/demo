@@ -23,11 +23,11 @@ Login
 
             {{ yield alert() }}
 
-            <form id="signupForm" action="{{ route("/backend/signup") }}" method="post" novalidate>
+            <form id="signupForm" action="{{ route("/backend/signup") }}" method="post" novalidate autocomplete="off">
                 {{ csrf() | raw }}
                 <div class="form-group">
                     <div class="input-group mb-2">
-                        <input type="text" name="username" class="form-control" placeholder="Username" required>
+                        <input type="text" name="username" class="form-control" placeholder="Username" autocomplete="off">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-user"></span>
@@ -37,7 +37,7 @@ Login
                 </div>
                 <div class="form-group">
                     <div class="input-group mb-2">
-                        <input type="email" name="email" class="form-control" placeholder="Email" required>
+                        <input type="email" name="email" class="form-control" placeholder="Email" autocomplete="off">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
@@ -47,7 +47,7 @@ Login
                 </div>
                 <div class="form-group">
                     <div class="input-group mb-2">
-                        <input type="password" name="password" class="form-control" placeholder="Password" required>
+                        <input type="password" name="password" class="form-control" placeholder="Password">
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
@@ -56,10 +56,18 @@ Login
                     </div>
                 </div>
                 <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-6 captcha" id="captchaContainer" data-url="{{ route("/backend/captcha") }}">
+                            {{ .captcha.HTMLField("captcha_id") | raw }}
+                        </div>
+                        <div class="col-sm-6">
+                            <input type="text" name="captcha" class="form-control" placeholder="Captcha">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <div class="input-group mt-1">
-                        <input type="hidden" name="captcha_ticket" id="captchaTicket">
-                        <input type="hidden" name="captcha_randstr" id="captchaRandstr">
-                        <button type="button" class="btn btn-primary btn-block" id="btnSignup">
+                        <button type="submit" class="btn btn-primary btn-block" id="btnSignup">
                             Sign up
                         </button>
                     </div>
@@ -74,8 +82,7 @@ Login
     </div>
 
     {{ yield adminlteJs() }}
-
-    <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+    <script src="/backend/static/js/captcha.js"></script>
     <script src="/backend/static/js/user/signup.js"></script>
 </body>
 </html>

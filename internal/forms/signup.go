@@ -1,10 +1,10 @@
 package forms
 
 import (
+	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/demo/pkg/tencentcaptcha"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/form"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -19,35 +19,32 @@ type AfterSignUpEvent struct {
 type SignUp struct {
 	db             *sqlx.DB
 	user           *users.User
-	captcha        *tencentcaptcha.Captcha
+	captchaManager *captchas.Manager
 	Email          string `json:"email" xml:"email"`
 	Username       string `json:"username" xml:"username"`
 	Password       string `json:"password" xml:"password"`
-	Captcha        string `json:"captcha" xml:"captcha"`
-	CaptchaID      string `json:"captcha_id" xml:"captcha_id"`
+	Captcha        string `json:"captcha"`
+	CaptchaID      string `json:"captcha_id"`
 	onAfterSignUp  []func(AfterSignUpEvent)
-	CaptchaTicket  string `json:"captcha_ticket" xml:"captcha_ticket"`
-	CaptchaRandstr string `json:"captcha_randstr" xml:"captcha_randstr"`
-	ipAddr         string
 }
 
-func NewSignUp(db *sqlx.DB, user *users.User, captcha *tencentcaptcha.Captcha) *SignUp {
+func NewSignUp(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *SignUp {
 	return &SignUp{
-		db:      db,
-		user:    user,
-		captcha: captcha,
+		db:             db,
+		user:           user,
+		captchaManager: captchaManager,
 	}
 }
 
-func (su *SignUp) Validate() error {
-	return validation.ValidateStruct(su,
-		validation.Field(&su.Email, validation.Required, is.Email, validation.By(validations.IsUserEmailTaken(su.db))),
-		validation.Field(&su.Username, validation.Required, validation.By(validations.IsUsernameTaken(su.db))),
-		validation.Field(&su.Password, validation.Required),
-		validation.Field(&su.CaptchaRandstr, validation.Required),
-		validation.Field(&su.CaptchaTicket,
+func (s *SignUp) Validate() error {
+	return validation.ValidateStruct(s,
+		validation.Field(&s.Email, validation.Required, is.Email, validation.By(validations.IsUserEmailTaken(s.db))),
+		validation.Field(&s.Username, validation.Required, validation.By(validations.IsUsernameTaken(s.db))),
+		validation.Field(&s.Password, validation.Required),
+		validation.Field(&s.CaptchaID, validation.Required),
+		validation.Field(&s.Captcha,
 			validation.Required,
-			validation.By(validations.TencentCaptcha(su.captcha, su.CaptchaRandstr, su.ipAddr)),
+			validation.By(validations.Captcha(s.captchaManager, s.CaptchaID)),
 		),
 	)
 }
@@ -61,7 +58,6 @@ func (su *SignUp) Handle(ctx *clevergo.Context) (*models.User, error) {
 		return nil, err
 	}
 
-	su.ipAddr = "127.0.0.1"
 	if err := su.Validate(); err != nil {
 		return nil, err
 	}

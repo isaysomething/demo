@@ -1,61 +1,110 @@
 $(document).ready(function() {
-    $.validator.addMethod("isEmailTaken", function(value, element) {
-        $.post(apiHost + "/v1/check-user-email", {email: $(this).val()}, function(resp) {
-            console.log(resp)
-            return resp.status == "status"
-        }, 'json')
-    }, "* email was taken");
-
     var signupForm = $("#signupForm")
     var username = signupForm.find('input[name="username"]')
     var email = signupForm.find('input[name="email"]')
-
-    /*username.bind('input propertychange', function() {
-        console.log($(this).val())
-        $.post(apiHost + "/v1/check-username", {username: $(this).val()}, function(resp) {
-            console.log(resp)
-            if (resp.status != "status") {
-
-            }
-        }, 'json')
-    })*/
-
-    /*email.bind('input propertychange', function() {
-        console.log($(this).val())
-        $.post(apiHost + "/v1/check-user-email", {email: $(this).val()}, function(resp) {
-            console.log(resp)
-            if (resp.status != "status") {
-
-            }
-        }, 'json')
-    })*/
+    var password = signupForm.find('input[name="password"]')
 
     signupForm.validate({
         rules: {
             username: {
                 required: true,
+                minlength: 5,
+                normalizer: function(value) {
+                    return $.trim(value)
+                },
+                remote: {
+                    url: '/backend/user/check-username',
+                    type: 'post',
+                    data: {
+                        username: function() {
+                            return username.val()
+                        },
+                    },
+                    dataFilter: function (resp) {
+                        var data = JSON.parse(resp)
+                        if (data.status == 'error') {
+                            return '"' + data.message + '"'
+                        }
+
+                        return true
+                    }
+                }
+            },
+            email: {
+                required: true,
+                normalizer: function(value) {
+                    return $.trim(value)
+                },
+                remote: {
+                    url: '/backend/user/check-email',
+                    type: 'post',
+                    data: {
+                        email: function() {
+                            return email.val()
+                        },
+                    },
+                    dataFilter: function (resp) {
+                        var data = JSON.parse(resp)
+                        if (data.status == 'error') {
+                            return '"' + data.message + '"'
+                        }
+
+                        return true
+                    }
+                }
+            },
+            password: {
+                required: true,
+                minlength: 6,
                 normalizer: function(value) {
                     return $.trim(value);
                 }
             },
+            captcha: {
+                required: true,
+                normalizer: function(value) {
+                    return $.trim(value);
+                },
+                remote: {
+                    url: '/backend/check-captcha',
+                    type: 'post',
+                    data: {
+                        id: function() {
+                            return $('input[name="captcha_id"]').val()
+                        },
+                        captcha: function() {
+                            return $('input[name="captcha"]').val()
+                        },
+                    },
+                    dataFilter: function (resp) {
+                        var data = JSON.parse(resp)
+                        if (data.status == 'error') {
+                            return '"' + data.message + '"'
+                        }
+
+                        return true
+                    }
+                }
+            }
         },
-       // errorElement: 'div',
-        // errorClass: 'form-text text-danger',
-        /*errorPlacement: function(error, element) {
-            console.log(error.status)
-            var parent = element.parents('.form-group')
-            parent.find('.form-text').remove()
-            error.attr('class', "form-text text-danger")
-            parent.append(error)
-        }*/
+        errorElement: 'div',
+        errorPlacement: function(error, element) {
+            error.addClass('form-text text-danger')
+            error.appendTo(element.parents('div.form-group'))
+        }
     });
     
-    var captchaTicket = $('#captchaTicket')
-    var captchaRandstr = $('#captchaRandstr')
-    signupForm.submit()
-    var captcha = new TencentCaptcha(document.getElementById("btnSignup"), "{{ .captchaAppID }}", function(res) {
-        captchaTicket.val(res.ticket)
-        captchaRandstr.val(res.randstr)
-        signupForm.submit()
-    }, {})
+    signupForm.submit(function(event) {
+        event.preventDefault()
+
+        if ($(this).valid()) {
+            $.post('/backend/signup', signupForm.serialize(), function(resp) {
+                if (resp.status == 'success') {
+                    window.location.href = "/backend/login"    
+                    return
+                }
+                alert(resp.message)
+            }, 'json')
+        }
+    })
 })

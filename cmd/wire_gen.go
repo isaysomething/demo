@@ -106,15 +106,9 @@ func initializeAPIServer() (*web.Server, func(), error) {
 	captchasManager := provideCaptchaManager()
 	application := provideAPIApp(logger, db, sessionManager, cmdApiUserManager, dialer, captchasManager, accessManager)
 	post := controllers3.NewPost(application)
-	client, err := provideTencentClient()
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	captcha := provideTencentCaptcha(client)
-	user := controllers3.NewUser(application, captcha)
-	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user)
+	user := controllers3.NewUser(application)
+	captcha := controllers3.NewCaptcha(captchasManager)
+	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
 	server := provideAPIServer(logger, cmdApiRouteGroups)
 	return server, func() {
 		cleanup2()

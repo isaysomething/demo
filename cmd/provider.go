@@ -158,7 +158,10 @@ func provideRouter(
 		middlewares.LoginCheckerMiddlewareFunc((func(r *http.Request, w http.ResponseWriter) bool {
 			user, _ := app.UserManager().Get(r, w)
 			return user.IsGuest()
-		}), middlewares.NewPathSkipper("/backend/login", "/backend/reset-password", "/backend/signup")),
+		}), middlewares.NewPathSkipper(
+			"/backend/login", "/backend/reset-password", "/backend/signup", "/backend/captcha",
+			"/backend/user/check-*", "/backend/check-captcha",
+		)),
 	))
 	for _, route := range backendRoutes {
 		route.Register(console)

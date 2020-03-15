@@ -10,7 +10,6 @@ import (
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/params"
 	"github.com/clevergo/demo/pkg/users"
-	"github.com/clevergo/i18n"
 	"github.com/clevergo/log"
 	"github.com/eko/gocache/store"
 	"github.com/go-mail/mail"
@@ -122,8 +121,7 @@ func (app *Application) Render(ctx *clevergo.Context, view string, data ViewData
 	}
 
 	var wr bytes.Buffer
-	t := i18n.GetTranslator(ctx.Request)
-	if err = tmpl.ExecuteI18N(&translator{ts: t}, &wr, vars, data); err != nil {
+	if err = tmpl.Execute(&wr, vars, data); err != nil {
 		return err
 	}
 
@@ -133,17 +131,6 @@ func (app *Application) Render(ctx *clevergo.Context, view string, data ViewData
 	}
 
 	return nil
-}
-
-type translator struct {
-	ts *i18n.Translator
-}
-
-func (t *translator) Msg(key, defaultValue string) string {
-	return t.ts.Printer.Sprintf("%m", key)
-}
-func (t *translator) Trans(format, defaultFormat string, v ...interface{}) string {
-	return t.ts.Printer.Sprintf("%m", v...)
 }
 
 func (app *Application) Params() params.Params {

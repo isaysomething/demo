@@ -11,6 +11,8 @@ import (
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/bootstrap"
 	"github.com/clevergo/demo/pkg/tencentcaptcha"
+	"github.com/clevergo/form"
+	"github.com/clevergo/jsend"
 )
 
 type User struct {
@@ -34,7 +36,7 @@ func (u *User) Login(ctx *clevergo.Context) error {
 	}
 
 	var err error
-	form := forms.NewLogin(u.DB(), user, u.captcha)
+	form := forms.NewLogin(u.DB(), user, u.CaptcpaManager())
 	if ctx.IsPost() {
 		if _, err := form.Handle(ctx); err == nil {
 			ctx.Redirect("/backend", http.StatusFound)
@@ -49,6 +51,32 @@ func (u *User) Login(ctx *clevergo.Context) error {
 		"error":        err,
 		"captchaAppID": u.captcha.AppID(),
 	})
+}
+
+func (u *User) CheckUsername(ctx *clevergo.Context) error {
+	f := forms.NewCheckUsername(u.DB())
+	err := form.Decode(ctx.Request, f)
+	if err != nil {
+		return jsend.Error(ctx.Response, err.Error())
+	}
+	if err = f.Validate(); err != nil {
+		return jsend.Error(ctx.Response, err.Error())
+	}
+
+	return jsend.Success(ctx.Response, nil)
+}
+
+func (u *User) CheckEmail(ctx *clevergo.Context) error {
+	f := forms.NewCheckUserEmail(u.DB())
+	err := form.Decode(ctx.Request, f)
+	if err != nil {
+		return jsend.Error(ctx.Response, err.Error())
+	}
+	if err = f.Validate(); err != nil {
+		return jsend.Error(ctx.Response, err.Error())
+	}
+
+	return jsend.Success(ctx.Response, nil)
 }
 
 func (u *User) ResendVerificationEmail(ctx *clevergo.Context) error {
@@ -92,22 +120,26 @@ func (u *User) Signup(ctx *clevergo.Context) error {
 		return nil
 	}
 
-	form := forms.NewSignUp(u.DB(), user, u.captcha)
+	form := forms.NewSignUp(u.DB(), user, u.CaptcpaManager())
 	var err error
 	form.RegisterOnAfterSignUp(listeners.NewSignUp(u.Mailer()).AfterSignUp)
 	if ctx.IsPost() {
-		if _, err = form.Handle(ctx); err == nil {
-			ctx.Redirect("/backend/login", http.StatusFound)
-			return nil
+		if _, err = form.Handle(ctx); err != nil {
+			return jsend.Error(ctx.Response, err.Error())
 		}
 
-		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
+		return jsend.Success(ctx.Response, nil)
+	}
+
+	captcha, err := u.CaptcpaManager().Generate()
+	if err != nil {
+		return err
 	}
 
 	return u.Render(ctx, "user/signup", web.ViewData{
 		"form":    form,
 		"error":   err,
-		"captchaAppID": u.captcha.AppID(),
+		"captcha": captcha,
 	})
 }
 
