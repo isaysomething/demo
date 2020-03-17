@@ -28,8 +28,6 @@ import (
 	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/backend"
-	"github.com/clevergo/demo/internal/common"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
@@ -118,8 +116,6 @@ func provideMailer() *mail.Dialer {
 func provideRouter(
 	app *frontend.Application,
 	frontendRoutes frontendRoutes,
-	backendApp *backend.Application,
-	backendRoutes backendRoutes,
 ) *clevergo.Router {
 	router := clevergo.NewRouter()
 	m := minify.New()
@@ -146,25 +142,10 @@ func provideRouter(
 	}
 
 	app.ViewManager().AddGlobalFunc("route", routeFunc)
-	backendApp.ViewManager().AddGlobalFunc("route", routeFunc)
 
 	router.ServeFiles("/static/*filepath", packr.New("frontend", path.Join(cfg.View.Path, "static")))
 	for _, route := range frontendRoutes {
 		route.Register(router)
-	}
-
-	router.ServeFiles("/backend/static/*filepath", packr.New("backend", path.Join(cfg.BackendView.Path, "static")))
-	console := router.Group("/backend", clevergo.RouteGroupName("/backend"), clevergo.RouteGroupMiddleware(
-		middlewares.LoginCheckerMiddlewareFunc((func(r *http.Request, w http.ResponseWriter) bool {
-			user, _ := app.UserManager().Get(r, w)
-			return user.IsGuest()
-		}), middlewares.NewPathSkipper(
-			"/backend/login", "/backend/reset-password", "/backend/signup", "/backend/captcha",
-			"/backend/user/check-*", "/backend/check-captcha",
-		)),
-	))
-	for _, route := range backendRoutes {
-		route.Register(console)
 	}
 
 	return router
@@ -182,20 +163,6 @@ func provideApp(
 ) *frontend.Application {
 	app := newApp(logger, db, view, sessionManager, userManager, mailer, captchaManager, accessManager)
 	return &frontend.Application{Application: app}
-}
-
-func provideBackendApp(
-	logger log.Logger,
-	db *sqlx.DB,
-	view *BackendView,
-	sessionManager *scs.SessionManager,
-	userManager *users.Manager,
-	mailer *mail.Dialer,
-	captchaManager *captchas.Manager,
-	accessManager *access.Manager,
-) *backend.Application {
-	app := newApp(logger, db, view.ViewManager, sessionManager, userManager, mailer, captchaManager, accessManager)
-	return &backend.Application{Application: app}
 }
 
 func newApp(
@@ -311,15 +278,6 @@ func provideView() *web.ViewManager {
 	return newView(cfg.View)
 }
 
-type BackendView struct {
-	*web.ViewManager
-}
-
-func provideBackendView(logger log.Logger) *BackendView {
-	view := newView(cfg.BackendView)
-	return &BackendView{view}
-}
-
 func newView(cfg web.ViewConfig) *web.ViewManager {
 	viewPath := path.Join(cfg.Path, "views")
 	box := packr.New(viewPath, viewPath)
@@ -365,7 +323,7 @@ func provideI18NMiddleware(translators *i18n.Translators) func(http.Handler) htt
 }
 
 func provideIdentityStore(db *sqlx.DB) auth.IdentityStore {
-	return common.NewIdentityStore(db)
+	return web.NewIdentityStore(db)
 }
 
 func provideUserManager(identityStore auth.IdentityStore, sessionManager *scs.SessionManager) *users.Manager {

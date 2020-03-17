@@ -6,15 +6,15 @@
 package cmd
 
 import (
-	controllers3 "github.com/clevergo/demo/internal/api/controllers"
-	controllers2 "github.com/clevergo/demo/internal/backend/controllers"
+	controllers2 "github.com/clevergo/demo/internal/api/controllers"
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
+)
 
+import (
 	_ "github.com/go-sql-driver/mysql"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -46,14 +46,9 @@ func initializeServer() (*web.Server, func(), error) {
 	accessManager := access.New(enforcer, manager)
 	application := provideApp(logger, db, viewManager, sessionManager, manager, dialer, captchasManager, accessManager)
 	site := controllers.NewSite(application)
-	cmdFrontendRoutes := provideFrontendRoutes(site)
-	backendView := provideBackendView(logger)
-	backendApplication := provideBackendApp(logger, db, backendView, sessionManager, manager, dialer, captchasManager, accessManager)
-	controllersSite := controllers2.NewSite(backendApplication)
-	post := controllers2.NewPost(backendApplication)
-	user := controllers2.NewUser(backendApplication)
-	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post, user)
-	router := provideRouter(application, cmdFrontendRoutes, backendApplication, cmdBackendRoutes)
+	user := controllers.NewUser(application)
+	cmdFrontendRoutes := provideFrontendRoutes(site, user)
+	router := provideRouter(application, cmdFrontendRoutes)
 	translators, err := provideI18N()
 	if err != nil {
 		cleanup2()
@@ -97,9 +92,9 @@ func initializeAPIServer() (*web.Server, func(), error) {
 	dialer := provideMailer()
 	captchasManager := provideCaptchaManager()
 	application := provideAPIApp(logger, db, sessionManager, cmdApiUserManager, dialer, captchasManager, accessManager)
-	post := controllers3.NewPost(application)
-	user := controllers3.NewUser(application)
-	captcha := controllers3.NewCaptcha(captchasManager)
+	post := controllers2.NewPost(application)
+	user := controllers2.NewUser(application)
+	captcha := controllers2.NewCaptcha(captchasManager)
 	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
 	authenticator := provideAuthenticator(identityStore)
 	server := provideAPIServer(logger, cmdApiRouteGroups, cmdApiUserManager, authenticator)

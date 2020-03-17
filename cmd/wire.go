@@ -17,7 +17,7 @@ var superSet = wire.NewSet(
 )
 
 func initializeServer() (*web.Server, func(), error) {
-	wire.Build(superSet, frontendSet, backendAppSet, provideServer)
+	wire.Build(superSet, frontendSet, provideServer)
 	return &web.Server{}, nil, nil
 }
 
