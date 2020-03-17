@@ -20,6 +20,7 @@ func (f *CheckUsername) Validate() error {
 		validation.Field(&f.Username,
 			validation.Required,
 			validation.Length(5, 0),
+			validation.Match(regUsername),
 			validation.By(validations.IsUsernameTaken(f.db)),
 		),
 	)

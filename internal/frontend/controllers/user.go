@@ -132,15 +132,9 @@ func (u *User) Signup(ctx *clevergo.Context) error {
 		return jsend.Success(ctx.Response, nil)
 	}
 
-	captcha, err := u.CaptcpaManager().Generate()
-	if err != nil {
-		return err
-	}
-
 	return u.Render(ctx, "user/signup", web.ViewData{
 		"form":    form,
 		"error":   err,
-		"captcha": captcha,
 	})
 }
 

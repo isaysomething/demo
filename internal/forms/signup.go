@@ -1,6 +1,8 @@
 package forms
 
 import (
+	"regexp"
+
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
@@ -10,6 +12,10 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/jmoiron/sqlx"
+)
+
+var (
+	regUsername = regexp.MustCompile("^[[:alnum:]_-]{5,}$")
 )
 
 type AfterSignUpEvent struct {
@@ -39,7 +45,11 @@ func NewSignUp(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) 
 func (s *SignUp) Validate() error {
 	return validation.ValidateStruct(s,
 		validation.Field(&s.Email, validation.Required, is.Email, validation.By(validations.IsUserEmailTaken(s.db))),
-		validation.Field(&s.Username, validation.Required, validation.By(validations.IsUsernameTaken(s.db))),
+		validation.Field(&s.Username, 
+			validation.Required,
+			validation.Match(regUsername),
+			validation.By(validations.IsUsernameTaken(s.db)),
+		),
 		validation.Field(&s.Password, validation.Required),
 		validation.Field(&s.CaptchaID, validation.Required),
 		validation.Field(&s.Captcha,

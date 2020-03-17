@@ -70,7 +70,7 @@ func provideEnforcer() (*casbin.Enforcer, error) {
 	opts := &sqlxadapter.AdapterOptions{
 		DriverName:     "mysql",
 		DataSourceName: "root:123456@tcp(127.0.0.1:3306)/clevergo",
-		TableName:      "casbin_rule",
+		TableName:      "auth_rules",
 		// or reuse an existing connection:
 		// DB: myDBConn,
 	}

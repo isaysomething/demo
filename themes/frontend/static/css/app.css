@@ -29,10 +29,18 @@ body>.container {
     margin: 5px 0 10px;
 }
 
-.fas {
-    padding-right: 5px;
-}
-
 .captcha>img {
     width: 100%;
+}
+
+.fa-envelope {
+    width: 14px;
+}
+
+.input-group {
+    flex-wrap: wrap!important;
+}
+
+.input-group .invalid-feedback {
+    flex-basis: 100%!important;
 }

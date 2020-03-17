@@ -1,0 +1,75 @@
+{{ extends "layouts/main.tmpl" }}
+
+{{ block title() }}
+{{ T("text.signup") }}
+{{ end }}
+
+{{ block endBody() }}
+<script src="/static/js/captcha.js"></script>
+<script src="/static/js/user/signup.js"></script>
+{{ end }}
+
+{{ block body() }}
+<h2 class="text-center">
+  {{ T("text.signup") }}
+</h2>
+<p class="text-center">Create a new account</p>
+<div class="offset-md-4 col-md-4">
+<form id="signupForm" action="{{ route("sign-up") }}" method="POST" novalidate>
+  {{ csrf() | raw }}
+  <div class="form-group row">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text bg-transparent"><i class="fas fa-user"></i></div>
+      </div>
+      <input type="text" class="form-control" id="username" name="username" value="{{ .form.Username }}"
+        placeholder="{{ T("text.username") }}"
+        required>
+    </div>
+    <small class="form-text text-muted">
+      The username may only contain letters, numbers, _ and -.
+    </small>
+  </div>
+  <div class="form-group row">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text bg-transparent"><i class="fas fa-envelope"></i></div>
+      </div>
+      <input type="email" class="form-control" id="email" name="email" value="{{ .form.Email }}"
+        placeholder="{{ T("text.email") }}"
+        required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text bg-transparent"><i class="fas fa-lock"></i></div>
+      </div>
+      <input type="password" class="form-control" id="password" name="password" value="{{ .form.Password }}"
+        placeholder="{{ T("text.password") }}"
+        required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <input type="text" class="form-control col-md-6" name="captcha"
+      placeholder="{{ T("text.captcha") }}"
+      required>
+    <div id="captchaContainer" class="col-md-6 captcha">
+      <input type="hidden" id="captchaID" name="captcha_id">
+      <img id="captchaMedia">
+    </div>
+  </div>
+  <div class="form-group row">
+    <button type="submit" class="btn btn-primary btn-block">{{ T("text.signup") }}</button>
+  </div>
+</form>
+<div class="row">
+  <p>
+    <a href="{{ route("login") }}">Forgot password</a>?
+  </p>
+  <p>
+    Already have an account? <a href="{{ route("login") }}">Login now</a>.
+  </p>
+</div>
+</div>
+{{ end }}

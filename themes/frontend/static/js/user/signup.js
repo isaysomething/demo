@@ -2,18 +2,16 @@ $(document).ready(function() {
     var signupForm = $("#signupForm")
     var username = signupForm.find('input[name="username"]')
     var email = signupForm.find('input[name="email"]')
-    var password = signupForm.find('input[name="password"]')
 
     signupForm.validate({
         rules: {
             username: {
-                required: true,
                 minlength: 5,
                 normalizer: function(value) {
                     return $.trim(value)
                 },
                 remote: {
-                    url: '/backend/user/check-username',
+                    url: '/user/check-username',
                     type: 'post',
                     data: {
                         username: function() {
@@ -31,12 +29,11 @@ $(document).ready(function() {
                 }
             },
             email: {
-                required: true,
                 normalizer: function(value) {
                     return $.trim(value)
                 },
                 remote: {
-                    url: '/backend/user/check-email',
+                    url: '/user/check-email',
                     type: 'post',
                     data: {
                         email: function() {
@@ -54,19 +51,17 @@ $(document).ready(function() {
                 }
             },
             password: {
-                required: true,
                 minlength: 6,
                 normalizer: function(value) {
                     return $.trim(value);
                 }
             },
             captcha: {
-                required: true,
                 normalizer: function(value) {
                     return $.trim(value);
                 },
                 remote: {
-                    url: '/backend/check-captcha',
+                    url: '/check-captcha',
                     type: 'post',
                     data: {
                         id: function() {
@@ -89,7 +84,7 @@ $(document).ready(function() {
         },
         errorElement: 'div',
         errorPlacement: function(error, element) {
-            error.addClass('form-text text-danger')
+            error.addClass('invalid-feedback')
             error.appendTo(element.parents('div.form-group'))
         }
     });
@@ -98,12 +93,13 @@ $(document).ready(function() {
         event.preventDefault()
 
         if ($(this).valid()) {
-            $.post('/backend/signup', signupForm.serialize(), function(resp) {
+            $.post('/signup', signupForm.serialize(), function(resp) {
                 if (resp.status == 'success') {
-                    window.location.href = "/backend/login"    
+                    window.location.href = "/login"    
                     return
                 }
                 alert(resp.message)
+                captcha.reload()
             }, 'json')
         }
     })
