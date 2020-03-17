@@ -22,7 +22,6 @@ func NewUser(app *frontend.Application) *User {
 	return &User{app}
 }
 
-
 func (u *User) Index(ctx *clevergo.Context) error {
 	return u.Render(ctx, "user/index", nil)
 }
@@ -30,7 +29,7 @@ func (u *User) Index(ctx *clevergo.Context) error {
 func (u *User) Login(ctx *clevergo.Context) error {
 	user, _ := u.User(ctx)
 	if !user.IsGuest() {
-		ctx.Redirect("/backend/", http.StatusFound)
+		ctx.Redirect("/", http.StatusFound)
 		return nil
 	}
 
