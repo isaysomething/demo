@@ -15,16 +15,16 @@ CREATE TABLE `users` (
   UNIQUE KEY `verification_token` (`verification_token`),
   UNIQUE KEY `password_reset_token` (`password_reset_token`),
   KEY `idx_users_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE `sessions` (
-  `token` varchar(255) NOT NULL,
-  `user_id` bigint(20) unsigned NOT NULL,
-  `ip_address` varchar(255) NOT NULL DEFAULT '',
-  `user_agent` varchar(255) NOT NULL DEFAULT '',
-  `expired_at` datetime NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`token`),
-  KEY `idx_sessions_user_id` (`user_id`),
-  KEY `idx_sessions_expired_at` (`expired_at`)
-) ENGINE=InnoDB;
+CREATE TABLE `auth_rules` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `p_type` VARCHAR(32) NOT NULL DEFAULT '',
+    `v0` VARCHAR(255) NOT NULL DEFAULT '',
+    `v1` VARCHAR(255) NOT NULL DEFAULT '',
+    `v2` VARCHAR(255) NOT NULL DEFAULT '',
+    `v3` VARCHAR(255) NOT NULL DEFAULT '',
+    `v4` VARCHAR(255) NOT NULL DEFAULT '',
+    `v5` VARCHAR(255) NOT NULL DEFAULT '',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
