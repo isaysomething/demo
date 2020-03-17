@@ -376,7 +376,10 @@ func provideUserManager(identityStore auth.IdentityStore, sessionManager *scs.Se
 }
 
 func provideAuthenticator(identityStore auth.IdentityStore) auth.Authenticator {
-	return authenticators.NewQueryToken("token", identityStore)
+	return authenticators.NewComposite(
+		authenticators.NewBearerToken("api", identityStore),
+		authenticators.NewQueryToken("access_token", identityStore),
+	)
 }
 
 func provideErrorHandler(app *web.Application) clevergo.ErrorHandler {

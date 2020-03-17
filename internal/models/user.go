@@ -88,7 +88,7 @@ func CreateUser(db *sqlx.DB, username, email, password string) (*User, error) {
 	return GetUser(db, id)
 }
 
-func GetUser(db *sqlx.DB, id int64) (*User, error) {
+func GetUser(db *sqlx.DB, id interface{}) (*User, error) {
 	user := &User{}
 	err := db.Get(user, "SELECT * FROM users WHERE id=?", id)
 	return user, err

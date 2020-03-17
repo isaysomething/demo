@@ -13,13 +13,13 @@ var (
 )
 
 // Captcha validates captcha.
-func Captcha(manager *captchas.Manager, id string) validation.RuleFunc {
+func Captcha(manager *captchas.Manager, id string, clear bool) validation.RuleFunc {
 	return func(value interface{}) error {
 		if id == "" {
 			return ErrInvalidCaptcha
 		}
 		captcha, _ := value.(string)
-		if err := manager.Verify(id, captcha, true); err != nil {
+		if err := manager.Verify(id, captcha, clear); err != nil {
 			return err
 		}
 		return nil

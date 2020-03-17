@@ -30,5 +30,5 @@ func (u *User) Login(r *http.Request, w http.ResponseWriter, identity auth.Ident
 }
 
 func (u *User) Logout(r *http.Request, w http.ResponseWriter) error {
-	return u.manager.Logout(r, w)
+	return u.manager.Logout(u, r, w)
 }

@@ -36,7 +36,7 @@ func NewResendVerificationEmail(db *sqlx.DB, mailer *mail.Dialer, captchaManager
 
 func (rve *ResendVerificationEmail) Validate() error {
 	return validation.ValidateStruct(rve,
-		validation.Field(&rve.Captcha, validation.Required, validation.By(validations.Captcha(rve.captchaManager, rve.CaptchaID))),
+		validation.Field(&rve.Captcha, validation.Required, validation.By(validations.Captcha(rve.captchaManager, rve.CaptchaID, false))),
 		validation.Field(&rve.Email, validation.Required, is.Email, validation.By(rve.validateEmail)),
 	)
 }

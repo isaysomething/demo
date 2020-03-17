@@ -21,7 +21,6 @@ func initializeServer() (*web.Server, func(), error) {
 	return &web.Server{}, nil, nil
 }
 
-
 func initializeAPIServer() (*web.Server, func(), error) {
 	wire.Build(superSet, apiSet, provideAPIServer)
 	return &web.Server{}, nil, nil

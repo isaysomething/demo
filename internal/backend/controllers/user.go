@@ -10,18 +10,16 @@ import (
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/bootstrap"
-	"github.com/clevergo/demo/pkg/tencentcaptcha"
 	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
 )
 
 type User struct {
 	*backend.Application
-	captcha *tencentcaptcha.Captcha
 }
 
-func NewUser(app *backend.Application, captcha *tencentcaptcha.Captcha) *User {
-	return &User{app, captcha}
+func NewUser(app *backend.Application) *User {
+	return &User{app}
 }
 
 func (u *User) Index(ctx *clevergo.Context) error {
@@ -38,18 +36,21 @@ func (u *User) Login(ctx *clevergo.Context) error {
 	var err error
 	form := forms.NewLogin(u.DB(), user, u.CaptcpaManager())
 	if ctx.IsPost() {
-		if _, err := form.Handle(ctx); err == nil {
-			ctx.Redirect("/backend", http.StatusFound)
-			return nil
+		if _, err := form.Handle(ctx); err != nil {
+			return jsend.Error(ctx.Response, err.Error())
 		}
 
-		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
+		return jsend.Success(ctx.Response, nil)
 	}
 
+	captcha, err := u.CaptcpaManager().Generate()
+	if err != nil {
+		return err
+	}
 	return u.Render(ctx, "user/login", web.ViewData{
-		"form":         form,
-		"error":        err,
-		"captchaAppID": u.captcha.AppID(),
+		"form":    form,
+		"error":   err,
+		"captcha": captcha,
 	})
 }
 

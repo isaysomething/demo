@@ -10,7 +10,6 @@ import (
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/form"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -21,7 +20,7 @@ type Login struct {
 	captchaManager *captchas.Manager
 	CaptchaID      string `json:"captcha_id"`
 	Captcha        string `json:"captcha"`
-	Email          string `json:"email"`
+	Username       string `json:"username"`
 	Password       string `json:"password"`
 	ipAddr         string
 }
@@ -36,12 +35,12 @@ func NewLogin(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *
 
 func (l *Login) Validate() error {
 	return validation.ValidateStruct(l,
-		validation.Field(&l.Email, validation.Required, is.Email),
+		validation.Field(&l.Username, validation.Required),
 		validation.Field(&l.Password, validation.Required, validation.By(validations.UserPassword(l.getIdentity()))),
 		validation.Field(&l.CaptchaID, validation.Required),
 		validation.Field(&l.Captcha,
 			validation.Required,
-			validation.By(validations.Captcha(l.captchaManager, l.CaptchaID)),
+			validation.By(validations.Captcha(l.captchaManager, l.CaptchaID, false)),
 		),
 	)
 }
@@ -58,7 +57,7 @@ func (l *Login) ValidatePassword() bool {
 
 func (l *Login) getIdentity() *models.User {
 	if l.identity == nil {
-		identity, err := models.GetUserByEmail(l.db, l.Email)
+		identity, err := models.GetUserByUsername(l.db, l.Username)
 		if err == nil {
 			l.identity = identity
 		}
@@ -83,5 +82,6 @@ func (l *Login) Handle(ctx *clevergo.Context) (*models.User, error) {
 	if err := l.user.Login(ctx.Request, ctx.Response, identity, time.Hour); err != nil {
 		return nil, err
 	}
+
 	return identity, nil
 }

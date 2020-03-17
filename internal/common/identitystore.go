@@ -6,6 +6,7 @@ import (
 
 	"github.com/clevergo/auth"
 	"github.com/clevergo/demo/internal/models"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -30,16 +31,23 @@ func (is *IdentityStore) GetIdentity(id string) (auth.Identity, error) {
 }
 
 // GetIdentityByToken implements IdentityStore.GetIdentityByToken.
-func (is *IdentityStore) GetIdentityByToken(token string) (auth.Identity, error) {
-	session, err := models.GetSession(is.db, token)
+func (is *IdentityStore) GetIdentityByToken(token, tokenType string) (auth.Identity, error) {
+	t, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return []byte("123456"), nil
+	})
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
-	if session.IsExpired() {
-		return nil, fmt.Errorf("token %q is expired", token)
-	}
-
-	user, err := session.GetUser(is.db)
+	c, _ := t.Claims.(jwt.MapClaims)
+	user, err := models.GetUser(is.db, c["id"])
+	fmt.Println(user, err)
 	if err != nil {
 		return nil, err
 	}

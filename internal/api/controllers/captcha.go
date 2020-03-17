@@ -20,10 +20,21 @@ func (c *Captcha) Create(ctx *clevergo.Context) error {
 		return jsend.Error(ctx.Response, err.Error())
 	}
 
-	data := map[string]string {
-		"id": captcha.ID(),
+	data := map[string]string{
+		"id":   captcha.ID(),
 		"data": captcha.EncodeToString(),
 	}
-	
+
 	return jsend.Success(ctx.Response, data)
+}
+
+func (c *Captcha) CheckCaptcha(ctx *clevergo.Context) error {
+	id := ctx.Request.PostFormValue("id")
+	captcha := ctx.Request.PostFormValue("captcha")
+	err := c.manager.Verify(id, captcha, false)
+	if err != nil {
+		return jsend.Error(ctx.Response, err.Error())
+	}
+
+	return jsend.Success(ctx.Response, nil)
 }

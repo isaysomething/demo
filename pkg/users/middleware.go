@@ -1,6 +1,7 @@
 package users
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/clevergo/auth"
@@ -10,8 +11,8 @@ func Handler(next http.Handler, manager *Manager, authenticator auth.Authenticat
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, err := manager.Get(r, w)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			// http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Println(err)
 		}
 		if user.IsGuest() {
 			identity, err := authenticator.Authenticate(r)

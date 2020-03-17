@@ -12,10 +12,9 @@ import (
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
-)
 
-import (
 	_ "github.com/go-sql-driver/mysql"
+
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -52,14 +51,7 @@ func initializeServer() (*web.Server, func(), error) {
 	backendApplication := provideBackendApp(logger, db, backendView, sessionManager, manager, dialer, captchasManager, accessManager)
 	controllersSite := controllers2.NewSite(backendApplication)
 	post := controllers2.NewPost(backendApplication)
-	client, err := provideTencentClient()
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	captcha := provideTencentCaptcha(client)
-	user := controllers2.NewUser(backendApplication, captcha)
+	user := controllers2.NewUser(backendApplication)
 	cmdBackendRoutes := provideBackendRoutes(accessManager, controllersSite, post, user)
 	router := provideRouter(application, cmdFrontendRoutes, backendApplication, cmdBackendRoutes)
 	translators, err := provideI18N()
@@ -109,7 +101,8 @@ func initializeAPIServer() (*web.Server, func(), error) {
 	user := controllers3.NewUser(application)
 	captcha := controllers3.NewCaptcha(captchasManager)
 	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
-	server := provideAPIServer(logger, cmdApiRouteGroups)
+	authenticator := provideAuthenticator(identityStore)
+	server := provideAPIServer(logger, cmdApiRouteGroups, cmdApiUserManager, authenticator)
 	return server, func() {
 		cleanup2()
 		cleanup()

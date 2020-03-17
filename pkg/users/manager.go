@@ -151,11 +151,7 @@ func (m *Manager) afterLogin(user *User, duration time.Duration) {
 	}
 }
 
-func (m *Manager) Logout(r *http.Request, w http.ResponseWriter) (err error) {
-	user, err := m.Get(r, w)
-	if err != nil {
-		return err
-	}
+func (m *Manager) Logout(user *User, r *http.Request, w http.ResponseWriter) (err error) {
 	if user.IsGuest() {
 		return
 	}

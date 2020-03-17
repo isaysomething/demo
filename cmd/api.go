@@ -17,8 +17,8 @@ import (
 	"github.com/clevergo/log"
 	"github.com/go-mail/mail"
 	"github.com/google/wire"
-	"github.com/gorilla/handlers"
 	"github.com/jmoiron/sqlx"
+	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 )
 
@@ -40,21 +40,33 @@ var serveAPICmd = &cobra.Command{
 }
 
 var apiSet = wire.NewSet(
-	provideAPIApp, provideAPIRouteGroups, provideAPIUserManager,
+	provideAPIApp, provideAPIRouteGroups, provideAPIUserManager, provideAuthenticator,
 	controllers.NewUser, controllers.NewPost, controllers.NewCaptcha,
 )
 
-func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups) *web.Server {
+func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager *apiUserManager, authenticator auth.Authenticator) *web.Server {
 	router := clevergo.NewRouter()
 	srv := web.NewServer(router, logger)
 	srv.Addr = ":4040"
 	for _, g := range routeGroups {
 		g.Register(router)
 	}
+
 	srv.Use(
-		handlers.CORS(),
+		provideCORS().Handler,
+		users.Middleware(userManager.Manager, authenticator),
 	)
 	return srv
+}
+
+func provideCORS() *cors.Cors {
+	return cors.New(cors.Options{
+		AllowedOrigins:   cfg.CORS.AllowedOrigins,
+		AllowedHeaders:   cfg.CORS.AllowedHeaders,
+		MaxAge:           cfg.CORS.MaxAge,
+		AllowCredentials: cfg.CORS.AllowedCredentials,
+		Debug:            cfg.CORS.Debug,
+	})
 }
 
 func provideAPIApp(
@@ -80,13 +92,13 @@ func provideAPIRouteGroups(
 ) apiRouteGroups {
 	return apiRouteGroups{
 		routeutil.NewGroup("/v1", routeutil.Routes{
-			routeutil.NewRoute(http.MethodPost, "/captchas", captcha.Create).Name("captcha"),
+			routeutil.NewRoute(http.MethodPost, "/captcha", captcha.Create),
+			routeutil.NewRoute(http.MethodPost, "/check-captcha", captcha.CheckCaptcha),
 
-			routeutil.NewRoute(http.MethodPost, "/login", user.Login).Name("login"),
-			routeutil.NewRoute(http.MethodPost, "/user/check-username", user.CheckUsername),
-			routeutil.NewRoute(http.MethodPost, "/user/check-email", user.CheckEmail),
+			routeutil.NewRoute(http.MethodPost, "/user/login", user.Login),
+			routeutil.NewRoute(http.MethodGet, "/user/info", user.Info),
+			routeutil.NewRoute(http.MethodPost, "/user/logout", user.Logout),
 
-			routeutil.NewRoute(http.MethodGet, "/logout", user.Logout).Name("logout"),
 			routeutil.NewRoute(http.MethodGet, "/users", user.Index).Name("users"),
 			routeutil.NewRoute(http.MethodGet, "/users/:id", user.Index).Name("user"),
 

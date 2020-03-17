@@ -31,7 +31,7 @@ func NewContact(mailer *mail.Dialer, captchaManager *captchas.Manager) *Contact 
 
 func (c *Contact) Validate() error {
 	return validation.ValidateStruct(c,
-		validation.Field(&c.Captcha, validation.Required, validation.By(validations.Captcha(c.captchaManager, c.CaptchaID))),
+		validation.Field(&c.Captcha, validation.Required, validation.By(validations.Captcha(c.captchaManager, c.CaptchaID, false))),
 		validation.Field(&c.Email, validation.Required, is.Email),
 		validation.Field(&c.Subject, validation.Required),
 		validation.Field(&c.Content, validation.Required),

@@ -9,7 +9,6 @@ type LogConfig struct {
 	FileMode uint32 `koanf:"file_mode"`
 }
 
-
 type LoggerConfig struct {
 	File     string `koanf:"file"`
 	FileMode uint32 `koanf:"file_mode"`

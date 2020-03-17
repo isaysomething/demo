@@ -56,4 +56,16 @@ type Config struct {
 		AppID        uint64 `koanf:"app_id"`
 		AppSecretKey string `koanf:"app_secret_key"`
 	} `koanf:"tencentCaptcha"`
+
+	CORS struct {
+		AllowedOrigins     []string `koanf:"allowed_origins"`
+		AllowedHeaders     []string `koanf:"allowed_headers"`
+		MaxAge             int      `koanf:"max_age"`
+		AllowedCredentials bool     `koanf:"allow_credentials"`
+		Debug              bool     `koanf:"debug"`
+	} `koanf:"cors"`
+
+	JWT struct {
+		SecretKey string `koanf:"secret_key"`
+	} `koanf:"jwt"`
 }
