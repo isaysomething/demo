@@ -21,7 +21,7 @@ type Login struct {
 	captchaManager *captchas.Manager
 	CaptchaID      string `json:"captcha_id"`
 	Captcha        string `json:"captcha"`
-	Email       string `json:"email"`
+	Email          string `json:"email"`
 	Password       string `json:"password"`
 	ipAddr         string
 }

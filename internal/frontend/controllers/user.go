@@ -41,7 +41,7 @@ func (u *User) Login(ctx *clevergo.Context) error {
 
 		return jsend.Success(ctx.Response, nil)
 	}
-	
+
 	return u.Render(ctx, "user/login", nil)
 }
 

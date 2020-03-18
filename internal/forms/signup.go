@@ -45,7 +45,7 @@ func NewSignup(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) 
 func (s *Signup) Validate() error {
 	return validation.ValidateStruct(s,
 		validation.Field(&s.Email, validation.Required, is.Email, validation.By(validations.IsUserEmailTaken(s.db))),
-		validation.Field(&s.Username, 
+		validation.Field(&s.Username,
 			validation.Required,
 			validation.Match(regUsername),
 			validation.By(validations.IsUsernameTaken(s.db)),

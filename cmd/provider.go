@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"html/template"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -46,8 +46,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-    "github.com/clevergo/captchas/stores/redisstore"
-    "github.com/go-redis/redis/v7"
+	"github.com/clevergo/captchas/stores/redisstore"
+	"github.com/go-redis/redis/v7"
 )
 
 func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *web.Server {
@@ -104,7 +104,7 @@ func provideCaptchaManager() *captchas.Manager {
 	store := redisstore.New(
 		client,
 		redisstore.Expiration(10*time.Minute), // captcha expiration, optional.
-		redisstore.Prefix("captchas"), // redis key prefix, optional.
+		redisstore.Prefix("captchas"),         // redis key prefix, optional.
 	)
 	return web.NewCaptchaManager(store, cfg.Captcha)
 }
@@ -359,7 +359,7 @@ func provideSessionStore() scs.Store {
 	if cfg.Redis.Password != "" {
 		opts = append(opts, redigo.DialPassword(cfg.Redis.Password))
 	}
- 	return redissessionstore.New(redigo.NewPool(func() (redigo.Conn, error) {
+	return redissessionstore.New(redigo.NewPool(func() (redigo.Conn, error) {
 		return redigo.Dial("tcp", address, opts...)
 	}, 1000))
 }

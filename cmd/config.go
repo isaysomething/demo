@@ -64,8 +64,8 @@ type Config struct {
 
 	Redis struct {
 		Host     string
-		Port int
-		Password    string
-		Database   int
+		Port     int
+		Password string
+		Database int
 	} `koanf:"redis"`
 }
