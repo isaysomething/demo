@@ -33,25 +33,16 @@ func (u *User) Login(ctx *clevergo.Context) error {
 		return nil
 	}
 
-	var err error
-	form := forms.NewLogin(u.DB(), user, u.CaptcpaManager())
 	if ctx.IsPost() {
+		form := forms.NewLogin(u.DB(), user, u.CaptcpaManager())
 		if _, err := form.Handle(ctx); err != nil {
 			return jsend.Error(ctx.Response, err.Error())
 		}
 
 		return jsend.Success(ctx.Response, nil)
 	}
-
-	captcha, err := u.CaptcpaManager().Generate()
-	if err != nil {
-		return err
-	}
-	return u.Render(ctx, "user/login", web.ViewData{
-		"form":    form,
-		"error":   err,
-		"captcha": captcha,
-	})
+	
+	return u.Render(ctx, "user/login", nil)
 }
 
 func (u *User) CheckUsername(ctx *clevergo.Context) error {

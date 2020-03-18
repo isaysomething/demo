@@ -4,13 +4,11 @@ $(document).ready(function() {
     loginForm.validate({
         rules: {
             email: {
-                required: true,
                 normalizer: function(value) {
                     return $.trim(value)
                 }
             },
             password: {
-                required: true,
                 minlength: 6,
                 normalizer: function(value) {
                     return $.trim(value);
@@ -22,7 +20,7 @@ $(document).ready(function() {
                     return $.trim(value);
                 },
                 remote: {
-                    url: '/backend/check-captcha',
+                    url: '/check-captcha',
                     type: 'post',
                     data: {
                         id: function() {
@@ -54,9 +52,9 @@ $(document).ready(function() {
         event.preventDefault()
 
         if ($(this).valid()) {
-            $.post('/backend/login', loginForm.serialize(), function(resp) {
+            $.post(loginForm.attr("action"), loginForm.serialize(), function(resp) {
                 if (resp.status == 'success') {
-                    window.location.href = "/backend/"    
+                    window.location.href = '/'    
                     return
                 }
                 alert(resp.message)

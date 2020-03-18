@@ -5,27 +5,53 @@
 {{ end }}
 
 {{ block body() }}
-<h1 class="text-center">
+<h2 class="text-center">
   {{ T("text.login") }}
-</h1>
-<hr>
-<form class="offset-md-2 col-md-8" action="{{ route("login") }}" method="POST">
+</h2>
+
+<p class="text-center">
+  Start a new session.
+</p>
+
+<form id="loginForm" class="offset-md-4 col-md-4" action="{{ route("login") }}" method="POST">
   {{ csrf() | raw }}
+
   <div class="form-group row">
-    <input type="email" class="form-control" id="email" placeholder="{{ T("text.email") }}" name="email" value="{{ .form.Email }}">
-  </div>
-  <div class="form-group row">
-    <input type="password" class="form-control" id="password" placeholder="{{ T("text.password") }}" name="password" value="{{ .form.Password }}">
-  </div>
-  <div class="form-group row">
-      <input type="text" class="form-control col-2" placeholder="{{ T("text.captcha") }}" name="captcha">
-      <div class="col-10">
-        {{ .captcha.HTMLField("captcha_id") | raw }}
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text bg-transparent"><i class="fas fa-envelope"></i></div>
       </div>
+      <input type="email" class="form-control" id="email" name="email"
+        placeholder="{{ T("text.email") }}"
+        required>
+    </div>
   </div>
+
   <div class="form-group row">
-    <button type="submit" id="btnLogin" disabled class="btn btn-block btn-primary">{{ "Login" }}</button>
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text bg-transparent"><i class="fas fa-lock"></i></div>
+      </div>
+      <input type="password" class="form-control" id="password" name="password"
+        placeholder="{{ T("text.password") }}"
+        required>
+    </div>
   </div>
+
+  <div class="form-group row">
+    <input type="text" class="form-control col-md-6" name="captcha"
+      placeholder="{{ T("text.captcha") }}"
+      required>
+    <div id="captchaContainer" class="col-md-6 captcha">
+      <input type="hidden" id="captchaID" name="captcha_id">
+      <img id="captchaMedia">
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <button type="submit" id="btnLogin" class="btn btn-block btn-primary">{{ "Login" }}</button>
+  </div>
+
   <div>
     <p>
       <a href="{{ route("reset-password") }}">Forgot password?</a>
@@ -34,19 +60,11 @@
       Don't have an account? <a href="{{ route("sign-up") }}">Create one now</a>.
     </p>
   </div>
-</form>
 
-<script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
-<script>
-  window.callback = function(res){
-    if(res.ret === 0){
-      console.log(res)
-      document.getElementById("captchaTicket").value = res.ticket
-      document.getElementById("captchaRandstr").value = res.randstr
-      document.getElementById("btnLogin").removeAttribute("disabled")
-    }
-  }
-</script>
+</form>
 {{ end }}
 
-{{ block endBody() }}{{ end }}
+{{ block endBody() }}
+<script src="/static/js/captcha.js"></script>
+<script src="/static/js/user/login.js"></script>
+{{ end }}
