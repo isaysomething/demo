@@ -11,7 +11,6 @@ require (
 	github.com/clevergo/auth v0.2.1-0.20200316035840-18b30e386e08
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
-	github.com/clevergo/captchas/memstore v0.3.2
 	github.com/clevergo/captchas/stores/redisstore v0.1.0
 	github.com/clevergo/clevergo v1.4.2-0.20200316034145-e08c9f10a6d5
 	github.com/clevergo/form v1.1.0

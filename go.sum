@@ -77,8 +77,6 @@ github.com/clevergo/captchas v0.3.2 h1:/P/Lc8umYp052aGeyiQf8a8mED+g+lmZLqmogMrt1
 github.com/clevergo/captchas v0.3.2/go.mod h1:MgQIvLx9mhOoScMJnSFvXuqbAQVIwWtLJ862K1jRvR8=
 github.com/clevergo/captchas/drivers v0.3.2 h1:KTbxUKLrHW0kYxAavRL4mM0W/xp+K9uzcF2h56SJo4M=
 github.com/clevergo/captchas/drivers v0.3.2/go.mod h1:dKZAu9pbm0WSMRz7F1ARsVyLqgeOKNyDWfeppOdScLQ=
-github.com/clevergo/captchas/memstore v0.3.2 h1:09Xm0hCgyj+AmPM5KA9rxaeW/xSRSdsjEMOSt9nOXUE=
-github.com/clevergo/captchas/memstore v0.3.2/go.mod h1:7pYn4ohnX9XSlyPWZeaiC1McdlwJL0KslsB2S76x1mU=
 github.com/clevergo/captchas/stores/redisstore v0.1.0 h1:kBUJJK1sNvwqtzOGXolC2lQkNHh7C4+RVRgANkBO6EI=
 github.com/clevergo/captchas/stores/redisstore v0.1.0/go.mod h1:dv1IlPPs+EQZ+oZeh3q68BgmGXg/W1fih5Lk6WUrtts=
 github.com/clevergo/clevergo v1.4.2-0.20200316034145-e08c9f10a6d5 h1:VZ1r7Yexx4JbzD90TjTh0BWyt5XyNHxDGIAO7DNWk3E=
