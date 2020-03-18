@@ -25,6 +25,7 @@ func init() {
 	migrateCmd.AddCommand(
 		migrateDownCmd,
 		migrateDropCmd,
+		migrateRefreshCmd,
 		migrateVersionCmd,
 		migrateCreateCmd,
 		migrateForceCmd,
@@ -83,6 +84,22 @@ var migrateDropCmd = &cobra.Command{
 		m := provideMigrate()
 		if err := m.Drop(); err != nil {
 			log.Fatal(err)
+		}
+	},
+}
+
+var migrateRefreshCmd = &cobra.Command{
+	Use:   "refresh",
+	Short: "delete everything in database and apply all migrations.",
+	Long:  `delete everything in database and apply all migrations.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		m := provideMigrate()
+		if err := m.Drop(); err != nil {
+			log.Fatal(err)
+		}
+		m = provideMigrate()
+		if err := m.Up(); err != nil {
+			log.Fatal(err.Error() + "AAAA")
 		}
 	},
 }
