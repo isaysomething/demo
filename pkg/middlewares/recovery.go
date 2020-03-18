@@ -1,6 +1,4 @@
 package middlewares
 
-type Recovery struct{
-
+type Recovery struct {
 }
-

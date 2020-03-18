@@ -110,5 +110,5 @@ var superSet = wire.NewSet(
 	provideRouter, provideMiddlewares, provideI18N,
 	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
 	provideIdentityStore, provideMailer, provideCaptchaManager,
-	provideEnforcer, access.New, provideTencentClient, provideTencentCaptcha,
+	provideEnforcer, access.New,
 )

@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/forms"
+	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/listeners"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/web"
@@ -133,8 +133,8 @@ func (u *User) Signup(ctx *clevergo.Context) error {
 	}
 
 	return u.Render(ctx, "user/signup", web.ViewData{
-		"form":    form,
-		"error":   err,
+		"form":  form,
+		"error": err,
 	})
 }
 

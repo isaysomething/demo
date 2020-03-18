@@ -13,7 +13,6 @@ var superSet = wire.NewSet(
 	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
 	provideIdentityStore, provideMailer, provideCaptchaManager,
 	provideEnforcer, access.New,
-	provideTencentClient, provideTencentCaptcha,
 )
 
 func initializeServer() (*web.Server, func(), error) {

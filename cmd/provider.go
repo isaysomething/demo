@@ -32,7 +32,6 @@ import (
 	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/middlewares"
-	"github.com/clevergo/demo/pkg/tencentcaptcha"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/i18n"
 	"github.com/clevergo/log"
@@ -42,21 +41,9 @@ import (
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	sqlxadapter "github.com/memwey/casbin-sqlx-adapter"
-	v20190722 "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/captcha/v20190722"
-	tencentcommon "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
-	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
-
-func provideTencentClient() (*v20190722.Client, error) {
-	credential := tencentcommon.NewCredential(cfg.TencentCaptcha.SecretID, cfg.TencentCaptcha.SecretKey)
-	return v20190722.NewClient(credential, "", profile.NewClientProfile())
-}
-
-func provideTencentCaptcha(client *v20190722.Client) *tencentcaptcha.Captcha {
-	return tencentcaptcha.New(client, cfg.TencentCaptcha.AppID, cfg.TencentCaptcha.AppSecretKey)
-}
 
 func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *web.Server {
 	srv := web.NewServer(router, logger)

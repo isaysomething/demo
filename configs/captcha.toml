@@ -21,9 +21,4 @@
         width = 240
         length = 6
 
-[tencentCaptcha]
-    secret_id = ""
-    secret_key = ""
-    app_id = 0
-    app_secret_key = ""
     

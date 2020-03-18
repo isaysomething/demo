@@ -2,9 +2,9 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
-	"fmt"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -20,15 +20,15 @@ func NewJWTManager() *JWTManager {
 func (m *JWTManager) New(userID int64, duration time.Duration) *jwt.Token {
 	now := time.Now()
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		IssuedAt: now.Unix(),
+		IssuedAt:  now.Unix(),
 		NotBefore: now.Unix(),
 		ExpiresAt: now.Add(time.Second * duration).Unix(),
-		Subject: strconv.FormatInt(userID, 10),
+		Subject:   strconv.FormatInt(userID, 10),
 	})
 }
 
 func (m *JWTManager) Parse(s string) (*jwt.Token, error) {
-	token, err := jwt.ParseWithClaims(s, &jwt.StandardClaims{}, func (t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(s, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])

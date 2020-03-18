@@ -50,13 +50,6 @@ type Config struct {
 		Path   string
 	} `koanf:"migration"`
 
-	TencentCaptcha struct {
-		SecretID     string `koanf:"secret_id"`
-		SecretKey    string `koanf:"secret_key"`
-		AppID        uint64 `koanf:"app_id"`
-		AppSecretKey string `koanf:"app_secret_key"`
-	} `koanf:"tencentCaptcha"`
-
 	CORS struct {
 		AllowedOrigins     []string `koanf:"allowed_origins"`
 		AllowedHeaders     []string `koanf:"allowed_headers"`
