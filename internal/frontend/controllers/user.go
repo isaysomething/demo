@@ -101,14 +101,14 @@ func (u *User) Logout(ctx *clevergo.Context) error {
 		}
 	}
 
-	ctx.Redirect("/backend/login", http.StatusFound)
+	ctx.Redirect("/login", http.StatusFound)
 	return nil
 }
 
 func (u *User) Signup(ctx *clevergo.Context) error {
 	user, _ := u.User(ctx)
 	if !user.IsGuest() {
-		ctx.Redirect("/backend/", http.StatusFound)
+		ctx.Redirect("/", http.StatusFound)
 		return nil
 	}
 
