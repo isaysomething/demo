@@ -40,7 +40,7 @@ func (l *Login) Validate() error {
 		validation.Field(&l.CaptchaID, validation.Required),
 		validation.Field(&l.Captcha,
 			validation.Required,
-			validation.By(validations.Captcha(l.captchaManager, l.CaptchaID, false)),
+			validation.By(validations.Captcha(l.captchaManager, l.CaptchaID, true)),
 		),
 	)
 }

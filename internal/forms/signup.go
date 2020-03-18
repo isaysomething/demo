@@ -54,7 +54,7 @@ func (s *Signup) Validate() error {
 		validation.Field(&s.CaptchaID, validation.Required),
 		validation.Field(&s.Captcha,
 			validation.Required,
-			validation.By(validations.Captcha(s.captchaManager, s.CaptchaID, false)),
+			validation.By(validations.Captcha(s.captchaManager, s.CaptchaID, true)),
 		),
 	)
 }
