@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"html/template"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path"
 	"reflect"
 	"regexp"
+	"time"
 
 	// database drivers.
 	"github.com/CloudyKit/jet/v3"
@@ -43,6 +45,9 @@ import (
 	sqlxadapter "github.com/memwey/casbin-sqlx-adapter"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+    "github.com/clevergo/captchas/stores/redisstore"
+    "github.com/go-redis/redis/v7"
 )
 
 func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *web.Server {
@@ -92,7 +97,16 @@ func provideEnforcer() (*casbin.Enforcer, error) {
 }
 
 func provideCaptchaManager() *captchas.Manager {
-	return web.NewCaptchaManager(cfg.Captcha)
+	// redis client.
+	client := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
+	})
+	store := redisstore.New(
+		client,
+		redisstore.Expiration(10*time.Minute), // captcha expiration, optional.
+		redisstore.Prefix("captchas"), // redis key prefix, optional.
+	)
+	return web.NewCaptchaManager(store, cfg.Captcha)
 }
 
 func provideMailer() *mail.Dialer {
@@ -338,8 +352,14 @@ func provideSessionManager(store scs.Store) *scs.SessionManager {
 }
 
 func provideSessionStore() scs.Store {
-	address := "localhost:6379"
-	return redissessionstore.New(redigo.NewPool(func() (redigo.Conn, error) {
-		return redigo.Dial("tcp", address)
+	address := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
+	opts := []redigo.DialOption{
+		redigo.DialDatabase(cfg.Redis.Database),
+	}
+	if cfg.Redis.Password != "" {
+		opts = append(opts, redigo.DialPassword(cfg.Redis.Password))
+	}
+ 	return redissessionstore.New(redigo.NewPool(func() (redigo.Conn, error) {
+		return redigo.Dial("tcp", address, opts...)
 	}, 1000))
 }

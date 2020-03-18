@@ -3,7 +3,6 @@ package web
 import (
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/captchas/drivers"
-	"github.com/clevergo/captchas/memstore"
 )
 
 type CaptchaConfig struct {
@@ -33,8 +32,7 @@ type CaptchaConfig struct {
 	} `koanf:"audio"`
 }
 
-func NewCaptchaManager(cfg CaptchaConfig) *captchas.Manager {
-	store := memstore.New()
+func NewCaptchaManager(store captchas.Store, cfg CaptchaConfig) *captchas.Manager {
 	switch cfg.Driver {
 	case "string":
 		return captchas.New(store, drivers.NewString(

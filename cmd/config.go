@@ -61,4 +61,11 @@ type Config struct {
 	JWT struct {
 		SecretKey string `koanf:"secret_key"`
 	} `koanf:"jwt"`
+
+	Redis struct {
+		Host     string
+		Port int
+		Password    string
+		Database   int
+	} `koanf:"redis"`
 }

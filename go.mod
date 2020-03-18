@@ -12,6 +12,7 @@ require (
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/memstore v0.3.2
+	github.com/clevergo/captchas/stores/redisstore v0.1.0
 	github.com/clevergo/clevergo v1.4.2-0.20200316034145-e08c9f10a6d5
 	github.com/clevergo/form v1.1.0
 	github.com/clevergo/i18n v1.0.2
@@ -27,7 +28,7 @@ require (
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-ozzo/ozzo-validation/v4 v4.1.0
-	github.com/go-redis/redis/v7 v7.2.0 // indirect
+	github.com/go-redis/redis/v7 v7.2.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gobuffalo/packr/v2 v2.8.0
 	github.com/golang-migrate/migrate/v4 v4.9.1
