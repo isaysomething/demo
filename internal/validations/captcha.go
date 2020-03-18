@@ -24,4 +24,3 @@ func Captcha(manager *captchas.Manager, id string, clear bool) validation.RuleFu
 		return nil
 	}
 }
-

@@ -18,11 +18,11 @@ var (
 	regUsername = regexp.MustCompile("^[[:alnum:]_-]{5,}$")
 )
 
-type AfterSignUpEvent struct {
+type AfterSignupEvent struct {
 	User *models.User
 }
 
-type SignUp struct {
+type Signup struct {
 	db             *sqlx.DB
 	user           *users.User
 	captchaManager *captchas.Manager
@@ -31,21 +31,21 @@ type SignUp struct {
 	Password       string `json:"password" xml:"password"`
 	Captcha        string `json:"captcha"`
 	CaptchaID      string `json:"captcha_id"`
-	onAfterSignUp  []func(AfterSignUpEvent)
+	onAfterSignup  []func(AfterSignupEvent)
 }
 
-func NewSignUp(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *SignUp {
-	return &SignUp{
+func NewSignup(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *Signup {
+	return &Signup{
 		db:             db,
 		user:           user,
 		captchaManager: captchaManager,
 	}
 }
 
-func (s *SignUp) Validate() error {
+func (s *Signup) Validate() error {
 	return validation.ValidateStruct(s,
 		validation.Field(&s.Email, validation.Required, is.Email, validation.By(validations.IsUserEmailTaken(s.db))),
-		validation.Field(&s.Username,
+		validation.Field(&s.Username, 
 			validation.Required,
 			validation.Match(regUsername),
 			validation.By(validations.IsUsernameTaken(s.db)),
@@ -59,11 +59,11 @@ func (s *SignUp) Validate() error {
 	)
 }
 
-func (su *SignUp) RegisterOnAfterSignUp(f func(AfterSignUpEvent)) {
-	su.onAfterSignUp = append(su.onAfterSignUp, f)
+func (su *Signup) RegisterOnAfterSignup(f func(AfterSignupEvent)) {
+	su.onAfterSignup = append(su.onAfterSignup, f)
 }
 
-func (su *SignUp) Handle(ctx *clevergo.Context) (*models.User, error) {
+func (su *Signup) Handle(ctx *clevergo.Context) (*models.User, error) {
 	if err := form.Decode(ctx.Request, su); err != nil {
 		return nil, err
 	}
@@ -76,13 +76,13 @@ func (su *SignUp) Handle(ctx *clevergo.Context) (*models.User, error) {
 		return nil, err
 	}
 
-	su.afterSignUp(user)
+	su.afterSignup(user)
 	return user, nil
 }
 
-func (su *SignUp) afterSignUp(user *models.User) {
-	event := AfterSignUpEvent{user}
-	for _, f := range su.onAfterSignUp {
+func (su *Signup) afterSignup(user *models.User) {
+	event := AfterSignupEvent{user}
+	for _, f := range su.onAfterSignup {
 		f(event)
 	}
 }

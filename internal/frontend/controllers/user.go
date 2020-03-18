@@ -121,9 +121,9 @@ func (u *User) Signup(ctx *clevergo.Context) error {
 		return nil
 	}
 
-	form := forms.NewSignUp(u.DB(), user, u.CaptcpaManager())
+	form := forms.NewSignup(u.DB(), user, u.CaptcpaManager())
 	var err error
-	form.RegisterOnAfterSignUp(listeners.NewSignUp(u.Mailer()).AfterSignUp)
+	form.RegisterOnAfterSignup(listeners.SendVerificationEmail(u.Mailer()))
 	if ctx.IsPost() {
 		if _, err = form.Handle(ctx); err != nil {
 			return jsend.Error(ctx.Response, err.Error())
