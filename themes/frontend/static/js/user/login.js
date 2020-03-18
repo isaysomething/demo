@@ -58,6 +58,8 @@ $(document).ready(function() {
                     return
                 }
                 alert(resp.message)
+                $('#captchaContainer>img').trigger('click')
+                loginForm.find('input[name="captcha"]').val("")
             }, 'json')
         }
     })

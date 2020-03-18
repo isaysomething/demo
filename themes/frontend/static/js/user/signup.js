@@ -99,7 +99,8 @@ $(document).ready(function() {
                     return
                 }
                 alert(resp.message)
-                captcha.reload()
+                $('#captchaContainer>img').trigger('click')
+                signupForm.find('input[name="captcha"]').val("")
             }, 'json')
         }
     })
