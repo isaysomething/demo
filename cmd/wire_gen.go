@@ -54,7 +54,8 @@ func initializeServer() (*web.Server, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	v, err := provideMiddlewares(sessionManager, translators, manager)
+	authenticator := provideAuthenticator(identityStore)
+	v, err := provideMiddlewares(sessionManager, translators, manager, authenticator)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -109,5 +110,5 @@ var superSet = wire.NewSet(
 	provideRouter, provideMiddlewares, provideI18N,
 	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
 	provideIdentityStore, provideMailer, provideCaptchaManager,
-	provideEnforcer, access.New,
+	provideEnforcer, access.New, provideAuthenticator,
 )

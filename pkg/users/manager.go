@@ -186,3 +186,37 @@ func (m *Manager) afterLogout(user *User) {
 		f(event)
 	}
 }
+
+func (m *Manager) Handler(next http.Handler, authenticator auth.Authenticator) http.Handler {
+	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		user, err := m.Get(r, w)
+		if err != nil {
+			// http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Println(err)
+		}
+		if user.IsGuest() {
+			identity, err := authenticator.Authenticate(r)
+			if err != nil {
+				log.Println(err)
+			} else {
+				if err = user.Login(r, w, identity, 0); err != nil {
+					log.Println(err)
+				}
+			}
+		}
+
+		next.ServeHTTP(w, r)
+	})
+
+	if m.sessionManager != nil {
+		handler = m.sessionManager.LoadAndSave(handler)
+	}
+
+	return handler
+}
+
+func (m *Manager) Middleware(authenticator auth.Authenticator) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return m.Handler(next, authenticator)
+	}
+}

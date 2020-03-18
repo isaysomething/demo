@@ -12,7 +12,7 @@ var superSet = wire.NewSet(
 	provideRouter, provideMiddlewares, provideI18N,
 	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
 	provideIdentityStore, provideMailer, provideCaptchaManager,
-	provideEnforcer, access.New,
+	provideEnforcer, access.New, provideAuthenticator,
 )
 
 func initializeServer() (*web.Server, func(), error) {

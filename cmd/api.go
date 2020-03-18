@@ -40,7 +40,7 @@ var serveAPICmd = &cobra.Command{
 }
 
 var apiSet = wire.NewSet(
-	provideAPIApp, provideAPIRouteGroups, provideAPIUserManager, provideAuthenticator,
+	provideAPIApp, provideAPIRouteGroups, provideAPIUserManager,
 	controllers.NewUser, controllers.NewPost, controllers.NewCaptcha,
 )
 
@@ -54,7 +54,7 @@ func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager
 
 	srv.Use(
 		provideCORS().Handler,
-		users.Middleware(userManager.Manager, authenticator),
+		userManager.Middleware(authenticator),
 	)
 	return srv
 }

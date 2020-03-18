@@ -212,7 +212,7 @@ func newApp(
 	return app
 }
 
-func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userManager *users.Manager) (v []func(http.Handler) http.Handler, err error) {
+func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userManager *users.Manager, authenticator auth.Authenticator) (v []func(http.Handler) http.Handler, err error) {
 	// v = append(v, handlers.RecoveryHandler())
 	m := minify.New()
 	m.AddFunc("text/css", css.Minify)
@@ -237,7 +237,7 @@ func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Tr
 		user, _ := userManager.Get(r, w)
 		return user.IsGuest()
 	}, middlewares.NewPathSkipper("/*"))
-	v = append(v, sessionManager.LoadAndSave, provideI18NMiddleware(translators), login)
+	v = append(v, userManager.Middleware(authenticator), provideI18NMiddleware(translators), login)
 
 	v = append(v, csrf.Protect([]byte("123456"), csrf.Secure(false)))
 
