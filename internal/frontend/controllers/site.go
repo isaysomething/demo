@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/clevergo/clevergo"
@@ -73,4 +74,9 @@ func (s *Site) CheckCaptcha(ctx *clevergo.Context) error {
 	}
 
 	return jsend.Success(ctx.Response, nil)
+}
+
+func (s *Site) Robots(ctx *clevergo.Context) error {
+	ctx.WriteString(fmt.Sprintf("User-agent: %s\n", "*"))
+	return nil
 }

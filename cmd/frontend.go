@@ -22,6 +22,7 @@ func provideFrontendRoutes(
 ) frontendRoutes {
 	return frontendRoutes{
 		routeutil.NewRoute(http.MethodGet, "/", site.Index).Name("home"),
+		routeutil.NewRoute(http.MethodGet, "/robots.txt", site.Robots),
 		routeutil.NewRoute(http.MethodGet, "/about", site.About).Name("about"),
 		routeutil.NewRoute(http.MethodGet, "/contact", site.Contact).Name("contact"),
 		routeutil.NewRoute(http.MethodPost, "/contact", site.Contact),
