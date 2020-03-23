@@ -2,12 +2,9 @@ package cmd
 
 import (
 	"html/template"
-	"io"
 	"net/http"
-	"os"
 	"path"
 	"reflect"
-	"regexp"
 
 	// database drivers.
 	"github.com/CloudyKit/jet/v3"
@@ -16,11 +13,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/jmoiron/sqlx"
-	"github.com/tdewolff/minify/v2"
-	"github.com/tdewolff/minify/v2/css"
-	"github.com/tdewolff/minify/v2/html"
-	"github.com/tdewolff/minify/v2/js"
-	"github.com/tdewolff/minify/v2/svg"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/auth"
@@ -90,15 +82,13 @@ func provideRouter(
 	frontendRoutes frontendRoutes,
 ) *clevergo.Router {
 	router := clevergo.NewRouter()
-	m := minify.New()
-	m.AddFunc("text/css", css.Minify)
-	m.AddFunc("text/html", html.Minify)
-	m.AddFunc("image/svg+xml", svg.Minify)
-	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
-	//m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
-	//m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
-	router.NotFound = m.Middleware(http.FileServer(packr.New("public", cfg.Server.Root)))
-	router.Use(clevergo.Recovery(true))
+	router.NotFound = http.FileServer(packr.New("public", cfg.Server.Root))
+
+	router.Use(
+		clevergo.Recovery(true),
+		middlewares.Logging(core.LoggerWriter(app.Logger())),
+		middlewares.Minify(),
+	)
 
 	routeFunc := func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("route", 1, 1)
@@ -187,25 +177,21 @@ func newApp(
 
 func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userManager *users.Manager, authenticator auth.Authenticator) (v []func(http.Handler) http.Handler, err error) {
 	// v = append(v, handlers.RecoveryHandler())
-	m := minify.New()
-	m.AddFunc("text/css", css.Minify)
-	m.AddFunc("text/html", html.Minify)
-	m.AddFunc("image/svg+xml", svg.Minify)
-	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	if cfg.Server.Gzip {
 		v = append(v, middleware.Compress(cfg.Server.GzipLevel))
 	}
-	v = append(v, m.Middleware)
-	if cfg.Server.AccessLog {
-		var accessLog io.Writer = os.Stdout
-		if cfg.Server.AccessLogFile != "" {
-			accessLog, err = os.OpenFile(cfg.Server.AccessLogFile, os.O_CREATE|os.O_APPEND, os.FileMode(cfg.Server.AccessLogFileMode))
-			if err != nil {
-				return
+	/*
+		if cfg.Server.AccessLog {
+			var accessLog io.Writer = os.Stdout
+			if cfg.Server.AccessLogFile != "" {
+				accessLog, err = os.OpenFile(cfg.Server.AccessLogFile, os.O_CREATE|os.O_APPEND, os.FileMode(cfg.Server.AccessLogFileMode))
+				if err != nil {
+					return
+				}
 			}
+			v = append(v, middleware.Logging(accessLog))
 		}
-		v = append(v, middleware.Logging(accessLog))
-	}
+	*/
 	login := middlewares.LoginCheckerMiddleware(func(r *http.Request, w http.ResponseWriter) bool {
 		user, _ := userManager.Get(r, w)
 		return user.IsGuest()

@@ -1,6 +1,8 @@
 package core
 
 import (
+	"io"
+
 	"github.com/clevergo/log"
 	"github.com/clevergo/log/zapadapter"
 	"go.uber.org/zap"
@@ -29,4 +31,17 @@ func NewLogger(cfg LogConfig) (log.Logger, func(), error) {
 
 		undo()
 	}, nil
+}
+
+type loggerWriter struct {
+	logger log.Logger
+}
+
+func (w *loggerWriter) Write(p []byte) (int, error) {
+	w.logger.Info(string(p))
+	return len(p), nil
+}
+
+func LoggerWriter(logger log.Logger) io.Writer {
+	return &loggerWriter{logger: logger}
 }
