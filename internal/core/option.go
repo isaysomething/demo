@@ -18,43 +18,43 @@ import (
 
 type Option func(*Application)
 
-func DB(db *sqlx.DB) Option {
+func SetDB(db *sqlx.DB) Option {
 	return func(app *Application) {
 		app.db = db
 	}
 }
 
-func Cache(cache store.StoreInterface) Option {
+func SetCache(cache store.StoreInterface) Option {
 	return func(app *Application) {
 		app.cache = cache
 	}
 }
 
-func SessionManager(manager *scs.SessionManager) Option {
+func SetSessionManager(manager *scs.SessionManager) Option {
 	return func(app *Application) {
 		app.sessionManager = manager
 	}
 }
 
-func Params(ps params.Params) Option {
+func SetParams(ps params.Params) Option {
 	return func(app *Application) {
 		app.params = ps
 	}
 }
 
-func Logger(logger log.Logger) Option {
+func SetLogger(logger log.Logger) Option {
 	return func(app *Application) {
 		app.logger = logger
 	}
 }
 
-func UserManager(m *users.Manager) Option {
+func SetUserManager(m *users.Manager) Option {
 	return func(app *Application) {
 		app.userManager = m
 	}
 }
 
-func AccessManager(manager *access.Manager) Option {
+func SetAccessManager(manager *access.Manager) Option {
 	return func(app *Application) {
 		app.accessManager = manager
 	}
@@ -80,19 +80,19 @@ func SetViewManager(m *ViewManager) Option {
 	}
 }
 
-func Mailer(mailer *mail.Dialer) Option {
+func SetMailer(mailer *mail.Dialer) Option {
 	return func(app *Application) {
 		app.mailer = mailer
 	}
 }
 
-func CaptchaManager(manager *captchas.Manager) Option {
+func SetCaptchaManager(manager *captchas.Manager) Option {
 	return func(app *Application) {
 		app.captchaManager = manager
 	}
 }
 
-func BeforeRender(f func(*BeforeRenderEvent)) Option {
+func SetBeforeRender(f func(*BeforeRenderEvent)) Option {
 	return func(app *Application) {
 		app.beforeRender = f
 	}

@@ -177,13 +177,13 @@ func newApp(
 	accessManager *access.Manager,
 ) *core.Application {
 	opts := []core.Option{
-		core.Params(cfg.Params),
-		core.Logger(logger),
-		core.DB(db),
-		core.SessionManager(sessionManager),
-		core.Mailer(mailer),
-		core.CaptchaManager(captchaManager),
-		core.BeforeRender(func(event *core.BeforeRenderEvent) {
+		core.SetParams(cfg.Params),
+		core.SetLogger(logger),
+		core.SetDB(db),
+		core.SetSessionManager(sessionManager),
+		core.SetMailer(mailer),
+		core.SetCaptchaManager(captchaManager),
+		core.SetBeforeRender(func(event *core.BeforeRenderEvent) {
 			user, _ := userManager.Get(event.Context.Request, event.Context.Response)
 			event.Data["user"] = user.GetIdentity()
 
@@ -201,8 +201,8 @@ func newApp(
 				return reflect.ValueOf(translator.Sprintf("%m", args.Get(0).String()))
 			})
 		}),
-		core.UserManager(userManager),
-		core.AccessManager(accessManager),
+		core.SetUserManager(userManager),
+		core.SetAccessManager(accessManager),
 	}
 	if view != nil {
 		opts = append(opts, core.SetViewManager(view))
