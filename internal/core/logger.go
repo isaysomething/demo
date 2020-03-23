@@ -38,7 +38,7 @@ type loggerWriter struct {
 }
 
 func (w *loggerWriter) Write(p []byte) (int, error) {
-	w.logger.Info(string(p))
+	w.logger.Infof("%s", p)
 	return len(p), nil
 }
 

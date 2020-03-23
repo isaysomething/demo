@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"compress/gzip"
 	"html/template"
 	"net/http"
 	"path"
@@ -25,7 +26,6 @@ import (
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/i18n"
 	"github.com/clevergo/log"
-	"github.com/clevergo/middleware"
 	"github.com/go-mail/mail"
 	"github.com/gorilla/csrf"
 	sqlxadapter "github.com/memwey/casbin-sqlx-adapter"
@@ -87,6 +87,7 @@ func provideRouter(
 	router.Use(
 		clevergo.Recovery(true),
 		middlewares.Logging(core.LoggerWriter(app.Logger())),
+		middlewares.Compress(gzip.DefaultCompression),
 		middlewares.Minify(),
 	)
 
@@ -178,7 +179,7 @@ func newApp(
 func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userManager *users.Manager, authenticator auth.Authenticator) (v []func(http.Handler) http.Handler, err error) {
 	// v = append(v, handlers.RecoveryHandler())
 	if cfg.Server.Gzip {
-		v = append(v, middleware.Compress(cfg.Server.GzipLevel))
+		// v = append(v, middleware.Compress(cfg.Server.GzipLevel))
 	}
 	/*
 		if cfg.Server.AccessLog {
