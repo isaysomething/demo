@@ -43,26 +43,28 @@ func (m *Manager) Add(user, role string) (bool, error) {
 }
 
 func (m *Manager) Middleware(obj, act string) clevergo.MiddlewareFunc {
-	return func(ctx *clevergo.Context) error {
-		user, err := m.userManager.Get(ctx.Request, ctx.Response)
-		if err != nil {
-			return err
-		}
-		if user.IsGuest() {
-			return clevergo.NewError(http.StatusUnauthorized, errors.New("unauthorized"))
-		}
+	return func(next clevergo.Handle) clevergo.Handle {
+		return func(ctx *clevergo.Context) error {
+			user, err := m.userManager.Get(ctx.Request, ctx.Response)
+			if err != nil {
+				return err
+			}
+			if user.IsGuest() {
+				return clevergo.NewError(http.StatusUnauthorized, errors.New("unauthorized"))
+			}
 
-		fmt.Println(m.getUserID(user), obj, act)
-		ok, err := m.Enforce(m.getUserID(user), obj, act)
-		fmt.Println(ok, err)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return clevergo.NewError(http.StatusForbidden, errors.New("you have no access to this page"))
-		}
+			fmt.Println(m.getUserID(user), obj, act)
+			ok, err := m.Enforce(m.getUserID(user), obj, act)
+			fmt.Println(ok, err)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return clevergo.NewError(http.StatusForbidden, errors.New("you have no access to this page"))
+			}
 
-		return nil
+			return next(ctx)
+		}
 	}
 }
 

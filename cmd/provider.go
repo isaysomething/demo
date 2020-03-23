@@ -98,7 +98,7 @@ func provideRouter(
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
 	router.NotFound = m.Middleware(http.FileServer(packr.New("public", cfg.Server.Root)))
-	router.Use(middlewares.Recovery())
+	router.Use(clevergo.Recovery(true))
 
 	routeFunc := func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("route", 1, 1)
