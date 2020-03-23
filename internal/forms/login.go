@@ -1,6 +1,7 @@
 package forms
 
 import (
+	"errors"
 	"time"
 
 	"github.com/clevergo/captchas"
@@ -36,24 +37,34 @@ func NewLogin(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *
 
 func (l *Login) Validate() error {
 	return validation.ValidateStruct(l,
-		validation.Field(&l.Email, validation.Required, is.Email),
-		validation.Field(&l.Password, validation.Required, validation.By(validations.UserPassword(l.getIdentity()))),
 		validation.Field(&l.CaptchaID, validation.Required),
 		validation.Field(&l.Captcha,
 			validation.Required,
 			validation.By(validations.Captcha(l.captchaManager, l.CaptchaID, true)),
 		),
+		validation.Field(&l.Password, validation.Required),
+		validation.Field(&l.Email,
+			validation.Required,
+			is.Email,
+			validation.By(validation.RuleFunc(l.validateUser)),
+		),
 	)
 }
 
-func (l *Login) ValidatePassword() bool {
+var errIncorrectPassword = errors.New("incorrect username or password")
+
+func (l *Login) validateUser(_ interface{}) error {
 	identity := l.getIdentity()
 	if identity == nil {
-		return false
+		return errIncorrectPassword
 	}
-
-	err := identity.ValidatePassword(l.Password)
-	return err == nil
+	if err := identity.ValidatePassword(l.Password); err != nil {
+		return errIncorrectPassword
+	}
+	if identity == nil || !identity.IsActive() {
+		return errors.New("user is not active, please verify your email")
+	}
+	return nil
 }
 
 func (l *Login) getIdentity() *models.User {
