@@ -30,8 +30,8 @@ import (
 	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend"
-	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/middlewares"
 	"github.com/clevergo/demo/pkg/users"
@@ -50,8 +50,8 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
-func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *web.Server {
-	srv := web.NewServer(router, logger)
+func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *core.Server {
+	srv := core.NewServer(router, logger)
 	srv.Addr = cfg.Server.Addr
 	srv.Use(middlewares...)
 	return srv
@@ -106,7 +106,7 @@ func provideCaptchaManager() *captchas.Manager {
 		redisstore.Expiration(10*time.Minute), // captcha expiration, optional.
 		redisstore.Prefix("captchas"),         // redis key prefix, optional.
 	)
-	return web.NewCaptchaManager(store, cfg.Captcha)
+	return core.NewCaptchaManager(store, cfg.Captcha)
 }
 
 func provideMailer() *mail.Dialer {
@@ -155,7 +155,7 @@ func provideRouter(
 func provideApp(
 	logger log.Logger,
 	db *sqlx.DB,
-	view *web.ViewManager,
+	view *core.ViewManager,
 	sessionManager *scs.SessionManager,
 	userManager *users.Manager,
 	mailer *mail.Dialer,
@@ -169,21 +169,21 @@ func provideApp(
 func newApp(
 	logger log.Logger,
 	db *sqlx.DB,
-	view *web.ViewManager,
+	view *core.ViewManager,
 	sessionManager *scs.SessionManager,
 	userManager *users.Manager,
 	mailer *mail.Dialer,
 	captchaManager *captchas.Manager,
 	accessManager *access.Manager,
-) *web.Application {
-	opts := []web.Option{
-		web.Params(cfg.Params),
-		web.Logger(logger),
-		web.DB(db),
-		web.SessionManager(sessionManager),
-		web.Mailer(mailer),
-		web.CaptchaManager(captchaManager),
-		web.BeforeRender(func(event *web.BeforeRenderEvent) {
+) *core.Application {
+	opts := []core.Option{
+		core.Params(cfg.Params),
+		core.Logger(logger),
+		core.DB(db),
+		core.SessionManager(sessionManager),
+		core.Mailer(mailer),
+		core.CaptchaManager(captchaManager),
+		core.BeforeRender(func(event *core.BeforeRenderEvent) {
 			user, _ := userManager.Get(event.Context.Request, event.Context.Response)
 			event.Data["user"] = user.GetIdentity()
 
@@ -201,13 +201,13 @@ func newApp(
 				return reflect.ValueOf(translator.Sprintf("%m", args.Get(0).String()))
 			})
 		}),
-		web.UserManager(userManager),
-		web.AccessManager(accessManager),
+		core.UserManager(userManager),
+		core.AccessManager(accessManager),
 	}
 	if view != nil {
-		opts = append(opts, web.SetViewManager(view))
+		opts = append(opts, core.SetViewManager(view))
 	}
-	app := web.New(opts...)
+	app := core.New(opts...)
 
 	return app
 }
@@ -264,7 +264,7 @@ func provideLogger() (log.Logger, func(), error) {
 }
 
 func provideDB() (*sqlx.DB, func(), error) {
-	db, err := web.NewDB(cfg.DB)
+	db, err := core.NewDB(cfg.DB)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -275,14 +275,14 @@ func provideDB() (*sqlx.DB, func(), error) {
 	}, nil
 }
 
-func provideView() *web.ViewManager {
+func provideView() *core.ViewManager {
 	return newView(cfg.View)
 }
 
-func newView(cfg web.ViewConfig) *web.ViewManager {
+func newView(cfg core.ViewConfig) *core.ViewManager {
 	viewPath := path.Join(cfg.Path, "views")
 	box := packr.New(viewPath, viewPath)
-	view := web.NewViewManager(box, cfg)
+	view := core.NewViewManager(box, cfg)
 	/*
 		funcMap := template.FuncMap{
 			"safeHTMLAttr": func(s string) template.HTMLAttr {
@@ -303,7 +303,7 @@ func newView(cfg web.ViewConfig) *web.ViewManager {
 func provideI18N() (*i18n.Translators, error) {
 	i18nOpts := []i18n.Option{i18n.Fallback(cfg.I18N.Fallback)}
 	translators := i18n.New(i18nOpts...)
-	i18nStore := web.NewFileStore(cfg.I18N.Path, i18n.JSONFileDecoder{})
+	i18nStore := core.NewFileStore(cfg.I18N.Path, i18n.JSONFileDecoder{})
 	if err := translators.Import(i18nStore); err != nil {
 		return nil, err
 	}
@@ -324,7 +324,7 @@ func provideI18NMiddleware(translators *i18n.Translators) func(http.Handler) htt
 }
 
 func provideIdentityStore(db *sqlx.DB) auth.IdentityStore {
-	return web.NewIdentityStore(db)
+	return core.NewIdentityStore(db)
 }
 
 func provideUserManager(identityStore auth.IdentityStore, sessionManager *scs.SessionManager) *users.Manager {
@@ -341,12 +341,12 @@ func provideAuthenticator(identityStore auth.IdentityStore) auth.Authenticator {
 	)
 }
 
-func provideErrorHandler(app *web.Application) clevergo.ErrorHandler {
-	return web.NewErrorHandler(app)
+func provideErrorHandler(app *core.Application) clevergo.ErrorHandler {
+	return core.NewErrorHandler(app)
 }
 
 func provideSessionManager(store scs.Store) *scs.SessionManager {
-	m := web.NewSessionManager(cfg.Session)
+	m := core.NewSessionManager(cfg.Session)
 	m.Store = store
 	return m
 }

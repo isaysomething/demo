@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/clevergo/demo/internal/web"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/params"
 )
 
@@ -14,7 +14,7 @@ type Config struct {
 		SSLCertFile string `koanf:"ssl_cert_file"`
 		SSLKeyFile  string `koanf:"ssl_key_file"`
 
-		Log web.LogConfig `koanf:"log"`
+		Log core.LogConfig `koanf:"log"`
 
 		AccessLog         bool   `koanf:"access_log"`
 		AccessLogFile     string `koanf:"access_log_file"`
@@ -26,13 +26,13 @@ type Config struct {
 
 	Params params.Params `koanf:"params"`
 
-	DB web.DBConfig `koanf:"db"`
+	DB core.DBConfig `koanf:"db"`
 
-	View        web.ViewConfig    `koanf:"view"`
-	BackendView web.ViewConfig    `koanf:"backendView"`
-	Session     web.SessionConfig `koanf:"session"`
+	View        core.ViewConfig    `koanf:"view"`
+	BackendView core.ViewConfig    `koanf:"backendView"`
+	Session     core.SessionConfig `koanf:"session"`
 
-	I18N web.I18NConfig `koanf:"i18n"`
+	I18N core.I18NConfig `koanf:"i18n"`
 
 	Mail struct {
 		Host     string
@@ -41,7 +41,7 @@ type Config struct {
 		Password string
 	} `koanf:"mail"`
 
-	Captcha web.CaptchaConfig `koanf:"captcha"`
+	Captcha core.CaptchaConfig `koanf:"captcha"`
 
 	Migration struct {
 		DB     string

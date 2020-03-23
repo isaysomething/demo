@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/clevergo/clevergo"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/listeners"
 	"github.com/clevergo/demo/internal/models"
-	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/bootstrap"
 	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
@@ -86,7 +86,7 @@ func (u *User) ResendVerificationEmail(ctx *clevergo.Context) error {
 			u.Logger().Error(err)
 		}
 	}
-	return u.Render(ctx, "user/resend-verification-email", web.ViewData{
+	return u.Render(ctx, "user/resend-verification-email", core.ViewData{
 		"form":    form,
 		"error":   err,
 		"captcha": captcha,
@@ -123,7 +123,7 @@ func (u *User) Signup(ctx *clevergo.Context) error {
 		return jsend.Success(ctx.Response, nil)
 	}
 
-	return u.Render(ctx, "user/signup", web.ViewData{
+	return u.Render(ctx, "user/signup", core.ViewData{
 		"form":  form,
 		"error": err,
 	})
@@ -215,7 +215,7 @@ func (u *User) ChangePassword(ctx *clevergo.Context) error {
 		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
 	}
 
-	return u.Render(ctx, "user/change-password", web.ViewData{
+	return u.Render(ctx, "user/change-password", core.ViewData{
 		"form": form,
 	})
 }

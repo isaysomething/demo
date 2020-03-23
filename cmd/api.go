@@ -10,7 +10,7 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/api/controllers"
-	"github.com/clevergo/demo/internal/web"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/routeutil"
 	"github.com/clevergo/demo/pkg/users"
@@ -44,9 +44,9 @@ var apiSet = wire.NewSet(
 	controllers.NewUser, controllers.NewPost, controllers.NewCaptcha,
 )
 
-func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager *apiUserManager, authenticator auth.Authenticator) *web.Server {
+func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager *apiUserManager, authenticator auth.Authenticator) *core.Server {
 	router := clevergo.NewRouter()
-	srv := web.NewServer(router, logger)
+	srv := core.NewServer(router, logger)
 	srv.Addr = ":4040"
 	for _, g := range routeGroups {
 		g.Register(router)

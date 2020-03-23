@@ -7,7 +7,7 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/frontend"
-	"github.com/clevergo/demo/internal/web"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/bootstrap"
 	"github.com/clevergo/jsend"
 )
@@ -44,7 +44,7 @@ func (s *Site) Contact(ctx *clevergo.Context) error {
 		s.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
 		s.Logger().Error(err)
 	}
-	return s.Render(ctx, "site/contact", web.ViewData{
+	return s.Render(ctx, "site/contact", core.ViewData{
 		"form":    form,
 		"error":   err,
 		"captcha": captcha,

@@ -4,17 +4,17 @@ import (
 	"fmt"
 
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/web"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/jsend"
 )
 
 // Application API application.
 type Application struct {
-	*web.Application
+	*core.Application
 }
 
 // NewApplication returns API application.
-func NewApplication(app *web.Application) *Application {
+func NewApplication(app *core.Application) *Application {
 	return &Application{Application: app}
 }
 

@@ -1,12 +1,12 @@
 package rest
 
-import "github.com/clevergo/demo/internal/web"
+import "github.com/clevergo/demo/internal/core"
 
 type Controller struct {
-	*web.Application
+	*core.Application
 }
 
-func NewController(app *web.Application) *Controller {
+func NewController(app *core.Application) *Controller {
 	return &Controller{
 		Application: app,
 	}

@@ -1,4 +1,4 @@
-package web
+package core
 
 type Controller struct {
 	*Application

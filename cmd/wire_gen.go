@@ -7,8 +7,8 @@ package cmd
 
 import (
 	controllers2 "github.com/clevergo/demo/internal/api/controllers"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend/controllers"
-	"github.com/clevergo/demo/internal/web"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
 
@@ -19,7 +19,7 @@ import (
 
 // Injectors from wire.go:
 
-func initializeServer() (*web.Server, func(), error) {
+func initializeServer() (*core.Server, func(), error) {
 	logger, cleanup, err := provideLogger()
 	if err != nil {
 		return nil, nil, err
@@ -68,7 +68,7 @@ func initializeServer() (*web.Server, func(), error) {
 	}, nil
 }
 
-func initializeAPIServer() (*web.Server, func(), error) {
+func initializeAPIServer() (*core.Server, func(), error) {
 	logger, cleanup, err := provideLogger()
 	if err != nil {
 		return nil, nil, err

@@ -1,4 +1,4 @@
-package web
+package core
 
 type I18NConfig struct {
 	Path        string `koanf:"path"`

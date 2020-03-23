@@ -1,7 +1,7 @@
 package frontend
 
-import "github.com/clevergo/demo/internal/web"
+import "github.com/clevergo/demo/internal/core"
 
 type Application struct {
-	*web.Application
+	*core.Application
 }

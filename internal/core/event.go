@@ -1,3 +1,3 @@
-package web
+package core
 
 type event int
