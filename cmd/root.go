@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/clevergo/demo/internal/core"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/toml"
@@ -16,7 +17,7 @@ import (
 
 var (
 	cfgFile *string
-	cfg     = &Config{}
+	cfg     = &core.Config{}
 	k       = koanf.New(".")
 )
 
