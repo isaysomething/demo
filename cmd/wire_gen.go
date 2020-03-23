@@ -20,22 +20,28 @@ import (
 // Injectors from wire.go:
 
 func initializeServer() (*core.Server, func(), error) {
-	logger, cleanup, err := provideLogger()
+	logConfig := provideLogConfig()
+	logger, cleanup, err := core.NewLogger(logConfig)
 	if err != nil {
 		return nil, nil, err
 	}
-	db, cleanup2, err := provideDB()
+	dbConfig := provideDBConfig()
+	db, cleanup2, err := core.NewDB(dbConfig)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	viewManager := provideView()
-	store := provideSessionStore()
-	sessionManager := provideSessionManager(store)
-	identityStore := provideIdentityStore(db)
-	manager := provideUserManager(identityStore, sessionManager)
-	dialer := provideMailer()
-	captchasManager := provideCaptchaManager()
+	sessionConfig := provideSessionConfig()
+	sessionManager := core.NewSessionManager(sessionConfig)
+	identityStore := core.NewIdentityStore(db)
+	manager := core.NewUserManager(identityStore, sessionManager)
+	mailerConfig := provideMailerConfig()
+	dialer := core.NewMailer(mailerConfig)
+	captchaConfig := provideCaptchaConfig()
+	redisConfig := provideRedisConfig()
+	store := core.NewCaptchaStore(redisConfig)
+	captchasManager := core.NewCaptchaManager(captchaConfig, store)
 	enforcer, err := provideEnforcer()
 	if err != nil {
 		cleanup2()
@@ -54,7 +60,7 @@ func initializeServer() (*core.Server, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	authenticator := provideAuthenticator(identityStore)
+	authenticator := core.NewAuthenticator(identityStore)
 	v, err := provideMiddlewares(sessionManager, translators, manager, authenticator)
 	if err != nil {
 		cleanup2()
@@ -69,7 +75,8 @@ func initializeServer() (*core.Server, func(), error) {
 }
 
 func initializeAPIServer() (*core.Server, func(), error) {
-	logger, cleanup, err := provideLogger()
+	logConfig := provideLogConfig()
+	logger, cleanup, err := core.NewLogger(logConfig)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -78,25 +85,30 @@ func initializeAPIServer() (*core.Server, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	db, cleanup2, err := provideDB()
+	dbConfig := provideDBConfig()
+	db, cleanup2, err := core.NewDB(dbConfig)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	identityStore := provideIdentityStore(db)
-	store := provideSessionStore()
-	sessionManager := provideSessionManager(store)
-	manager := provideUserManager(identityStore, sessionManager)
+	identityStore := core.NewIdentityStore(db)
+	sessionConfig := provideSessionConfig()
+	sessionManager := core.NewSessionManager(sessionConfig)
+	manager := core.NewUserManager(identityStore, sessionManager)
 	accessManager := access.New(enforcer, manager)
 	cmdApiUserManager := provideAPIUserManager(identityStore)
-	dialer := provideMailer()
-	captchasManager := provideCaptchaManager()
+	mailerConfig := provideMailerConfig()
+	dialer := core.NewMailer(mailerConfig)
+	captchaConfig := provideCaptchaConfig()
+	redisConfig := provideRedisConfig()
+	store := core.NewCaptchaStore(redisConfig)
+	captchasManager := core.NewCaptchaManager(captchaConfig, store)
 	application := provideAPIApp(logger, db, sessionManager, cmdApiUserManager, dialer, captchasManager, accessManager)
 	post := controllers2.NewPost(application)
 	user := controllers2.NewUser(application)
 	captcha := controllers2.NewCaptcha(captchasManager)
 	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
-	authenticator := provideAuthenticator(identityStore)
+	authenticator := core.NewAuthenticator(identityStore)
 	server := provideAPIServer(logger, cmdApiRouteGroups, cmdApiUserManager, authenticator)
 	return server, func() {
 		cleanup2()
@@ -107,8 +119,6 @@ func initializeAPIServer() (*core.Server, func(), error) {
 // wire.go:
 
 var superSet = wire.NewSet(
-	provideRouter, provideMiddlewares, provideI18N,
-	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
-	provideIdentityStore, provideMailer, provideCaptchaManager,
-	provideEnforcer, access.New, provideAuthenticator,
+	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, provideRouter, provideMiddlewares, provideI18N,
+	provideEnforcer, access.New,
 )

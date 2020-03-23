@@ -1,4 +1,4 @@
-[mail]
+[mailer]
     host = ""
     port = 25
     username = ""

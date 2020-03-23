@@ -9,10 +9,16 @@ import (
 )
 
 var superSet = wire.NewSet(
+	configSet,
+	core.NewDB,
+	core.NewSessionStore, core.NewSessionManager,
+	core.NewMailer,
+	core.NewLogger,
+	core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager,
+	core.NewCaptchaStore, core.NewCaptchaManager,
+
 	provideRouter, provideMiddlewares, provideI18N,
-	provideLogger, provideDB, provideSessionManager, provideSessionStore, provideUserManager,
-	provideIdentityStore, provideMailer, provideCaptchaManager,
-	provideEnforcer, access.New, provideAuthenticator,
+	provideEnforcer, access.New,
 )
 
 func initializeServer() (*core.Server, func(), error) {

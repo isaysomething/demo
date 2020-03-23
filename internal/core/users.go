@@ -4,11 +4,20 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/auth"
+	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/pkg/users"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jmoiron/sqlx"
 )
+
+func NewUserManager(identityStore auth.IdentityStore, sessionManager *scs.SessionManager) *users.Manager {
+	m := users.New(identityStore)
+	m.SetSessionManager(sessionManager)
+	return m
+}
 
 // IdentityStore is an identity store.
 type IdentityStore struct {
@@ -16,7 +25,7 @@ type IdentityStore struct {
 }
 
 // NewIdentityStore returns an identity store instance.
-func NewIdentityStore(db *sqlx.DB) *IdentityStore {
+func NewIdentityStore(db *sqlx.DB) auth.IdentityStore {
 	return &IdentityStore{db: db}
 }
 
@@ -42,15 +51,20 @@ func (is *IdentityStore) GetIdentityByToken(token, tokenType string) (auth.Ident
 		return []byte("123456"), nil
 	})
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	c, _ := t.Claims.(jwt.MapClaims)
 	user, err := models.GetUser(is.db, c["id"])
-	fmt.Println(user, err)
 	if err != nil {
 		return nil, err
 	}
 
 	return user, nil
+}
+
+func NewAuthenticator(identityStore auth.IdentityStore) auth.Authenticator {
+	return authenticators.NewComposite(
+		authenticators.NewBearerToken("api", identityStore),
+		authenticators.NewQueryToken("access_token", identityStore),
+	)
 }

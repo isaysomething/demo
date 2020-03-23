@@ -9,6 +9,14 @@ type DBConfig struct {
 }
 
 // NewDB returns a sqlx.DB with the given config.
-func NewDB(cfg DBConfig) (*sqlx.DB, error) {
-	return sqlx.Open(cfg.Driver, cfg.DSN)
+func NewDB(cfg DBConfig) (*sqlx.DB, func(), error) {
+	db, err := sqlx.Open(cfg.Driver, cfg.DSN)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return db, func() {
+		if err := db.Close(); err != nil {
+		}
+	}, nil
 }

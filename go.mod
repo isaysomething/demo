@@ -34,6 +34,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/wire v0.4.0
 	github.com/gorilla/csrf v1.6.2
+	github.com/gorilla/handlers v1.4.2
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/knadh/koanf v0.8.1
 	github.com/memwey/casbin-sqlx-adapter v0.2.0

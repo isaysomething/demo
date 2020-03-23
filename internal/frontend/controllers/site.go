@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/clevergo/clevergo"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/frontend"
-	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/bootstrap"
 	"github.com/clevergo/jsend"
 )

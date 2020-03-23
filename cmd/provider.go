@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -9,7 +8,6 @@ import (
 	"path"
 	"reflect"
 	"regexp"
-	"time"
 
 	// database drivers.
 	"github.com/CloudyKit/jet/v3"
@@ -24,10 +22,8 @@ import (
 	"github.com/tdewolff/minify/v2/js"
 	"github.com/tdewolff/minify/v2/svg"
 
-	redissessionstore "github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/auth"
-	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
@@ -37,17 +33,10 @@ import (
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/i18n"
 	"github.com/clevergo/log"
-	"github.com/clevergo/log/zapadapter"
 	"github.com/clevergo/middleware"
 	"github.com/go-mail/mail"
-	redigo "github.com/gomodule/redigo/redis"
 	"github.com/gorilla/csrf"
 	sqlxadapter "github.com/memwey/casbin-sqlx-adapter"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-
-	"github.com/clevergo/captchas/stores/redisstore"
-	"github.com/go-redis/redis/v7"
 )
 
 func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *core.Server {
@@ -96,24 +85,6 @@ func provideEnforcer() (*casbin.Enforcer, error) {
 	return e, nil
 }
 
-func provideCaptchaManager() *captchas.Manager {
-	// redis client.
-	client := redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port),
-	})
-	store := redisstore.New(
-		client,
-		redisstore.Expiration(10*time.Minute), // captcha expiration, optional.
-		redisstore.Prefix("captchas"),         // redis key prefix, optional.
-	)
-	return core.NewCaptchaManager(store, cfg.Captcha)
-}
-
-func provideMailer() *mail.Dialer {
-	mailer := mail.NewDialer(cfg.Mail.Host, cfg.Mail.Port, cfg.Mail.Username, cfg.Mail.Password)
-	return mailer
-}
-
 func provideRouter(
 	app *frontend.Application,
 	frontendRoutes frontendRoutes,
@@ -127,6 +98,7 @@ func provideRouter(
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]json$"), json.Minify)
 	//m.AddFuncRegexp(regexp.MustCompile("[/+]xml$"), xml.Minify)
 	router.NotFound = m.Middleware(http.FileServer(packr.New("public", cfg.Server.Root)))
+	router.Use(middlewares.Recovery())
 
 	routeFunc := func(args jet.Arguments) reflect.Value {
 		args.RequireNumOfArguments("route", 1, 1)
@@ -162,12 +134,13 @@ func provideApp(
 	captchaManager *captchas.Manager,
 	accessManager *access.Manager,
 ) *frontend.Application {
-	app := newApp(logger, db, view, sessionManager, userManager, mailer, captchaManager, accessManager)
+	app := newApp(logger, cfg.Params, db, view, sessionManager, userManager, mailer, captchaManager, accessManager)
 	return &frontend.Application{Application: app}
 }
 
 func newApp(
 	logger log.Logger,
+	params core.Params,
 	db *sqlx.DB,
 	view *core.ViewManager,
 	sessionManager *scs.SessionManager,
@@ -177,7 +150,7 @@ func newApp(
 	accessManager *access.Manager,
 ) *core.Application {
 	opts := []core.Option{
-		core.SetParams(cfg.Params),
+		core.SetParams(params),
 		core.SetLogger(logger),
 		core.SetDB(db),
 		core.SetSessionManager(sessionManager),
@@ -244,37 +217,6 @@ func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Tr
 	return
 }
 
-func provideLogger() (log.Logger, func(), error) {
-	config := zap.NewDevelopmentConfig()
-	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
-	sugar, err := config.Build()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	undo := zap.RedirectStdLog(sugar)
-	sugar = sugar.WithOptions(zap.AddCallerSkip(1))
-
-	return zapadapter.New(sugar.Sugar()), func() {
-		if err := sugar.Sync(); err != nil {
-		}
-
-		undo()
-	}, nil
-}
-
-func provideDB() (*sqlx.DB, func(), error) {
-	db, err := core.NewDB(cfg.DB)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return db, func() {
-		if err := db.Close(); err != nil {
-		}
-	}, nil
-}
-
 func provideView() *core.ViewManager {
 	return newView(cfg.View)
 }
@@ -283,20 +225,6 @@ func newView(cfg core.ViewConfig) *core.ViewManager {
 	viewPath := path.Join(cfg.Path, "views")
 	box := packr.New(viewPath, viewPath)
 	view := core.NewViewManager(box, cfg)
-	/*
-		funcMap := template.FuncMap{
-			"safeHTMLAttr": func(s string) template.HTMLAttr {
-				return template.HTMLAttr(s)
-			},
-			"safeHTML": func(s string) template.HTML {
-				return template.HTML(s)
-			},
-			"now": time.Now,
-		}
-		for name, f := range funcMap {
-		view.AddFunc(name, f)
-		}
-	*/
 	return view
 }
 
@@ -321,45 +249,4 @@ func provideI18NMiddleware(translators *i18n.Translators) func(http.Handler) htt
 	}
 	languageParsers = append(languageParsers, i18n.HeaderLanguageParser{})
 	return i18n.Middleware(translators, languageParsers...)
-}
-
-func provideIdentityStore(db *sqlx.DB) auth.IdentityStore {
-	return core.NewIdentityStore(db)
-}
-
-func provideUserManager(identityStore auth.IdentityStore, sessionManager *scs.SessionManager) *users.Manager {
-	m := users.New(identityStore)
-	m.SetSessionManager(sessionManager)
-
-	return m
-}
-
-func provideAuthenticator(identityStore auth.IdentityStore) auth.Authenticator {
-	return authenticators.NewComposite(
-		authenticators.NewBearerToken("api", identityStore),
-		authenticators.NewQueryToken("access_token", identityStore),
-	)
-}
-
-func provideErrorHandler(app *core.Application) clevergo.ErrorHandler {
-	return core.NewErrorHandler(app)
-}
-
-func provideSessionManager(store scs.Store) *scs.SessionManager {
-	m := core.NewSessionManager(cfg.Session)
-	m.Store = store
-	return m
-}
-
-func provideSessionStore() scs.Store {
-	address := fmt.Sprintf("%s:%d", cfg.Redis.Host, cfg.Redis.Port)
-	opts := []redigo.DialOption{
-		redigo.DialDatabase(cfg.Redis.Database),
-	}
-	if cfg.Redis.Password != "" {
-		opts = append(opts, redigo.DialPassword(cfg.Redis.Password))
-	}
-	return redissessionstore.New(redigo.NewPool(func() (redigo.Conn, error) {
-		return redigo.Dial("tcp", address, opts...)
-	}, 1000))
 }

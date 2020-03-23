@@ -60,13 +60,7 @@ func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager
 }
 
 func provideCORS() *cors.Cors {
-	return cors.New(cors.Options{
-		AllowedOrigins:   cfg.CORS.AllowedOrigins,
-		AllowedHeaders:   cfg.CORS.AllowedHeaders,
-		MaxAge:           cfg.CORS.MaxAge,
-		AllowCredentials: cfg.CORS.AllowedCredentials,
-		Debug:            cfg.CORS.Debug,
-	})
+	return core.NewCORS(cfg.CORS)
 }
 
 func provideAPIApp(
@@ -78,7 +72,7 @@ func provideAPIApp(
 	captchaManager *captchas.Manager,
 	accessManager *access.Manager,
 ) *api.Application {
-	app := newApp(logger, db, nil, sessionManager, userManager.Manager, mailer, captchaManager, accessManager)
+	app := newApp(logger, cfg.Params, db, nil, sessionManager, userManager.Manager, mailer, captchaManager, accessManager)
 	return &api.Application{Application: app}
 }
 

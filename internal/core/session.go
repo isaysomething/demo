@@ -1,10 +1,13 @@
 package core
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/gomodule/redigo/redis"
 )
 
 type SessionConfig struct {
@@ -31,4 +34,17 @@ func NewSessionManager(cfg SessionConfig) *scs.SessionManager {
 	m.Cookie.SameSite = http.SameSite(cfg.CookieSameSite)
 	m.Cookie.Secure = cfg.CookieSecure
 	return m
+}
+
+func NewSessionStore(cfg RedisConfig) scs.Store {
+	address := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
+	opts := []redis.DialOption{
+		redis.DialDatabase(cfg.Database),
+	}
+	if cfg.Password != "" {
+		opts = append(opts, redis.DialPassword(cfg.Password))
+	}
+	return redisstore.New(redis.NewPool(func() (redis.Conn, error) {
+		return redis.Dial("tcp", address, opts...)
+	}, 1000))
 }

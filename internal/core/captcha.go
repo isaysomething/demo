@@ -1,8 +1,13 @@
 package core
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/captchas/drivers"
+	"github.com/clevergo/captchas/stores/redisstore"
+	"github.com/go-redis/redis/v7"
 )
 
 type CaptchaConfig struct {
@@ -32,7 +37,7 @@ type CaptchaConfig struct {
 	} `koanf:"audio"`
 }
 
-func NewCaptchaManager(store captchas.Store, cfg CaptchaConfig) *captchas.Manager {
+func NewCaptchaManager(cfg CaptchaConfig, store captchas.Store) *captchas.Manager {
 	switch cfg.Driver {
 	case "string":
 		return captchas.New(store, drivers.NewString(
@@ -64,4 +69,15 @@ func NewCaptchaManager(store captchas.Store, cfg CaptchaConfig) *captchas.Manage
 			drivers.DigitLength(cfg.Digit.Length),
 		))
 	}
+}
+
+func NewCaptchaStore(cfg RedisConfig) captchas.Store {
+	client := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
+	})
+	return redisstore.New(
+		client,
+		redisstore.Expiration(10*time.Minute),
+		redisstore.Prefix("captchas"),
+	)
 }
