@@ -1,4 +1,4 @@
-package params
+package core
 
 type Params map[string]interface{}
 

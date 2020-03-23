@@ -8,7 +8,6 @@ import (
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/pkg/access"
-	"github.com/clevergo/demo/pkg/params"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
 	"github.com/eko/gocache/store"
@@ -32,7 +31,7 @@ type Application struct {
 	mailer         *mail.Dialer
 	userManager    *users.Manager
 	captchaManager *captchas.Manager
-	params         params.Params
+	params         Params
 	viewManager    *ViewManager
 	beforeRender   func(*BeforeRenderEvent)
 	accessManager  *access.Manager
@@ -133,6 +132,6 @@ func (app *Application) Render(ctx *clevergo.Context, view string, data ViewData
 	return nil
 }
 
-func (app *Application) Params() params.Params {
+func (app *Application) Params() Params {
 	return app.params
 }

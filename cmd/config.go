@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/clevergo/demo/internal/core"
-	"github.com/clevergo/demo/pkg/params"
 )
 
 type Config struct {
@@ -24,7 +23,7 @@ type Config struct {
 		GzipLevel int  `koanf:"gzip_level"`
 	} `koanf:"server"`
 
-	Params params.Params `koanf:"params"`
+	Params core.Params `koanf:"params"`
 
 	DB core.DBConfig `koanf:"db"`
 

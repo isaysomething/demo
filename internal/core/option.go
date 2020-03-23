@@ -8,7 +8,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/demo/pkg/access"
-	"github.com/clevergo/demo/pkg/params"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
 	"github.com/eko/gocache/store"
@@ -36,7 +35,7 @@ func SetSessionManager(manager *scs.SessionManager) Option {
 	}
 }
 
-func SetParams(ps params.Params) Option {
+func SetParams(ps Params) Option {
 	return func(app *Application) {
 		app.params = ps
 	}
