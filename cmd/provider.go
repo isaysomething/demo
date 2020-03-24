@@ -89,6 +89,7 @@ func provideRouter(
 		middlewares.Logging(core.LoggerWriter(app.Logger())),
 		middlewares.Compress(gzip.DefaultCompression),
 		middlewares.Minify(),
+		middlewares.CSRF(),
 		middlewares.Session(app.SessionManager()),
 		middlewares.I18N(translators, languageParsers...),
 	)
