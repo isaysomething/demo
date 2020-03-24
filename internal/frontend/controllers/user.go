@@ -173,26 +173,33 @@ func (u *User) Setting(ctx *clevergo.Context) error {
 	return u.Render(ctx, "user/setting", nil)
 }
 
-func (u *User) ResetPassword(ctx *clevergo.Context) error {
-	user, _ := u.User(ctx)
-	if !user.IsGuest() {
-		ctx.Redirect("/", http.StatusFound)
-		return nil
-	}
-
-	token := ctx.Request.URL.Query().Get("verification_token")
-	if token != "" {
-		form := forms.NewVerifyEmail(u.DB(), user)
-		form.Token = token
-		err := form.Handle(ctx)
-		if err == nil {
-			ctx.Redirect("/", http.StatusFound)
-			return nil
+func (u *User) RequestResetPassword(ctx *clevergo.Context) error {
+	if ctx.IsPost() {
+		form := forms.NewRequestResetPassword(u.DB(), u.Mailer(), u.CaptcpaManager())
+		if err := form.Handle(ctx); err != nil {
+			return jsend.Error(ctx.Response, err.Error())
 		}
-		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
+
+		return jsend.Success(ctx.Response, nil)
 	}
 
-	return u.Render(ctx, "user/reset-password", nil)
+	return u.Render(ctx, "user/request-reset-password", nil)
+}
+
+func (u *User) ResetPassword(ctx *clevergo.Context) error {
+	if ctx.IsPost() {
+		form := forms.NewResetPassword(u.DB())
+		err := form.Handle(ctx)
+		if err != nil {
+			return jsend.Error(ctx.Response, err.Error())
+		}
+		u.AddFlash(ctx, bootstrap.NewSuccessAlert("Password reset successfully."))
+		return jsend.Success(ctx.Response, nil)
+	}
+
+	return u.Render(ctx, "user/reset-password", core.ViewData{
+		"token": ctx.Request.URL.Query().Get("token"),
+	})
 }
 
 func (u *User) ChangePassword(ctx *clevergo.Context) error {
