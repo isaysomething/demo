@@ -16,8 +16,8 @@ var superSet = wire.NewSet(
 	core.NewLogger,
 	core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager,
 	core.NewCaptchaStore, core.NewCaptchaManager,
-
-	provideRouter, provideMiddlewares, provideI18N,
+	core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers,
+	provideRouter,
 	provideEnforcer, access.New,
 )
 

@@ -16,7 +16,6 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/clevergo/auth"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
@@ -31,10 +30,9 @@ import (
 	sqlxadapter "github.com/memwey/casbin-sqlx-adapter"
 )
 
-func provideServer(router *clevergo.Router, logger log.Logger, middlewares []func(http.Handler) http.Handler) *core.Server {
+func provideServer(router *clevergo.Router, logger log.Logger) *core.Server {
 	srv := core.NewServer(router, logger)
 	srv.Addr = cfg.Server.Addr
-	srv.Use(middlewares...)
 	return srv
 }
 
@@ -79,6 +77,8 @@ func provideEnforcer() (*casbin.Enforcer, error) {
 
 func provideRouter(
 	app *frontend.Application,
+	translators *i18n.Translators,
+	languageParsers []i18n.LanguageParser,
 	frontendRoutes frontendRoutes,
 ) *clevergo.Router {
 	router := clevergo.NewRouter()
@@ -89,6 +89,8 @@ func provideRouter(
 		middlewares.Logging(core.LoggerWriter(app.Logger())),
 		middlewares.Compress(gzip.DefaultCompression),
 		middlewares.Minify(),
+		middlewares.Session(app.SessionManager()),
+		middlewares.I18N(translators, languageParsers...),
 	)
 
 	routeFunc := func(args jet.Arguments) reflect.Value {
@@ -176,34 +178,6 @@ func newApp(
 	return app
 }
 
-func provideMiddlewares(sessionManager *scs.SessionManager, translators *i18n.Translators, userManager *users.Manager, authenticator auth.Authenticator) (v []func(http.Handler) http.Handler, err error) {
-	// v = append(v, handlers.RecoveryHandler())
-	if cfg.Server.Gzip {
-		// v = append(v, middleware.Compress(cfg.Server.GzipLevel))
-	}
-	/*
-		if cfg.Server.AccessLog {
-			var accessLog io.Writer = os.Stdout
-			if cfg.Server.AccessLogFile != "" {
-				accessLog, err = os.OpenFile(cfg.Server.AccessLogFile, os.O_CREATE|os.O_APPEND, os.FileMode(cfg.Server.AccessLogFileMode))
-				if err != nil {
-					return
-				}
-			}
-			v = append(v, middleware.Logging(accessLog))
-		}
-	*/
-	login := middlewares.LoginCheckerMiddleware(func(r *http.Request, w http.ResponseWriter) bool {
-		user, _ := userManager.Get(r, w)
-		return user.IsGuest()
-	}, middlewares.NewPathSkipper("/*"))
-	v = append(v, userManager.Middleware(authenticator), provideI18NMiddleware(translators), login)
-
-	v = append(v, csrf.Protect([]byte("123456"), csrf.Secure(false)))
-
-	return
-}
-
 func provideView() *core.ViewManager {
 	return newView(cfg.View)
 }
@@ -213,27 +187,4 @@ func newView(cfg core.ViewConfig) *core.ViewManager {
 	box := packr.New(viewPath, viewPath)
 	view := core.NewViewManager(box, cfg)
 	return view
-}
-
-func provideI18N() (*i18n.Translators, error) {
-	i18nOpts := []i18n.Option{i18n.Fallback(cfg.I18N.Fallback)}
-	translators := i18n.New(i18nOpts...)
-	i18nStore := core.NewFileStore(cfg.I18N.Path, i18n.JSONFileDecoder{})
-	if err := translators.Import(i18nStore); err != nil {
-		return nil, err
-	}
-
-	return translators, nil
-}
-
-func provideI18NMiddleware(translators *i18n.Translators) func(http.Handler) http.Handler {
-	var languageParsers []i18n.LanguageParser
-	if cfg.I18N.Param != "" {
-		languageParsers = append(languageParsers, i18n.NewURLLanguageParser(cfg.I18N.Param))
-	}
-	if cfg.I18N.CookieParam != "" {
-		languageParsers = append(languageParsers, i18n.NewCookieLanguageParser(cfg.I18N.CookieParam))
-	}
-	languageParsers = append(languageParsers, i18n.HeaderLanguageParser{})
-	return i18n.Middleware(translators, languageParsers...)
 }

@@ -54,7 +54,6 @@ func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager
 
 	srv.Use(
 		provideCORS().Handler,
-		userManager.Middleware(authenticator),
 	)
 	return srv
 }

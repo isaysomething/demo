@@ -50,24 +50,20 @@ func initializeServer() (*core.Server, func(), error) {
 	}
 	accessManager := access.New(enforcer, manager)
 	application := provideApp(logger, db, viewManager, sessionManager, manager, dialer, captchasManager, accessManager)
+	i18NConfig := proviceI18NConfig()
+	i18nStore := core.NewFileStore(i18NConfig)
+	translators, err := core.NewI18N(i18NConfig, i18nStore)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	v := core.NewI18NLanguageParsers(i18NConfig)
 	site := controllers.NewSite(application)
 	user := controllers.NewUser(application)
 	cmdFrontendRoutes := provideFrontendRoutes(site, user)
-	router := provideRouter(application, cmdFrontendRoutes)
-	translators, err := provideI18N()
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	authenticator := core.NewAuthenticator(identityStore)
-	v, err := provideMiddlewares(sessionManager, translators, manager, authenticator)
-	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	server := provideServer(router, logger, v)
+	router := provideRouter(application, translators, v, cmdFrontendRoutes)
+	server := provideServer(router, logger)
 	return server, func() {
 		cleanup2()
 		cleanup()
@@ -119,6 +115,6 @@ func initializeAPIServer() (*core.Server, func(), error) {
 // wire.go:
 
 var superSet = wire.NewSet(
-	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, provideRouter, provideMiddlewares, provideI18N,
+	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter,
 	provideEnforcer, access.New,
 )

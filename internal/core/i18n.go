@@ -8,15 +8,14 @@ import (
 	"github.com/gobuffalo/packr/v2"
 )
 
-type I18N struct {
-	cfg I18NConfig
-	*i18n.Translators
-}
-
-func NewI18N(cfg I18NConfig) *I18N {
-	return &I18N{
-		cfg: cfg,
+func NewI18N(cfg I18NConfig, store i18n.Store) (*i18n.Translators, error) {
+	i18nOpts := []i18n.Option{i18n.Fallback(cfg.Fallback)}
+	translators := i18n.New(i18nOpts...)
+	if err := translators.Import(store); err != nil {
+		return nil, err
 	}
+
+	return translators, nil
 }
 
 // FileStore is a file store.
@@ -26,10 +25,11 @@ type FileStore struct {
 }
 
 // NewFileStore returns a file store with the given directory and decoder.
-func NewFileStore(directory string, decoder i18n.FileDecoder) *FileStore {
+func NewFileStore(cfg I18NConfig) i18n.Store {
+	directory := cfg.Path
 	return &FileStore{
 		fs:      packr.New(directory, directory),
-		decoder: decoder,
+		decoder: &i18n.JSONFileDecoder{},
 	}
 }
 
@@ -57,4 +57,15 @@ func (s *FileStore) Get() (i18n.Translations, error) {
 	}
 
 	return translations, nil
+}
+
+func NewI18NLanguageParsers(cfg I18NConfig) (parsers []i18n.LanguageParser) {
+	if cfg.Param != "" {
+		parsers = append(parsers, i18n.NewURLLanguageParser(cfg.Param))
+	}
+	if cfg.CookieParam != "" {
+		parsers = append(parsers, i18n.NewCookieLanguageParser(cfg.CookieParam))
+	}
+	parsers = append(parsers, i18n.HeaderLanguageParser{})
+	return
 }

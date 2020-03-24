@@ -10,6 +10,7 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/auth"
+	"github.com/clevergo/clevergo"
 )
 
 func init() {
@@ -187,36 +188,25 @@ func (m *Manager) afterLogout(user *User) {
 	}
 }
 
-func (m *Manager) Handler(next http.Handler, authenticator auth.Authenticator) http.Handler {
-	var handler http.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user, err := m.Get(r, w)
-		if err != nil {
-			// http.Error(w, err.Error(), http.StatusInternalServerError)
-			log.Println(err)
-		}
-		if user.IsGuest() {
-			identity, err := authenticator.Authenticate(r)
+func (m *Manager) Middleware(authenticator auth.Authenticator) clevergo.MiddlewareFunc {
+	return func(next clevergo.Handle) clevergo.Handle {
+		return func(ctx *clevergo.Context) error {
+			user, err := m.Get(ctx.Request, ctx.Response)
 			if err != nil {
+				// http.Error(w, err.Error(), http.StatusInternalServerError)
 				log.Println(err)
-			} else {
-				if err = user.Login(r, w, identity, 0); err != nil {
+			}
+			if user.IsGuest() {
+				identity, err := authenticator.Authenticate(ctx.Request)
+				if err != nil {
 					log.Println(err)
+				} else {
+					if err = user.Login(ctx.Request, ctx.Response, identity, 0); err != nil {
+						log.Println(err)
+					}
 				}
 			}
+			return next(ctx)
 		}
-
-		next.ServeHTTP(w, r)
-	})
-
-	if m.sessionManager != nil {
-		handler = m.sessionManager.LoadAndSave(handler)
-	}
-
-	return handler
-}
-
-func (m *Manager) Middleware(authenticator auth.Authenticator) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return m.Handler(next, authenticator)
 	}
 }

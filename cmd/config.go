@@ -18,6 +18,7 @@ var configSet = wire.NewSet(
 	provideMailerConfig,
 	provideLogConfig,
 	provideCaptchaConfig,
+	proviceI18NConfig,
 )
 
 func provideDBConfig() core.DBConfig {
@@ -42,6 +43,10 @@ func provideLogConfig() core.LogConfig {
 
 func provideCaptchaConfig() core.CaptchaConfig {
 	return cfg.Captcha
+}
+
+func proviceI18NConfig() core.I18NConfig {
+	return cfg.I18N
 }
 
 func parseConfig() error {
