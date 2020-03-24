@@ -5,37 +5,54 @@
 {{ end }}
 
 {{ block body() }}
-<h1>{{ T("text.contact") }}</h1>
-<hr>
-<form action="{{ route("contact") }}" method="POST">
+<h2 class="text-center">{{ T("text.contact") }}</h1>
+<br>
+<form id="contactForm" action="{{ route("contact") }}" method="POST" class="offset-md-3 col-md-6">
   {{ csrf() | raw }}
-  <div class="form-group">
-    <label for="email">{{ T("text.email") }}</label>
-    <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" value="{{ .form.Email }}">
-    <small id="emailHelp" class="form-text text-muted">We'll reply to this email address.</small>
-  </div>
-  <div class="form-group">
-    <label for="subject">{{ T("text.subject") }}</label>
-    <input type="text" class="form-control" id="subject" name="subject" value="{{ .form.Subject }}">
-  </div>
-  <div class="form-group">
-    <label for="content">{{ T("text.content") }}</label>
-    <textarea class="form-control" id="content" name="content" rows="8">
-      {{ .form.Content }}
-    </textarea>
-  </div>
-  <div class="form-group">
-    <div class="row">
-      <div class="col-2">
-        <input type="text" class="form-control" placeholder="Captcha" name="captcha">
+
+  <div class="form-group row">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text bg-transparent"><i class="fas fa-envelope" style="width: 14px;"></i></div>
       </div>
-      <div class="col-10">
-        {{ .captcha.HTMLField("captcha_id") | raw }}
-      </div>
+      <input type="email" class="form-control" id="email" name="email"
+        placeholder="{{ T("text.email") }}"
+        required>
     </div>
   </div>
-  <button type="submit" class="btn btn-primary">{{ T("text.submit") }}</button>
+
+  <div class="form-group row">
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text bg-transparent"><i class="fas fa-heading" style="width: 14px;"></i></div>
+      </div>
+      <input type="text" class="form-control" id="subject" name="subject"
+        placeholder="{{ T("text.subject") }}"
+        required>
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <textarea class="form-control" id="content" name="content" placeholder="{{ T("text.content") }}" rows="5"></textarea>
+  </div>
+
+  <div class="form-group row">
+    <input type="text" class="form-control col-md-6" name="captcha"
+      placeholder="{{ T("text.captcha") }}"
+      required>
+    <div id="captchaContainer" class="col-md-6 captcha">
+      <input type="hidden" id="captchaID" name="captcha_id">
+      <img id="captchaMedia">
+    </div>
+  </div>
+
+  <div class="form-group row">
+    <button type="submit" class="btn btn-primary btn-block">{{ T("text.submit") }}</button>
+  </div>
 </form>
 {{ end }}
 
-{{ block endBody() }}{{ end }}
+{{ block endBody() }}
+<script src="/static/js/captcha.js"></script>
+<script src="/static/js/site/contact.js"></script>
+{{ end }}
