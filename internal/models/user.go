@@ -5,11 +5,11 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/clevergo/strutil"
 	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -119,7 +119,10 @@ func GetUserByPasswordResetToken(db *sqlx.DB, token string) (*User, error) {
 }
 
 func GenerateVerificationToken() string {
-	return fmt.Sprintf("%s_%d", randomString(64), time.Now().Unix())
+	length := 64
+	suffix := fmt.Sprintf("_%d", time.Now().Unix())
+
+	return strutil.Random(length-len(suffix)) + suffix
 }
 
 func ValidateVerificationToken(token string, duration int64) error {
@@ -139,18 +142,4 @@ func ValidateVerificationToken(token string, duration int64) error {
 		return nil
 	}
 	return errors.New("token expired")
-}
-
-// Returns an int >= min, < max
-func randomInt(min, max int) int {
-	return min + rand.Intn(max-min)
-}
-
-// Generate a random string of A-Z chars with len = l
-func randomString(len int) string {
-	bytes := make([]byte, len)
-	for i := 0; i < len; i++ {
-		bytes[i] = byte(randomInt(65, 90))
-	}
-	return string(bytes)
 }

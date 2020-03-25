@@ -20,6 +20,7 @@ require (
 	github.com/clevergo/log v0.3.0
 	github.com/clevergo/log/zapadapter v0.3.0
 	github.com/clevergo/middleware v1.0.1
+	github.com/clevergo/strutil v1.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/eko/gocache v1.0.0
 	github.com/fatih/color v1.9.0
