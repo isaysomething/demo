@@ -15,6 +15,10 @@ nav i.fas {
     margin-right: 3px;
 }
 
+main.container {
+    padding-bottom: 36px;
+}
+
 .footer {
     position: absolute;
     bottom: 0;
@@ -34,7 +38,8 @@ nav i.fas {
 }
 
 .captcha>img {
-    width: 100%;
+    width: auto;
+    max-height: 60px;
 }
 
 .input-group {
