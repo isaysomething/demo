@@ -13,7 +13,9 @@
   Start a new session.
 </p>
 
-<form id="loginForm" class="offset-md-4 col-md-4" action="{{ route("login") }}" method="POST">
+<div class="offset-md-4 col-md-4">
+
+<form id="loginForm" action="{{ route("login") }}" method="POST">
   {{ csrf() | raw }}
 
   <div class="form-group row">
@@ -52,16 +54,21 @@
     <button type="submit" id="btnLogin" class="btn btn-block btn-primary">{{ "Login" }}</button>
   </div>
 
-  <div>
-    <p>
-      <a href="{{ route("request-reset-password") }}">Forgot password?</a>
-    </p>
-    <p>
-      Don't have an account? <a href="{{ route("signup") }}">Create one now</a>.
-    </p>
-  </div>
-
 </form>
+
+<div>
+  <p>
+    <a href="{{ route("request-reset-password") }}">Forgot password</a>?
+  </p>
+  <p>
+    <a href="{{ route("resend-verification-email") }}">Resend verification email</a>.
+  </p>
+  <p>
+    Don't have an account? <a href="{{ route("signup") }}">Create one now</a>.
+  </p>
+</div>
+
+</div>
 {{ end }}
 
 {{ block endBody() }}

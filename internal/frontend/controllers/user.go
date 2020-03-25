@@ -14,10 +14,12 @@ import (
 	"github.com/clevergo/jsend"
 )
 
+// User user controller.
 type User struct {
 	*frontend.Application
 }
 
+// NewUser returns a user controller.
 func NewUser(app *frontend.Application) *User {
 	return &User{app}
 }
@@ -26,6 +28,7 @@ func (u *User) Index(ctx *clevergo.Context) error {
 	return u.Render(ctx, "user/index", nil)
 }
 
+// Login displays login page and handle login request.
 func (u *User) Login(ctx *clevergo.Context) error {
 	user, _ := u.User(ctx)
 	if !user.IsGuest() {
@@ -72,25 +75,16 @@ func (u *User) CheckEmail(ctx *clevergo.Context) error {
 }
 
 func (u *User) ResendVerificationEmail(ctx *clevergo.Context) error {
-	captcha, err := u.CaptcpaManager().Generate()
-	if err != nil {
-		return err
+	if ctx.IsPost() {
+		form := forms.NewResendVerificationEmail(u.DB(), u.Mailer(), u.CaptcpaManager())
+		if err := form.Handle(ctx); err != nil {
+			return jsend.Error(ctx.Response, err.Error())
+		}
+		u.AddFlash(ctx, bootstrap.NewSuccessAlert("Sent successfully, please check your mailbox."))
+		return jsend.Success(ctx.Response, nil)
 	}
 
-	form := forms.NewResendVerificationEmail(u.DB(), u.Mailer(), u.CaptcpaManager())
-	if ctx.IsPost() {
-		if err = form.Handle(ctx); err == nil {
-			u.AddFlash(ctx, bootstrap.NewSuccessAlert("Sent successfully, please check your mailbox."))
-		} else {
-			u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
-			u.Logger().Error(err)
-		}
-	}
-	return u.Render(ctx, "user/resend-verification-email", core.ViewData{
-		"form":    form,
-		"error":   err,
-		"captcha": captcha,
-	})
+	return u.Render(ctx, "user/resend-verification-email", nil)
 }
 
 func (u *User) Logout(ctx *clevergo.Context) error {
@@ -129,26 +123,24 @@ func (u *User) Signup(ctx *clevergo.Context) error {
 	})
 }
 
-func (u *User) VerifyEmail(ctx *clevergo.Context) error {
-	user, _ := u.User(ctx)
-	if !user.IsGuest() {
-		ctx.Redirect("/", http.StatusFound)
+func (u *User) VerifyEmail(ctx *clevergo.Context) (err error) {
+	token := ctx.Request.URL.Query().Get("token")
+	if token == "" {
+		ctx.Redirect("/user/resend-verification-email", http.StatusFound)
+		return
+	}
+
+	form := forms.NewVerifyEmail(u.DB())
+	form.Token = token
+	if err = form.Handle(ctx); err != nil {
+		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
+		ctx.Redirect("/user/resend-verification-email", http.StatusFound)
 		return nil
 	}
 
-	token := ctx.Request.URL.Query().Get("verification_token")
-	if token != "" {
-		form := forms.NewVerifyEmail(u.DB(), user)
-		form.Token = token
-		err := form.Handle(ctx)
-		if err == nil {
-			ctx.Redirect("/", http.StatusFound)
-			return nil
-		}
-		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
-	}
-
-	return u.Render(ctx, "user/verify-email", nil)
+	u.AddFlash(ctx, bootstrap.NewSuccessAlert("Email has been verified successfully."))
+	ctx.Redirect("/login", http.StatusFound)
+	return
 }
 
 func (u *User) Setting(ctx *clevergo.Context) error {
@@ -156,18 +148,6 @@ func (u *User) Setting(ctx *clevergo.Context) error {
 	if user.IsGuest() {
 		ctx.Redirect("/login", http.StatusFound)
 		return nil
-	}
-
-	token := ctx.Request.URL.Query().Get("verification_token")
-	if token != "" {
-		form := forms.NewVerifyEmail(u.DB(), user)
-		form.Token = token
-		err := form.Handle(ctx)
-		if err == nil {
-			ctx.Redirect("/", http.StatusFound)
-			return nil
-		}
-		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
 	}
 
 	return u.Render(ctx, "user/setting", nil)

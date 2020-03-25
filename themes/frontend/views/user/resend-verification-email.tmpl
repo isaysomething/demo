@@ -5,23 +5,43 @@
 {{ end }}
 
 {{ block body() }}
-<h1 class="text-center">
+<h2 class="text-center">
   {{ T("text.resendVerificationEmail") }}
 </h1>
-<hr>
-<form action="{{ route("resend-verification-email") }}" method="POST">
+<br>
+<form id="resendVerificationEmailForm" action="{{ route("resend-verification-email") }}" method="POST"
+class="offset-md-4 col-md-4">
   {{ csrf() | raw }}
+
   <div class="form-group row">
-    <input type="email" class="form-control" id="email" placeholder="{{ T("text.email") }}" name="email" value="{{ .form.Email }}">
-  </div>
-  <div class="form-group row">
-      <input type="text" class="form-control col-2" placeholder="{{ T("text.captcha") }}" name="captcha">
-      <div class="col-10">
-        {{ .captcha.HTMLField("captcha_id") | raw }}
+    <div class="input-group">
+      <div class="input-group-prepend">
+        <div class="input-group-text bg-transparent"><i class="fas fa-envelope" style="width: 14px;"></i></div>
       </div>
+      <input type="email" class="form-control" id="email" name="email"
+        placeholder="{{ T("text.email") }}"
+        required>
+    </div>
   </div>
+
   <div class="form-group row">
-    <button type="submit" class="btn btn-primary">{{ "Send" }}</button>
+    <input type="text" class="form-control col-md-6" name="captcha"
+      placeholder="{{ T("text.captcha") }}"
+      required>
+    <div id="captchaContainer" class="col-md-6 captcha">
+      <input type="hidden" id="captchaID" name="captcha_id">
+      <img id="captchaMedia">
+    </div>
   </div>
+
+  <div class="form-group row">
+    <button type="submit" class="btn btn-block btn-primary">{{ "Submit" }}</button>
+  </div>
+
 </form>
+{{ end }}
+
+{{ block endBody() }}
+<script src="/static/js/captcha.js"></script>
+<script src="/static/js/user/resend-verification-email.js"></script>
 {{ end }}

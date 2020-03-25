@@ -21,6 +21,7 @@ type ResendVerificationEmail struct {
 	db             *sqlx.DB
 	mailer         *mail.Dialer
 	captchaManager *captchas.Manager
+	user           *models.User
 	Email          string `valid:"required,email" json:"email" xml:"email"`
 	Captcha        string `valid:"required" json:"captcha" xml:"captcha"`
 	CaptchaID      string `valid:"required" json:"captcha_id" xml:"captcha_id"`
@@ -34,34 +35,50 @@ func NewResendVerificationEmail(db *sqlx.DB, mailer *mail.Dialer, captchaManager
 	}
 }
 
-func (rve *ResendVerificationEmail) Validate() error {
-	return validation.ValidateStruct(rve,
-		validation.Field(&rve.Captcha, validation.Required, validation.By(validations.Captcha(rve.captchaManager, rve.CaptchaID, true))),
-		validation.Field(&rve.Email, validation.Required, is.Email, validation.By(rve.validateEmail)),
+func (f *ResendVerificationEmail) Validate() error {
+	return validation.ValidateStruct(f,
+		validation.Field(&f.Captcha, validation.Required, validation.By(validations.Captcha(f.captchaManager, f.CaptchaID, true))),
+		validation.Field(&f.Email, validation.Required, is.Email, validation.By(f.validateEmail)),
 	)
 }
 
-func (rve *ResendVerificationEmail) validateEmail(value interface{}) error {
-	return nil
-}
-
-func (rve *ResendVerificationEmail) Handle(ctx *clevergo.Context) (err error) {
-	if err = form.Decode(ctx.Request, rve); err != nil {
-		return
-	}
-	if err = rve.Validate(); err != nil {
-		return
-	}
-
-	user, err := models.GetUserByEmail(rve.db, rve.Email)
+func (f *ResendVerificationEmail) validateEmail(value interface{}) error {
+	user, err := f.getUser()
 	if err != nil {
 		return err
 	}
+
 	if user.IsActive() {
-		return errors.New("you've been verified your email.")
+		return errors.New("the email has been verified.")
 	}
+
+	return nil
+}
+
+func (f *ResendVerificationEmail) getUser() (*models.User, error) {
+	if f.user == nil {
+		user, err := models.GetUserByEmail(f.db, f.Email)
+		if err != nil {
+			return nil, err
+		}
+		f.user = user
+	}
+
+	return f.user, nil
+}
+
+func (f *ResendVerificationEmail) Handle(ctx *clevergo.Context) (err error) {
+	if err = form.Decode(ctx.Request, f); err != nil {
+		return
+	}
+	if err = f.Validate(); err != nil {
+		return
+	}
+
+	user, _ := f.getUser()
 	newToken := models.GenerateVerificationToken()
-	_, err = rve.db.NamedExec("UPDATE users SET verification_token=:token, updated_at=:updated_at", map[string]interface{}{
+	_, err = f.db.NamedExec("UPDATE users SET verification_token=:token, updated_at=:updated_at WHERE id=:id", map[string]interface{}{
+		"id":         user.ID,
 		"token":      newToken,
 		"updated_at": time.Now(),
 	})
@@ -70,14 +87,14 @@ func (rve *ResendVerificationEmail) Handle(ctx *clevergo.Context) (err error) {
 	}
 
 	msg := mail.NewMessage()
-	msg.SetHeader("From", rve.mailer.Username)
-	msg.SetHeader("To", rve.Email)
+	msg.SetHeader("From", f.mailer.Username)
+	msg.SetHeader("To", f.Email)
 	msg.SetHeader("Subject", "Please verify your email address")
-	link := "http://localhost:8080/verify-email?verification_token=" + newToken
+	link := "http://localhost:8080/user/verify-email?token=" + newToken
 	msg.SetBody("text/html", fmt.Sprintf(`<a href="%s">%s</a>`, link, link))
-	if err := rve.mailer.DialAndSend(msg); err != nil {
+	if err := f.mailer.DialAndSend(msg); err != nil {
 		log.Println(err)
 	}
-	err = rve.mailer.DialAndSend(msg)
+	err = f.mailer.DialAndSend(msg)
 	return
 }
