@@ -14,8 +14,8 @@ import (
 type ChangePassword struct {
 	db          *sqlx.DB
 	user        *models.User
-	Password    string `json:"password" xml:"password"`
-	NewPassword string `json:"new_password" xml:"new_password"`
+	Password    string `json:"password"`
+	NewPassword string `json:"new_password"`
 }
 
 func NewChangePassword(db *sqlx.DB, user *models.User) *ChangePassword {
@@ -27,8 +27,8 @@ func NewChangePassword(db *sqlx.DB, user *models.User) *ChangePassword {
 
 func (cp *ChangePassword) Validate() error {
 	return validation.ValidateStruct(cp,
-		validation.Field(&cp.Password, validation.Required, validation.By(validations.UserPassword(cp.user))),
 		validation.Field(&cp.NewPassword, validation.Required),
+		validation.Field(&cp.Password, validation.Required, validation.By(validations.UserPassword(cp.user))),
 	)
 }
 
@@ -46,11 +46,14 @@ func (cp *ChangePassword) Handle(ctx *clevergo.Context) error {
 		return err
 	}
 
-	_, err = cp.db.NamedExec("UPDATE users SET hashed_password=:hashed_password, updated_at=:updated_at WHERE id=:id", map[string]interface{}{
-		"hashed_password": hashedPassword,
-		"updated_at":      time.Now(),
-		"id":              cp.user.ID,
-	})
+	_, err = cp.db.NamedExec(
+		"UPDATE users SET hashed_password=:hashed_password, updated_at=:updated_at WHERE id=:id",
+		map[string]interface{}{
+			"id":              cp.user.ID,
+			"hashed_password": hashedPassword,
+			"updated_at":      time.Now(),
+		},
+	)
 	if err != nil {
 		return err
 	}

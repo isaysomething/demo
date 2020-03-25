@@ -29,6 +29,7 @@ func provideFrontendRoutes(
 		routeutil.NewRoute(http.MethodPost, "/captcha", site.Captcha).Name("captcha"),
 		routeutil.NewRoute(http.MethodPost, "/check-captcha", site.CheckCaptcha),
 
+		routeutil.NewRoute(http.MethodGet, "/user", user.Index).Name("user"),
 		routeutil.NewRoute(http.MethodGet, "/login", user.Login).Name("login"),
 		routeutil.NewRoute(http.MethodPost, "/login", user.Login),
 		routeutil.NewRoute(http.MethodPost, "/logout", user.Logout).Name("logout"),
@@ -43,10 +44,6 @@ func provideFrontendRoutes(
 		routeutil.NewRoute(http.MethodGet, "/user/verify-email", user.VerifyEmail).Name("verify-email"),
 		routeutil.NewRoute(http.MethodGet, "/user/resend-verification-email", user.ResendVerificationEmail).Name("resend-verification-email"),
 		routeutil.NewRoute(http.MethodPost, "/user/resend-verification-email", user.ResendVerificationEmail),
-
-		routeutil.NewRoute(http.MethodGet, "/users/:user/:role", user.Index).Name("user"),
-		routeutil.NewRoute(http.MethodGet, "/change-password", user.ChangePassword).Name("change-password"),
-		routeutil.NewRoute(http.MethodPost, "/change-password", user.ChangePassword),
-		routeutil.NewRoute(http.MethodGet, "/setting", user.Setting).Name("setting"),
+		routeutil.NewRoute(http.MethodPost, "/user/change-password", user.ChangePassword).Name("change-password"),
 	}
 }

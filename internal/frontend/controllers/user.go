@@ -25,6 +25,12 @@ func NewUser(app *frontend.Application) *User {
 }
 
 func (u *User) Index(ctx *clevergo.Context) error {
+	user, _ := u.User(ctx)
+	if user.IsGuest() {
+		ctx.Redirect("/login", http.StatusFound)
+		return nil
+	}
+
 	return u.Render(ctx, "user/index", nil)
 }
 
@@ -143,16 +149,6 @@ func (u *User) VerifyEmail(ctx *clevergo.Context) (err error) {
 	return
 }
 
-func (u *User) Setting(ctx *clevergo.Context) error {
-	user, _ := u.User(ctx)
-	if user.IsGuest() {
-		ctx.Redirect("/login", http.StatusFound)
-		return nil
-	}
-
-	return u.Render(ctx, "user/setting", nil)
-}
-
 func (u *User) RequestResetPassword(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
 		form := forms.NewRequestResetPassword(u.DB(), u.Mailer(), u.CaptcpaManager())
@@ -182,7 +178,7 @@ func (u *User) ResetPassword(ctx *clevergo.Context) error {
 	})
 }
 
-func (u *User) ChangePassword(ctx *clevergo.Context) error {
+func (u *User) ChangePassword(ctx *clevergo.Context) (err error) {
 	user, _ := u.User(ctx)
 	if user.IsGuest() {
 		ctx.Redirect("/login", http.StatusFound)
@@ -191,18 +187,10 @@ func (u *User) ChangePassword(ctx *clevergo.Context) error {
 
 	identity, _ := user.GetIdentity().(*models.User)
 	form := forms.NewChangePassword(u.DB(), identity)
-
-	if ctx.IsPost() {
-		err := form.Handle(ctx)
-		if err == nil {
-			u.AddFlash(ctx, bootstrap.NewSuccessAlert("Password has been updated."))
-			ctx.Redirect("/", http.StatusFound)
-			return nil
-		}
-		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
+	if err := form.Handle(ctx); err != nil {
+		return jsend.Error(ctx.Response, err.Error())
 	}
 
-	return u.Render(ctx, "user/change-password", core.ViewData{
-		"form": form,
-	})
+	u.AddFlash(ctx, bootstrap.NewSuccessAlert("Password has been updated."))
+	return jsend.Success(ctx.Response, nil)
 }
