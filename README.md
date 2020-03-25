@@ -16,7 +16,7 @@ CleverGo Demo is a MVC and RESTful API application project template.
 - [x] Form Validation: [clevergo/form](https://github.com/clevergo/form) and [ozzo/validation](https://github.com/go-ozzo/ozzo-validation).
 - [x] Authentication: [clevergo/auth](https://github.com/clevergo/auth).
 - [ ] Authorization
-- [x] View Manager: [clevergo/views](https://github.com/clevergo/auth) for manage templates.
+- [x] Views: [CloudyKit Jet](https://github.com/CloudyKit/jet).
 - [x] Database: [sqlx](https://github.com/jmoiron/sqlx).
 - [x] Migration: [go-migrate](https://github.com/golang-migrate/migrate).
 - [x] Logging: [clevergo/log](https://github.com/clevergo/log) interface, supports [zap](https://github.com/clevergo/log/tree/master/zapadapter) and [logrus](https://github.com/clevergo/log/tree/master/logrusadapter).
