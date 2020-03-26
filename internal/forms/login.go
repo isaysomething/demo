@@ -15,6 +15,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// Login is a login form.
 type Login struct {
 	db             *sqlx.DB
 	user           *users.User
@@ -24,9 +25,9 @@ type Login struct {
 	Captcha        string `json:"captcha"`
 	Email          string `json:"email"`
 	Password       string `json:"password"`
-	ipAddr         string
 }
 
+// NewLogin returns a login form.
 func NewLogin(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *Login {
 	return &Login{
 		db:             db,
@@ -35,6 +36,7 @@ func NewLogin(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *
 	}
 }
 
+// Validate validates form data.
 func (l *Login) Validate() error {
 	return validation.ValidateStruct(l,
 		validation.Field(&l.CaptchaID, validation.Required),
@@ -51,18 +53,25 @@ func (l *Login) Validate() error {
 	)
 }
 
-var errIncorrectPassword = errors.New("incorrect username or password")
+var (
+	errUserIncorrectPassword = errors.New("incorrect username or password")
+	errUserInactive = errors.New("account is not active, please verify your email")
+	errUserDeleted = errors.New("account was deleted")
+)
 
 func (l *Login) validateUser(_ interface{}) error {
 	identity := l.getIdentity()
 	if identity == nil {
-		return errIncorrectPassword
+		return errUserIncorrectPassword
 	}
 	if err := identity.ValidatePassword(l.Password); err != nil {
-		return errIncorrectPassword
+		return errUserIncorrectPassword
 	}
-	if identity == nil || !identity.IsActive() {
-		return errors.New("user is not active, please verify your email")
+	if identity.IsDeleted() {
+		return errUserDeleted
+	}
+	if !identity.IsActive() {
+		return errUserInactive
 	}
 	return nil
 }
@@ -79,14 +88,11 @@ func (l *Login) getIdentity() *models.User {
 	return l.identity
 }
 
+// Handle handles login request.
 func (l *Login) Handle(ctx *clevergo.Context) (*models.User, error) {
 	if err := form.Decode(ctx.Request, l); err != nil {
 		return nil, err
 	}
-	/*if _, err := govalidator.ValidateStruct(l); err != nil {
-		return nil, err
-	}*/
-	l.ipAddr = "127.0.0.1"
 	if err := l.Validate(); err != nil {
 		return nil, err
 	}

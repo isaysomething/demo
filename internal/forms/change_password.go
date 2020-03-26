@@ -1,23 +1,24 @@
 package forms
 
 import (
-	"time"
+	"errors"
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
-	"github.com/clevergo/demo/internal/validations"
 	"github.com/clevergo/form"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jmoiron/sqlx"
 )
 
+// ChangePassword changes password.
 type ChangePassword struct {
 	db          *sqlx.DB
 	user        *models.User
-	Password    string `json:"password"`
-	NewPassword string `json:"new_password"`
+	Password    string `json:"password"` // current password.
+	NewPassword string `json:"new_password"` // new password.
 }
 
+// NewChangePassword returns a form to change password.
 func NewChangePassword(db *sqlx.DB, user *models.User) *ChangePassword {
 	return &ChangePassword{
 		db:   db,
@@ -25,36 +26,33 @@ func NewChangePassword(db *sqlx.DB, user *models.User) *ChangePassword {
 	}
 }
 
-func (cp *ChangePassword) Validate() error {
-	return validation.ValidateStruct(cp,
-		validation.Field(&cp.NewPassword, validation.Required),
-		validation.Field(&cp.Password, validation.Required, validation.By(validations.UserPassword(cp.user))),
+// Validate validates form data.
+func (f *ChangePassword) Validate() error {
+	return validation.ValidateStruct(f,
+		validation.Field(&f.NewPassword, validation.Required),
+		validation.Field(&f.Password, validation.Required, validation.By(f.validatePassword)),
 	)
 }
 
-func (cp *ChangePassword) Handle(ctx *clevergo.Context) error {
-	if err := form.Decode(ctx.Request, cp); err != nil {
+func (f *ChangePassword) validatePassword(value interface{}) error {
+	password, _ := value.(string)
+	if err := f.user.ValidatePassword(password); err != nil {
+		return errors.New("incorrect password")
+	}
+	return nil
+}
+
+// Handle handles request.
+func (f *ChangePassword) Handle(ctx *clevergo.Context) error {
+	if err := form.Decode(ctx.Request, f); err != nil {
 		return err
 	}
 
-	if err := cp.Validate(); err != nil {
+	if err := f.Validate(); err != nil {
 		return err
 	}
 
-	hashedPassword, err := models.GeneratePassword(cp.NewPassword)
-	if err != nil {
-		return err
-	}
-
-	_, err = cp.db.NamedExec(
-		"UPDATE users SET hashed_password=:hashed_password, updated_at=:updated_at WHERE id=:id",
-		map[string]interface{}{
-			"id":              cp.user.ID,
-			"hashed_password": hashedPassword,
-			"updated_at":      time.Now(),
-		},
-	)
-	if err != nil {
+	if err := f.user.UpdatePassword(f.db, f.NewPassword); err != nil {
 		return err
 	}
 

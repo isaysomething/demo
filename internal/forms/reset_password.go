@@ -2,7 +2,6 @@ package forms
 
 import (
 	"errors"
-	"time"
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
@@ -42,6 +41,9 @@ func (f *ResetPassword) validateToken(value interface{}) error {
 	if err != nil || user == nil {
 		return errors.New("account does not exist")
 	}
+	if err = user.ValidatePasswordResetToken(600); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -68,18 +70,5 @@ func (f *ResetPassword) Handle(ctx *clevergo.Context) (err error) {
 	}
 
 	user, _ := f.getUser()
-	password, err := models.GeneratePassword(f.Password)
-	if err != nil {
-		return err
-	}
-	_, err = f.db.NamedExec(
-		"UPDATE users SET hashed_password=:password, password_reset_token=null, updated_at=:updated_at WHERE id = :id",
-		map[string]interface{}{
-			"id":         user.ID,
-			"password":   password,
-			"updated_at": time.Now(),
-		},
-	)
-
-	return
+	return user.UpdatePassword(f.db, f.Password)
 }

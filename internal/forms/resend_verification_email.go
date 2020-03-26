@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
@@ -76,13 +75,7 @@ func (f *ResendVerificationEmail) Handle(ctx *clevergo.Context) (err error) {
 	}
 
 	user, _ := f.getUser()
-	newToken := models.GenerateVerificationToken()
-	_, err = f.db.NamedExec("UPDATE users SET verification_token=:token, updated_at=:updated_at WHERE id=:id", map[string]interface{}{
-		"id":         user.ID,
-		"token":      newToken,
-		"updated_at": time.Now(),
-	})
-	if err != nil {
+	if err = user.GenerateVerificationToken(f.db); err != nil {
 		return
 	}
 
@@ -90,7 +83,7 @@ func (f *ResendVerificationEmail) Handle(ctx *clevergo.Context) (err error) {
 	msg.SetHeader("From", f.mailer.Username)
 	msg.SetHeader("To", f.Email)
 	msg.SetHeader("Subject", "Please verify your email address")
-	link := "http://localhost:8080/user/verify-email?token=" + newToken
+	link := "http://localhost:8080/user/verify-email?token=" + user.VerificationToken.String
 	msg.SetBody("text/html", fmt.Sprintf(`<a href="%s">%s</a>`, link, link))
 	if err := f.mailer.DialAndSend(msg); err != nil {
 		log.Println(err)

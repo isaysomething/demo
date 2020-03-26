@@ -9,6 +9,7 @@ import (
 
 type VerifyEmail struct {
 	db    *sqlx.DB
+	user *models.User
 	Token string `json:"token"`
 }
 
@@ -18,28 +19,43 @@ func NewVerifyEmail(db *sqlx.DB) *VerifyEmail {
 	}
 }
 
-func (ve *VerifyEmail) Validate() error {
-	return validation.ValidateStruct(ve,
-		validation.Field(&ve.Token, validation.Required),
+func (f *VerifyEmail) Validate() error {
+	return validation.ValidateStruct(f,
+		validation.Field(&f.Token, validation.Required, validation.By(f.validateUser)),
 	)
 }
 
-func (ve *VerifyEmail) Handle(ctx *clevergo.Context) (err error) {
-	if err = ve.Validate(); err != nil {
-		return
-	}
-
-	identity, err := models.GetUserByVerificationToken(ve.db, ve.Token)
+func (f *VerifyEmail) validateUser(value interface{}) error {
+	user, err := f.getUser()
 	if err != nil {
 		return err
 	}
-	if err = identity.ValidateVerificationToken(600); err != nil {
+
+	if err = user.ValidateVerificationToken(600); err != nil {
 		return err
 	}
 
-	_, err = ve.db.NamedExec("UPDATE users SET verification_token=null, status=:status WHERE id=:id", map[string]interface{}{
-		"status": models.UserStatusActive,
-		"id":     identity.ID,
-	})
-	return
+	return nil
+}
+
+func (f *VerifyEmail) getUser() (*models.User, error) {
+	if f.user == nil {
+		user, err :=  models.GetUserByVerificationToken(f.db, f.Token)
+		if err != nil {
+			return nil, err
+		}
+
+		f.user = user
+	}
+
+	return f.user, nil
+}
+
+func (f *VerifyEmail) Handle(ctx *clevergo.Context) (err error) {
+	if err = f.Validate(); err != nil {
+		return
+	}
+
+	user, _ := f.getUser()
+	return user.VerifyEmail(f.db)
 }

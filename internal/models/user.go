@@ -46,15 +46,86 @@ func (u User) IsActive() bool {
 	return u.Status == UserStatusActive
 }
 
+func (u User) IsDeleted() bool {
+	return u.Status == UserStatusDeleted
+}
+
 func (u User) ValidatePassword(password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(u.HashedPassword), []byte(password))
 }
 
-func (u User) ValidateVerificationToken(duration int64) error {
-	return ValidateVerificationToken(u.VerificationToken.String, duration)
+func (u *User) ValidatePasswordResetToken(duration int64) error {
+	return validateToken(u.PasswordResetToken.String, duration)
 }
 
-func GeneratePassword(password string) (string, error) {
+func (u *User) ValidateVerificationToken(duration int64) error {
+	return validateToken(u.VerificationToken.String, duration)
+}
+
+func (u *User) VerifyEmail(db *sqlx.DB) error {
+	_, err := db.NamedExec("UPDATE users SET verification_token=null, status=:status WHERE id=:id", map[string]interface{}{
+		"status": UserStatusActive,
+		"id":     u.ID,
+	})
+
+	return err
+}
+
+func (u *User) UpdatePassword(db *sqlx.DB, password string) error {
+	password, err := generatePassword(password)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.NamedExec(
+		"UPDATE users SET hashed_password=:password, password_reset_token=null, updated_at=:updated_at WHERE id = :id",
+		map[string]interface{}{
+			"id":         u.ID,
+			"password":   password,
+			"updated_at": time.Now(),
+		},
+	)
+	return err
+}
+
+func (u *User) GeneratePasswordResetToken(db *sqlx.DB) error {
+	token := generateToken(64)
+	_, err := db.NamedExec(
+		"UPDATE users SET password_reset_token=:token, updated_at=:updated_at WHERE id = :id",
+		map[string]interface{}{
+			"id":         u.ID,
+			"token":      token,
+			"updated_at": time.Now(),
+		},
+	)
+
+	if err != nil {
+		return err
+	}
+
+	u.PasswordResetToken = sql.NullString{token, true}
+	return nil
+}
+
+func (u *User) GenerateVerificationToken(db *sqlx.DB) error {
+	token := generateToken(64)
+	_, err := db.NamedExec(
+		"UPDATE users SET verification_token=:token, updated_at=:updated_at WHERE id = :id",
+		map[string]interface{}{
+			"id":         u.ID,
+			"token":      token,
+			"updated_at": time.Now(),
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	u.VerificationToken = sql.NullString{token, true}
+	return nil
+}
+
+func generatePassword(password string) (string, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return "", err
@@ -64,11 +135,11 @@ func GeneratePassword(password string) (string, error) {
 }
 
 func CreateUser(db *sqlx.DB, username, email, password string) (*User, error) {
-	hashedPassword, err := GeneratePassword(password)
+	hashedPassword, err :=generatePassword(password)
 	if err != nil {
 		return nil, err
 	}
-	verificationToken := GenerateVerificationToken()
+	verificationToken := generateToken(64)
 	res, err := db.NamedExec(
 		`INSERT INTO users (username, email, verification_token, hashed_password, status, created_at) 
 		VALUES (:username, :email, :verification_token, :hashed_password, :status, :created_at)`,
@@ -118,14 +189,15 @@ func GetUserByPasswordResetToken(db *sqlx.DB, token string) (*User, error) {
 	return user, err
 }
 
-func GenerateVerificationToken() string {
-	length := 64
+func generateToken(length int) string {
 	suffix := fmt.Sprintf("_%d", time.Now().Unix())
-
 	return strutil.Random(length-len(suffix)) + suffix
 }
 
-func ValidateVerificationToken(token string, duration int64) error {
+func validateToken(token string, duration int64) error {
+	if token == "" {
+		return errors.New("empty token")
+	}
 	idx := strings.LastIndex(token, "_")
 	if idx == -1 {
 		return errors.New("invalid token")
@@ -137,7 +209,6 @@ func ValidateVerificationToken(token string, duration int64) error {
 	}
 
 	now := time.Now().Unix()
-	fmt.Println(now, createdAt)
 	if createdAt < now && (createdAt+duration) >= now {
 		return nil
 	}
