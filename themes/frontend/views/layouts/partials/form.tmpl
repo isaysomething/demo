@@ -1,0 +1,51 @@
+{{block beginForm(id="", action="", method="POST", class="")}}
+<form id="{{id}}" action="{{action}}" method="{{method}}" class="{{class}}">
+{{end}}
+
+{{block endForm(id="", action="", method="POST")}}
+</form>
+{{end}}
+
+{{block csrfField()}}
+{{csrf() | raw}}
+{{end}}
+
+{{block inputField(name = "", value="", placeholder="", class="form-control", type="text", required=false)}}
+<input type="{{type}}" class="{{class}}" name="{{name}}" value="{{value}}" placeholder="{{placeholder}}" {{if required}}required{{end}}>
+{{end}}
+
+{{block emailInputField(name = "", value="", placeholder="", class="form-control", required=false)}}
+{{yield inputField(type="email", name=name, value=value, placeholder=placeholder, class=class, required=required)}}
+{{end}}
+
+{{block passwordInputField(name = "", value="", placeholder="", class="form-control", required=false)}}
+{{yield inputField(type="password", name=name, value=value, placeholder=placeholder, class=class, required=required)}}
+{{end}}
+
+{{block submitInputField()}}
+{{yield inputField(value=T("text.submit"), type="submit", class="btn btn-primary btn-block")}}
+{{end}}
+
+{{block textareaField(name="", value="", placeholder="", rows=5, class="form-control")}}
+<textarea class="{{class}}" name="{{name}}" rows="{{rows}}" placeholder="{{placeholder}}">{{value}}</textarea>
+{{end}}
+
+{{block button(id="", text="", class="btn btn-primary", type="")}}
+<button class="{{class}}" id="{{id}}" type="{{type}}">{{text}}</button>
+{{end}}
+
+{{block submitButton(id="", class="btn btn-primary btn-block")}}
+{{yield button(id=id, text=T("text.submit"), class=class, type="submit")}}
+{{end}}
+
+{{block captchaField()}}
+<div class="input-group">
+<div id="captchaContainer" class="captcha">
+    <input type="hidden" id="captchaID" name="captcha_id">
+    <img id="captchaMedia">
+</div>
+<input type="text" class="form-control offset-1" name="captcha"
+    placeholder="{{T("text.captcha")}}"
+    required>
+</div>
+{{end}}

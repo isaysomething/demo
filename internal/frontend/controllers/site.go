@@ -37,7 +37,9 @@ func (s *Site) Contact(ctx *clevergo.Context) error {
 		s.AddFlash(ctx, bootstrap.NewSuccessAlert("Thanks for contacting us, we'll get in touch with you as soon as possible."))
 		return jsend.Success(ctx.Response, nil)
 	}
-	return s.Render(ctx, "site/contact", core.ViewData{})
+	err := s.Render(ctx, "site/contact", core.ViewData{})
+	fmt.Println(err)
+	return err
 }
 
 func (s *Site) Captcha(ctx *clevergo.Context) error {

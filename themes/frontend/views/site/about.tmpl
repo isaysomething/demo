@@ -1,15 +1,15 @@
-{{ extends "layouts/main.tmpl" }}
+{{extends "layouts/main.tmpl"}}
 
-{{ block title() }}
-{{ T("text.about") }}
-{{ end }}
+{{block title()}}
+{{T("text.about")}}
+{{end}}
 
-{{ block body() }}
-<h1>{{ T("text.about") }}</h1>
+{{block body()}}
+<h1>{{T("text.about")}}</h1>
 <hr>
 <p>
-  {{ param("title") }}  is an application project template.
+  {{param("title")}}  is an application project template.
 </p>
-{{ end }}
+{{end}}
 
-{{ block endBody() }}{{ end }}
+{{block endBody()}}{{end}}

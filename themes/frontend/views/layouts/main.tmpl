@@ -1,23 +1,23 @@
-{{ import "partials/head.tmpl" }}
-{{ import "partials/header.tmpl" }}
-{{ import "partials/alert.tmpl" }}
-{{ import "partials/footer.tmpl" }}
+{{import "partials/head.tmpl"}}
+{{import "partials/header.tmpl"}}
+{{import "partials/alert.tmpl"}}
+{{import "partials/footer.tmpl"}}
 <!DOCTYPE html>
 <html>
 <head>
-    {{ yield head() }}
+    {{yield head()}}
 </head>
 <body>
     <header>
-        {{ yield header() }}
+        {{yield header()}}
     </header>
     <main role="main" class="container">
-        {{ yield alert() }}
+        {{yield alert()}}
         <div class="container">
-            {{ yield body() }}
+            {{yield body()}}
         </div>
     </main>
-    {{ yield footer() }}
+    {{yield footer()}}
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2.2.1/src/js.cookie.min.js"></script>
@@ -25,6 +25,6 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.11/dist/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive-bootstrap@2.2.0/dist/unobtrusive-bootstrap.min.js"></script>
     <script src="/static/js/app.js"></script>
-    {{ yield endBody() }}
+    {{yield endBody()}}
 </body>
 </html>

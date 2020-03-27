@@ -4,11 +4,13 @@ $(document).ready(function() {
     loginForm.validate({
         rules: {
             email: {
+                required: true,
                 normalizer: function(value) {
                     return $.trim(value)
                 }
             },
             password: {
+                required: true,
                 minlength: 6,
                 normalizer: function(value) {
                     return $.trim(value);

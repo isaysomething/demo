@@ -1,16 +1,16 @@
-{{ extends "layouts/main.tmpl" }}
+{{extends "layouts/main.tmpl"}}
 
-{{ block title() }}
-{{ T("text.contact" }}
-{{ end }}
+{{block title()}}
+{{T("text.contact"}}
+{{end}}
 
-{{ block body() }}
+{{block body()}}
 <div class="site-error">
 
     <h1>Whoops!</h1>
 
     <div class="alert alert-danger">
-      {{ . }}
+      {{.}}
     </div>
 
     <p>
@@ -21,6 +21,6 @@
     </p>
 
 </div>
-{{ end }}
+{{end}}
 
-{{ block endBody() }}{{ end }}
+{{block endBody()}}{{end}}

@@ -1,12 +1,13 @@
-{{ extends "layouts/main.tmpl" }}
+{{extends "layouts/main.tmpl"}}
+{{import "layouts/partials/form.tmpl"}}
 
-{{ block title() }}
-{{ T("text.login") }}
-{{ end }}
+{{block title()}}
+{{T("text.login")}}
+{{end}}
 
-{{ block body() }}
+{{block body()}}
 <h2 class="text-center">
-  {{ T("text.login") }}
+  {{T("text.login")}}
 </h2>
 
 <p class="text-center">
@@ -14,18 +15,16 @@
 </p>
 
 <div class="offset-md-4 col-md-4">
+{{yield beginForm(id="loginForm", action=route("login"))}}
 
-<form id="loginForm" action="{{ route("login") }}" method="POST">
-  {{ csrf() | raw }}
+{{yield csrfField()}}
 
   <div class="form-group row">
     <div class="input-group">
       <div class="input-group-prepend">
         <div class="input-group-text bg-transparent"><i class="fas fa-envelope" style="width: 14px;"></i></div>
       </div>
-      <input type="email" class="form-control" id="email" name="email"
-        placeholder="{{ T("text.email") }}"
-        required>
+      {{yield emailInputField(name="email", placeholder=T("text.email"), required=true)}}
     </div>
   </div>
 
@@ -34,44 +33,36 @@
       <div class="input-group-prepend">
         <div class="input-group-text bg-transparent"><i class="fas fa-lock"></i></div>
       </div>
-      <input type="password" class="form-control" id="password" name="password"
-        placeholder="{{ T("text.password") }}"
-        required>
+      {{yield passwordInputField(name="password", placeholder=T("text.password"))}}
     </div>
   </div>
 
   <div class="form-group row">
-    <input type="text" class="form-control col-md-6" name="captcha"
-      placeholder="{{ T("text.captcha") }}"
-      required>
-    <div id="captchaContainer" class="col-md-6 captcha">
-      <input type="hidden" id="captchaID" name="captcha_id">
-      <img id="captchaMedia">
-    </div>
+    {{yield captchaField()}}
   </div>
 
   <div class="form-group row">
-    <button type="submit" id="btnLogin" class="btn btn-block btn-primary">{{ "Login" }}</button>
+    {{yield submitButton()}}
   </div>
 
-</form>
+{{yield endForm()}}
 
 <div>
   <p>
-    <a href="{{ route("request-reset-password") }}">Forgot password</a>?
+    <a href="{{route("request-reset-password")}}">Forgot password</a>?
   </p>
   <p>
-    <a href="{{ route("resend-verification-email") }}">Resend verification email</a>.
+    <a href="{{route("resend-verification-email")}}">Resend verification email</a>.
   </p>
   <p>
-    Don't have an account? <a href="{{ route("signup") }}">Create one now</a>.
+    Don't have an account? <a href="{{route("signup")}}">Create one now</a>.
   </p>
 </div>
 
 </div>
-{{ end }}
+{{end}}
 
-{{ block endBody() }}
+{{block endBody()}}
 <script src="/static/js/captcha.js"></script>
 <script src="/static/js/user/login.js"></script>
-{{ end }}
+{{end}}

@@ -40,7 +40,7 @@ main.container {
 .captcha>img {
     width: auto;
     max-width: 100%;
-    max-height: 48px;
+    max-height: 42px;
 }
 
 .input-group {
@@ -49,4 +49,8 @@ main.container {
 
 .input-group .invalid-feedback {
     flex-basis: 100%!important;
+}
+
+button .fas {
+    margin-right: 5px;
 }

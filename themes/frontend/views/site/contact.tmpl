@@ -1,23 +1,23 @@
-{{ extends "layouts/main.tmpl" }}
+{{extends "layouts/main.tmpl"}}
+{{import "layouts/partials/form.tmpl"}}
 
-{{ block title() }}
-{{ T("text.contact") }}
-{{ end }}
+{{block title()}}
+{{T("text.contact")}}
+{{end}}
 
-{{ block body() }}
-<h2 class="text-center">{{ T("text.contact") }}</h1>
+{{block body()}}
+<h2 class="text-center">{{T("text.contact")}}</h1>
 <br>
-<form id="contactForm" action="{{ route("contact") }}" method="POST" class="offset-md-3 col-md-6">
-  {{ csrf() | raw }}
+{{yield beginForm(id="contactForm", action=route("contact"), class="offset-md-3 col-md-6")}}
+
+  {{yield csrfField()}}
 
   <div class="form-group row">
     <div class="input-group">
       <div class="input-group-prepend">
         <div class="input-group-text bg-transparent"><i class="fas fa-envelope" style="width: 14px;"></i></div>
       </div>
-      <input type="email" class="form-control" id="email" name="email"
-        placeholder="{{ T("text.email") }}"
-        required>
+      {{yield emailInputField(name="email", placeholder=T("text.email"), required=true)}}
     </div>
   </div>
 
@@ -26,33 +26,27 @@
       <div class="input-group-prepend">
         <div class="input-group-text bg-transparent"><i class="fas fa-heading" style="width: 14px;"></i></div>
       </div>
-      <input type="text" class="form-control" id="subject" name="subject"
-        placeholder="{{ T("text.subject") }}"
-        required>
+      {{yield inputField(name="subject", placeholder=T("text.subject"), required=true)}}
     </div>
   </div>
 
   <div class="form-group row">
-    <textarea class="form-control" id="content" name="content" placeholder="{{ T("text.content") }}" rows="5"></textarea>
+    {{yield textareaField(name="content", placeholder=T("text.content"))}}
   </div>
 
   <div class="form-group row">
-    <input type="text" class="form-control col-md-8" name="captcha"
-      placeholder="{{ T("text.captcha") }}"
-      required>
-    <div id="captchaContainer" class="col-md-4 captcha">
-      <input type="hidden" id="captchaID" name="captcha_id">
-      <img id="captchaMedia">
-    </div>
+    {{yield captchaField()}}
   </div>
 
   <div class="form-group row">
-    <button type="submit" class="btn btn-primary btn-block">{{ T("text.submit") }}</button>
+    {{yield submitButton()}}
   </div>
-</form>
-{{ end }}
 
-{{ block endBody() }}
+{{yield endForm()}}
+
+{{end}}
+
+{{block endBody()}}
 <script src="/static/js/captcha.js"></script>
 <script src="/static/js/site/contact.js"></script>
-{{ end }}
+{{end}}

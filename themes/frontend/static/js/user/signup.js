@@ -6,6 +6,7 @@ $(document).ready(function() {
     signupForm.validate({
         rules: {
             username: {
+                required: true,
                 minlength: 5,
                 normalizer: function(value) {
                     return $.trim(value)
@@ -29,6 +30,7 @@ $(document).ready(function() {
                 }
             },
             email: {
+                required: true,
                 normalizer: function(value) {
                     return $.trim(value)
                 },
@@ -51,12 +53,14 @@ $(document).ready(function() {
                 }
             },
             password: {
+                required: true,
                 minlength: 6,
                 normalizer: function(value) {
                     return $.trim(value);
                 }
             },
             captcha: {
+                required: true,
                 normalizer: function(value) {
                     return $.trim(value);
                 },

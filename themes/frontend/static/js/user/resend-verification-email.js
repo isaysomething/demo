@@ -4,6 +4,7 @@ $(document).ready(function() {
     form.validate({
         rules: {
             email: {
+                required: true,
                 normalizer: function(value) {
                     return $.trim(value)
                 }

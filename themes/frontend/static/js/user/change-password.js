@@ -4,18 +4,21 @@ $(document).ready(function() {
     changePasswordForm.validate({
         rules: {
             password: {
+                required: true,
                 minlength: 6,
                 normalizer: function(value) {
                     return $.trim(value)
                 }
             },
             new_password: {
+                required: true,
                 minlength: 6,
                 normalizer: function(value) {
                     return $.trim(value)
                 }
             },
             confirm_password: {
+                required: true,
                 normalizer: function(value) {
                     return $.trim(value)
                 },

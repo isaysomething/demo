@@ -1,6 +1,6 @@
 {{block header()}}
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="/">{{ "title" | param }}</a>
+  <a class="navbar-brand" href="/">{{"title" | param}}</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -10,24 +10,24 @@
       <li class="nav-item active">
         <a class="nav-link" href="/">
           <i class="fas fa-home fa-fw"></i>
-          <span>{{ T("text.home") }}</span>
+          <span>{{T("text.home")}}</span>
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{route("about") }}">
-          <i class="fas fa-info-circle fa-fw"></i> {{ T("text.about") }}
+        <a class="nav-link" href="{{route("about")}}">
+          <i class="fas fa-info-circle fa-fw"></i> {{T("text.about")}}
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{route("contact") }}">
+        <a class="nav-link" href="{{route("contact")}}">
           <i class="fas fa-envelope fa-fw"></i>
-          {{ T("text.contact") }}
+          {{T("text.contact")}}
         </a>
       </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="fas fa-language fa-fw"></i>
-          {{ T("text.language") }}
+          {{T("text.language")}}
         </a>
         <div id="langSelector" class="dropdown-menu" aria-labelledby="languageDropdown">
           <a class="dropdown-item" data-id="en" >English</a>
@@ -38,40 +38,40 @@
     </ul>
 
     <ul class="navbar-nav ml-auto">
-      {{ if isset(.user) }}
+      {{if isset(.user)}}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="fas fa-user fa-fw"></i>
-          {{ .user.Username }}
+          {{.user.Username}}
         </a>
         <div class="dropdown-menu" aria-labelledby="userDropdown">
-          <a class="dropdown-item" href="{{route("user") }}">
+          <a class="dropdown-item" href="{{route("user")}}">
             <i class="fas fa-cog  fa-fw"></i>
-            {{ T("text.setting") }}
+            {{T("text.setting")}}
           </a>
           <div class="dropdown-divider"></div>
-            <form action="{{route("logout") }}" method="POST">
-              {{ csrf() | raw }}
+            <form action="{{route("logout")}}" method="POST">
+              {{csrf() | raw}}
               <button type="submit" class="dropdown-item btn btn-link btn-logout">
                 <i class="fas fa-sign-out-alt fa-fw"></i>
-                {{ T("text.logout") }}
+                {{T("text.logout")}}
               </button>
             </form>
         </div>
       </li>
-      {{ else }}
+      {{else}}
       <li class="nav-item">
         <a class="nav-link" href="/login">
-          <i class="fas fa-sign-in-alt fa-fw"></i>{{ T("text.login") }}
+          <i class="fas fa-sign-in-alt fa-fw"></i>{{T("text.login")}}
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/signup">
-          <i class="fas fa-user fa-fw"></i>{{ T("text.signup") }}
+          <i class="fas fa-user fa-fw"></i>{{T("text.signup")}}
         </a>
       </li>
-      {{ end }}
+      {{end}}
     </ul>
   </div>
 </nav>
-{{ end }}
+{{end}}
