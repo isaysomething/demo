@@ -1,4 +1,4 @@
 [view]
-    path = "../themes/frontend"
+    path = "../themes/default"
     suffix = ".tmpl"
     debug = false
