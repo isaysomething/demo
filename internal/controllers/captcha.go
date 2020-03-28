@@ -14,7 +14,7 @@ func NewCaptcha(manager *captchas.Manager) *Captcha {
 	return &Captcha{manager: manager}
 }
 
-func (c *Captcha) Create(ctx *clevergo.Context) error {
+func (c *Captcha) Generate(ctx *clevergo.Context) error {
 	captcha, err := c.manager.Generate()
 	if err != nil {
 		return jsend.Error(ctx.Response, err.Error())
@@ -28,7 +28,7 @@ func (c *Captcha) Create(ctx *clevergo.Context) error {
 	return jsend.Success(ctx.Response, data)
 }
 
-func (c *Captcha) CheckCaptcha(ctx *clevergo.Context) error {
+func (c *Captcha) Verify(ctx *clevergo.Context) error {
 	id := ctx.Request.PostFormValue("id")
 	captcha := ctx.Request.PostFormValue("captcha")
 	err := c.manager.Verify(id, captcha, false)

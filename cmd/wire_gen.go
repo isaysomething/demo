@@ -6,14 +6,16 @@
 package cmd
 
 import (
-	controllers2 "github.com/clevergo/demo/internal/api/controllers"
+	controllers3 "github.com/clevergo/demo/internal/api/controllers"
+	controllers2 "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
+)
 
+import (
 	_ "github.com/go-sql-driver/mysql"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -60,8 +62,9 @@ func initializeServer() (*core.Server, func(), error) {
 	}
 	v := core.NewI18NLanguageParsers(i18NConfig)
 	site := controllers.NewSite(application)
+	captcha := controllers2.NewCaptcha(captchasManager)
 	user := controllers.NewUser(application)
-	cmdFrontendRoutes := provideFrontendRoutes(site, user)
+	cmdFrontendRoutes := provideFrontendRoutes(site, captcha, user)
 	router := provideRouter(application, translators, v, cmdFrontendRoutes)
 	server := provideServer(router, logger)
 	return server, func() {
@@ -100,8 +103,8 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	store := core.NewCaptchaStore(redisConfig)
 	captchasManager := core.NewCaptchaManager(captchaConfig, store)
 	application := provideAPIApp(logger, db, sessionManager, cmdApiUserManager, dialer, captchasManager, accessManager)
-	post := controllers2.NewPost(application)
-	user := controllers2.NewUser(application)
+	post := controllers3.NewPost(application)
+	user := controllers3.NewUser(application)
 	captcha := controllers2.NewCaptcha(captchasManager)
 	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
 	authenticator := core.NewAuthenticator(identityStore)
@@ -116,5 +119,5 @@ func initializeAPIServer() (*core.Server, func(), error) {
 
 var superSet = wire.NewSet(
 	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter,
-	provideEnforcer, access.New,
+	provideEnforcer, access.New, controllers2.NewCaptcha,
 )

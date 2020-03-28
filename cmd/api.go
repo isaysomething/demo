@@ -7,6 +7,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/auth"
 	"github.com/clevergo/captchas"
+	commonctl "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/api/controllers"
@@ -41,7 +42,7 @@ var serveAPICmd = &cobra.Command{
 
 var apiSet = wire.NewSet(
 	provideAPIApp, provideAPIRouteGroups, provideAPIUserManager,
-	controllers.NewUser, controllers.NewPost, controllers.NewCaptcha,
+	controllers.NewUser, controllers.NewPost,
 )
 
 func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager *apiUserManager, authenticator auth.Authenticator) *core.Server {
@@ -81,12 +82,12 @@ func provideAPIRouteGroups(
 	accessManager *access.Manager,
 	post *controllers.Post,
 	user *controllers.User,
-	captcha *controllers.Captcha,
+	captcha *commonctl.Captcha,
 ) apiRouteGroups {
 	return apiRouteGroups{
 		routeutil.NewGroup("/v1", routeutil.Routes{
-			routeutil.NewRoute(http.MethodPost, "/captcha", captcha.Create),
-			routeutil.NewRoute(http.MethodPost, "/check-captcha", captcha.CheckCaptcha),
+			routeutil.NewRoute(http.MethodPost, "/captcha", captcha.Generate),
+			routeutil.NewRoute(http.MethodPost, "/check-captcha", captcha.Verify),
 
 			routeutil.NewRoute(http.MethodPost, "/user/login", user.Login),
 			routeutil.NewRoute(http.MethodGet, "/user/info", user.Info),

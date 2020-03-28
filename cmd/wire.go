@@ -3,6 +3,7 @@
 package cmd
 
 import (
+	"github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
@@ -19,6 +20,9 @@ var superSet = wire.NewSet(
 	core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers,
 	provideRouter,
 	provideEnforcer, access.New,
+
+	// controllers
+	controllers.NewCaptcha,
 )
 
 func initializeServer() (*core.Server, func(), error) {

@@ -3,6 +3,7 @@ package cmd
 import (
 	"net/http"
 
+	commonctl "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/routeutil"
 	"github.com/google/wire"
@@ -18,6 +19,7 @@ type frontendRoutes routeutil.Routes
 
 func provideFrontendRoutes(
 	site *controllers.Site,
+	captcha *commonctl.Captcha,
 	user *controllers.User,
 ) frontendRoutes {
 	return frontendRoutes{
@@ -26,8 +28,8 @@ func provideFrontendRoutes(
 		routeutil.NewRoute(http.MethodGet, "/about", site.About).Name("about"),
 		routeutil.NewRoute(http.MethodGet, "/contact", site.Contact).Name("contact"),
 		routeutil.NewRoute(http.MethodPost, "/contact", site.Contact),
-		routeutil.NewRoute(http.MethodPost, "/captcha", site.Captcha).Name("captcha"),
-		routeutil.NewRoute(http.MethodPost, "/check-captcha", site.CheckCaptcha),
+		routeutil.NewRoute(http.MethodPost, "/captcha", captcha.Generate).Name("captcha"),
+		routeutil.NewRoute(http.MethodPost, "/check-captcha", captcha.Verify),
 
 		routeutil.NewRoute(http.MethodGet, "/user", user.Index).Name("user"),
 		routeutil.NewRoute(http.MethodGet, "/login", user.Login).Name("login"),
