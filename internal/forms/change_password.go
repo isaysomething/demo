@@ -14,7 +14,7 @@ import (
 type ChangePassword struct {
 	db          *sqlx.DB
 	user        *models.User
-	Password    string `json:"password"` // current password.
+	Password    string `json:"password"`     // current password.
 	NewPassword string `json:"new_password"` // new password.
 }
 

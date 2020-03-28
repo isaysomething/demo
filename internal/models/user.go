@@ -135,7 +135,7 @@ func generatePassword(password string) (string, error) {
 }
 
 func CreateUser(db *sqlx.DB, username, email, password string) (*User, error) {
-	hashedPassword, err :=generatePassword(password)
+	hashedPassword, err := generatePassword(password)
 	if err != nil {
 		return nil, err
 	}

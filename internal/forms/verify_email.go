@@ -9,7 +9,7 @@ import (
 
 type VerifyEmail struct {
 	db    *sqlx.DB
-	user *models.User
+	user  *models.User
 	Token string `json:"token"`
 }
 
@@ -40,7 +40,7 @@ func (f *VerifyEmail) validateUser(value interface{}) error {
 
 func (f *VerifyEmail) getUser() (*models.User, error) {
 	if f.user == nil {
-		user, err :=  models.GetUserByVerificationToken(f.db, f.Token)
+		user, err := models.GetUserByVerificationToken(f.db, f.Token)
 		if err != nil {
 			return nil, err
 		}

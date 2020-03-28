@@ -55,8 +55,8 @@ func (l *Login) Validate() error {
 
 var (
 	errUserIncorrectPassword = errors.New("incorrect username or password")
-	errUserInactive = errors.New("account is not active, please verify your email")
-	errUserDeleted = errors.New("account was deleted")
+	errUserInactive          = errors.New("account is not active, please verify your email")
+	errUserDeleted           = errors.New("account was deleted")
 )
 
 func (l *Login) validateUser(_ interface{}) error {
