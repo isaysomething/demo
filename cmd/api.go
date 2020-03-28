@@ -7,7 +7,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/auth"
 	"github.com/clevergo/captchas"
-	commonctl "github.com/clevergo/demo/internal/controllers"
+	commonctlrs "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/api/controllers"
@@ -82,7 +82,7 @@ func provideAPIRouteGroups(
 	accessManager *access.Manager,
 	post *controllers.Post,
 	user *controllers.User,
-	captcha *commonctl.Captcha,
+	captcha *commonctlrs.Captcha,
 ) apiRouteGroups {
 	return apiRouteGroups{
 		routeutil.NewGroup("/v1", routeutil.Routes{
