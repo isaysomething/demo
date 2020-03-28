@@ -4,3 +4,6 @@ npm-debug.log
 
 /config.toml
 /demo
+
+# IDE
+.idea/
