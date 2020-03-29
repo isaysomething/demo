@@ -3,8 +3,14 @@ package controllers
 import (
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
+	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
 )
+
+type captcha struct {
+	ID string `json:"id"`
+	Captcha string `json:"captcha"`
+}
 
 type Captcha struct {
 	manager *captchas.Manager
@@ -29,10 +35,12 @@ func (c *Captcha) Generate(ctx *clevergo.Context) error {
 }
 
 func (c *Captcha) Verify(ctx *clevergo.Context) error {
-	id := ctx.Request.PostFormValue("id")
-	captcha := ctx.Request.PostFormValue("captcha")
-	err := c.manager.Verify(id, captcha, false)
-	if err != nil {
+	captcha := captcha{}
+	if err := form.Decode(ctx.Request, &captcha); err != nil {
+		return jsend.Error(ctx.Response, err.Error())
+	}
+	
+	if err := c.manager.Verify(captcha.ID, captcha.Captcha, false); err != nil {
 		return jsend.Error(ctx.Response, err.Error())
 	}
 
