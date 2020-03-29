@@ -11,7 +11,7 @@ require (
 	github.com/clevergo/auth v0.2.1-0.20200316035840-18b30e386e08
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
-	github.com/clevergo/captchas/stores/redisstore v0.1.0
+	github.com/clevergo/captchas/stores/redisstore v0.1.2
 	github.com/clevergo/clevergo v1.6.0
 	github.com/clevergo/form v1.1.0
 	github.com/clevergo/i18n v1.0.2
@@ -19,7 +19,6 @@ require (
 	github.com/clevergo/jsend v1.0.2
 	github.com/clevergo/log v0.3.0
 	github.com/clevergo/log/zapadapter v0.3.0
-	github.com/clevergo/middleware v1.0.1
 	github.com/clevergo/strutil v1.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/eko/gocache v1.0.0
