@@ -22,7 +22,7 @@ $(document).ready(function() {
                 normalizer: function(value) {
                     return $.trim(value)
                 },
-                equalTo: "#newPassword"
+                equalTo: 'input[name="new_password"]'
             }
         },
         errorElement: 'div',

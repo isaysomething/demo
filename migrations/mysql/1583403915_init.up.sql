@@ -28,3 +28,6 @@ CREATE TABLE `auth_rules` (
     `v5` VARCHAR(255) NOT NULL DEFAULT '',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO`users`(id, username, email, hashed_password, `status`) VALUES
+(1, 'admin', 'admin@example.com', '$2a$12$AKzNuiS9SNmTBA/5WFPk/.Hk.usaMk/IZr/h6V5nGBzsQXHaYUgXy', 10);

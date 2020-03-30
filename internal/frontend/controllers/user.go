@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/clevergo/clevergo"
@@ -31,7 +32,9 @@ func (u *User) Index(ctx *clevergo.Context) error {
 		return nil
 	}
 
-	return u.Render(ctx, "user/index", nil)
+	err := u.Render(ctx, "user/index", nil)
+	fmt.Println(err)
+	return nil
 }
 
 // Login displays login page and handle login request.
