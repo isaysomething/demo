@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"compress/gzip"
 	"html/template"
 	"net/http"
 	"path"
@@ -22,6 +21,7 @@ import (
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/middlewares"
+	"github.com/clevergo/demo/pkg/sessionmidware"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/i18n"
 	"github.com/clevergo/log"
@@ -86,11 +86,12 @@ func provideRouter(
 
 	router.Use(
 		clevergo.Recovery(true),
-		middlewares.Logging(core.LoggerWriter(app.Logger())),
-		middlewares.Compress(gzip.DefaultCompression),
-		middlewares.Minify(),
-		middlewares.CSRF(),
-		middlewares.Session(app.SessionManager()),
+		//middlewares.Logging(core.LoggerWriter(app.Logger())),
+		//middlewares.Compress(gzip.DefaultCompression),
+		//middlewares.Minify(),
+		//middlewares.CSRF(),
+		// middlewares.Session(app.SessionManager()),
+		sessionmidware.New(app.SessionManager()),
 		middlewares.I18N(translators, languageParsers...),
 	)
 

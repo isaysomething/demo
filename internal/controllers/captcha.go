@@ -8,7 +8,7 @@ import (
 )
 
 type captcha struct {
-	ID string `json:"id"`
+	ID      string `json:"id"`
 	Captcha string `json:"captcha"`
 }
 
@@ -39,7 +39,7 @@ func (c *Captcha) Verify(ctx *clevergo.Context) error {
 	if err := form.Decode(ctx.Request, &captcha); err != nil {
 		return jsend.Error(ctx.Response, err.Error())
 	}
-	
+
 	if err := c.manager.Verify(captcha.ID, captcha.Captcha, false); err != nil {
 		return jsend.Error(ctx.Response, err.Error())
 	}

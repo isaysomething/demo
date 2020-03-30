@@ -12,10 +12,9 @@ import (
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
-)
 
-import (
 	_ "github.com/go-sql-driver/mysql"
+
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
