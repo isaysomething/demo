@@ -13,13 +13,13 @@ import (
 	commonctlrs "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
+	"github.com/clevergo/demo/pkg/corsmidware"
 	"github.com/clevergo/demo/pkg/routeutil"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
 	"github.com/go-mail/mail"
 	"github.com/google/wire"
 	"github.com/jmoiron/sqlx"
-	"github.com/rs/cors"
 	"github.com/spf13/cobra"
 )
 
@@ -47,20 +47,14 @@ var apiSet = wire.NewSet(
 
 func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager *apiUserManager, authenticator auth.Authenticator) *core.Server {
 	router := clevergo.NewRouter()
+	router.Use(corsmidware.Default())
 	srv := core.NewServer(router, logger)
 	srv.Addr = ":4040"
 	for _, g := range routeGroups {
 		g.Register(router)
 	}
 
-	srv.Use(
-		provideCORS().Handler,
-	)
 	return srv
-}
-
-func provideCORS() *cors.Cors {
-	return core.NewCORS(cfg.CORS)
 }
 
 func provideAPIApp(
