@@ -22,8 +22,9 @@ type SessionConfig struct {
 	CookieSameSite int    `koanf:"cookie_same_site"`
 }
 
-func NewSessionManager(cfg SessionConfig) *scs.SessionManager {
+func NewSessionManager(cfg SessionConfig, store scs.Store) *scs.SessionManager {
 	m := scs.New()
+	m.Store = store
 	m.Lifetime = time.Duration(cfg.Lifetime) * time.Second
 	m.IdleTimeout = time.Duration(cfg.IdleTimeout) * time.Second
 	m.Cookie.Name = cfg.CookieName

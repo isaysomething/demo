@@ -12,9 +12,10 @@ import (
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
+)
 
+import (
 	_ "github.com/go-sql-driver/mysql"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -34,15 +35,16 @@ func initializeServer() (*core.Server, func(), error) {
 	}
 	viewManager := provideView()
 	sessionConfig := provideSessionConfig()
-	sessionManager := core.NewSessionManager(sessionConfig)
+	redisConfig := provideRedisConfig()
+	store := core.NewSessionStore(redisConfig)
+	sessionManager := core.NewSessionManager(sessionConfig, store)
 	identityStore := core.NewIdentityStore(db)
 	manager := core.NewUserManager(identityStore, sessionManager)
 	mailerConfig := provideMailerConfig()
 	dialer := core.NewMailer(mailerConfig)
 	captchaConfig := provideCaptchaConfig()
-	redisConfig := provideRedisConfig()
-	store := core.NewCaptchaStore(redisConfig)
-	captchasManager := core.NewCaptchaManager(captchaConfig, store)
+	captchasStore := core.NewCaptchaStore(redisConfig)
+	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
 	enforcer, err := provideEnforcer()
 	if err != nil {
 		cleanup2()
@@ -91,16 +93,17 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	}
 	identityStore := core.NewIdentityStore(db)
 	sessionConfig := provideSessionConfig()
-	sessionManager := core.NewSessionManager(sessionConfig)
+	redisConfig := provideRedisConfig()
+	store := core.NewSessionStore(redisConfig)
+	sessionManager := core.NewSessionManager(sessionConfig, store)
 	manager := core.NewUserManager(identityStore, sessionManager)
 	accessManager := access.New(enforcer, manager)
 	cmdApiUserManager := provideAPIUserManager(identityStore)
 	mailerConfig := provideMailerConfig()
 	dialer := core.NewMailer(mailerConfig)
 	captchaConfig := provideCaptchaConfig()
-	redisConfig := provideRedisConfig()
-	store := core.NewCaptchaStore(redisConfig)
-	captchasManager := core.NewCaptchaManager(captchaConfig, store)
+	captchasStore := core.NewCaptchaStore(redisConfig)
+	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
 	application := provideAPIApp(logger, db, sessionManager, cmdApiUserManager, dialer, captchasManager, accessManager)
 	post := controllers3.NewPost(application)
 	user := controllers3.NewUser(application)
