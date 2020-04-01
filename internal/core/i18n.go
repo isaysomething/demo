@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"path"
 
+	"github.com/clevergo/clevergo"
 	"github.com/clevergo/i18n"
 	"github.com/gobuffalo/packr/v2"
 )
@@ -68,4 +69,10 @@ func NewI18NLanguageParsers(cfg I18NConfig) (parsers []i18n.LanguageParser) {
 	}
 	parsers = append(parsers, i18n.HeaderLanguageParser{})
 	return
+}
+
+type I18NMiddleware clevergo.MiddlewareFunc
+
+func NewI18NMiddleware(translators *i18n.Translators, parsers []i18n.LanguageParser) I18NMiddleware {
+	return I18NMiddleware(clevergo.WrapHH(i18n.Middleware(translators, parsers...)))
 }

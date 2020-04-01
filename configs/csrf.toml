@@ -1,2 +1,8 @@
 [csrf]
-    key = "AUTH_KEY"
+    auth_key = "AUTH_KEY"
+    secure = true
+    domain = ""
+    path = "/"
+    max_age = 0
+    HttpOnly = true
+    same_site = 1

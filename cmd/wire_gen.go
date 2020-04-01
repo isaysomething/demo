@@ -12,10 +12,9 @@ import (
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
-)
 
-import (
 	_ "github.com/go-sql-driver/mysql"
+
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -45,7 +44,7 @@ func initializeServer() (*core.Server, func(), error) {
 	captchaConfig := provideCaptchaConfig()
 	captchasStore := core.NewCaptchaStore(redisConfig)
 	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
-	enforcer, err := provideEnforcer()
+	enforcer, err := core.NewEnforcer(dbConfig)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -53,7 +52,13 @@ func initializeServer() (*core.Server, func(), error) {
 	}
 	accessManager := access.New(enforcer, manager)
 	application := provideApp(logger, db, viewManager, sessionManager, manager, dialer, captchasManager, accessManager)
-	i18NConfig := proviceI18NConfig()
+	site := controllers.NewSite(application)
+	captcha := controllers2.NewCaptcha(captchasManager)
+	user := controllers.NewUser(application)
+	cmdFrontendRoutes := provideFrontendRoutes(site, captcha, user)
+	csrfConfig := provideCSRFConfig()
+	csrfMiddleware := core.NewCSRFMiddleware(csrfConfig)
+	i18NConfig := provideI18NConfig()
 	i18nStore := core.NewFileStore(i18NConfig)
 	translators, err := core.NewI18N(i18NConfig, i18nStore)
 	if err != nil {
@@ -62,12 +67,14 @@ func initializeServer() (*core.Server, func(), error) {
 		return nil, nil, err
 	}
 	v := core.NewI18NLanguageParsers(i18NConfig)
-	site := controllers.NewSite(application)
-	captcha := controllers2.NewCaptcha(captchasManager)
-	user := controllers.NewUser(application)
-	cmdFrontendRoutes := provideFrontendRoutes(site, captcha, user)
-	router := provideRouter(application, translators, v, cmdFrontendRoutes)
-	server := provideServer(router, logger)
+	i18NMiddleware := core.NewI18NMiddleware(translators, v)
+	gzipMiddleware := core.NewGzipMiddleware()
+	sessionMiddleware := core.NewSessionMiddleware(sessionManager)
+	m := core.NewMinify()
+	minifyMiddleware := core.NewMinifyMiddleware(m)
+	loggingMiddleware := core.NewLoggingMiddleware()
+	router := provideRouter(application, cmdFrontendRoutes, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware)
+	server := provideServer(router, logger, m)
 	return server, func() {
 		cleanup2()
 		cleanup()
@@ -80,12 +87,12 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	enforcer, err := provideEnforcer()
+	dbConfig := provideDBConfig()
+	enforcer, err := core.NewEnforcer(dbConfig)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	dbConfig := provideDBConfig()
 	db, cleanup2, err := core.NewDB(dbConfig)
 	if err != nil {
 		cleanup()
@@ -110,7 +117,9 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	captcha := controllers2.NewCaptcha(captchasManager)
 	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
 	authenticator := core.NewAuthenticator(identityStore)
-	server := provideAPIServer(logger, cmdApiRouteGroups, cmdApiUserManager, authenticator)
+	corsConfig := provideCORSConfig()
+	corsMiddleware := core.NewCORSMiddleware(corsConfig)
+	server := provideAPIServer(logger, cmdApiRouteGroups, cmdApiUserManager, authenticator, corsMiddleware)
 	return server, func() {
 		cleanup2()
 		cleanup()
@@ -120,6 +129,5 @@ func initializeAPIServer() (*core.Server, func(), error) {
 // wire.go:
 
 var superSet = wire.NewSet(
-	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter,
-	provideEnforcer, access.New, controllers2.NewCaptcha,
+	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter, core.NewEnforcer, access.New, controllers2.NewCaptcha, core.MiddlewareSet,
 )

@@ -6,13 +6,12 @@ import (
 	"path"
 	"reflect"
 
-	// database drivers.
 	"github.com/CloudyKit/jet/v3"
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
+	// database drivers.
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/jmoiron/sqlx"
+	"github.com/tdewolff/minify/v2"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/captchas"
@@ -20,79 +19,43 @@ import (
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/pkg/access"
-	"github.com/clevergo/demo/pkg/middlewares"
-	"github.com/clevergo/demo/pkg/sessionmidware"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/i18n"
 	"github.com/clevergo/log"
 	"github.com/go-mail/mail"
 	"github.com/gorilla/csrf"
-	sqlxadapter "github.com/memwey/casbin-sqlx-adapter"
 )
 
-func provideServer(router *clevergo.Router, logger log.Logger) *core.Server {
+func provideServer(router *clevergo.Router, logger log.Logger, m *minify.M) *core.Server {
 	srv := core.NewServer(router, logger)
 	srv.Addr = cfg.Server.Addr
+	srv.Use(
+		m.Middleware,
+	)
 	return srv
-}
-
-func provideEnforcer() (*casbin.Enforcer, error) {
-	//return casbin.NewEnforcer("casbin/model.conf", "casbin/policy.csv")
-	opts := &sqlxadapter.AdapterOptions{
-		DriverName:     "mysql",
-		DataSourceName: "root:123456@tcp(127.0.0.1:3306)/clevergo",
-		TableName:      "auth_rules",
-		// or reuse an existing connection:
-		// DB: myDBConn,
-	}
-	conf := packr.New("rbac", "../conf")
-	content, err := conf.FindString("rbac_model.conf")
-	if err != nil {
-		return nil, err
-	}
-	m, err := model.NewModelFromString(content)
-	if err != nil {
-		return nil, err
-	}
-
-	a := sqlxadapter.NewAdapterFromOptions(opts)
-	e, err := casbin.NewEnforcer()
-	if err != nil {
-		return nil, err
-	}
-	if err = e.InitWithModelAndAdapter(m, a); err != nil {
-		return nil, err
-	}
-
-	// Reload the policy from file/database.
-	if err = e.LoadPolicy(); err != nil {
-		return nil, err
-	}
-
-	// Save the current policy (usually after changed with Casbin API) back to file/database.
-	//e.SavePolicy()
-
-	return e, nil
 }
 
 func provideRouter(
 	app *frontend.Application,
-	translators *i18n.Translators,
-	languageParsers []i18n.LanguageParser,
 	frontendRoutes frontendRoutes,
+	csrfMidware core.CSRFMiddleware,
+	i18nMidware core.I18NMiddleware,
+	gzipMidware core.GzipMiddleware,
+	sessionMidware core.SessionMiddleware,
+	minifyMidware core.MinifyMiddleware,
+	loggingMiddleware core.LoggingMiddleware,
 ) *clevergo.Router {
 	router := clevergo.NewRouter()
 	router.NotFound = http.FileServer(packr.New("public", cfg.Server.Root))
 
 	router.Use(
 		clevergo.Recovery(true),
-		//middlewares.Logging(core.LoggerWriter(app.Logger())),
-		//middlewares.Compress(gzip.DefaultCompression),
-		//middlewares.Minify(),
-		//middlewares.CSRF(),
-		// middlewares.Session(app.SessionManager()),
-		sessionmidware.New(app.SessionManager()),
-		middlewares.I18N(translators, languageParsers...),
+		clevergo.MiddlewareFunc(loggingMiddleware),
+		clevergo.MiddlewareFunc(minifyMidware),
+		clevergo.MiddlewareFunc(gzipMidware),
+		clevergo.MiddlewareFunc(sessionMidware),
+		clevergo.MiddlewareFunc(csrfMidware),
+		clevergo.MiddlewareFunc(i18nMidware),
 	)
 
 	routeFunc := func(args jet.Arguments) reflect.Value {

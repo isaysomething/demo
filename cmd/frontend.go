@@ -12,7 +12,7 @@ import (
 var frontendSet = wire.NewSet(
 	provideApp, provideView,
 	provideFrontendRoutes,
-	controllers.NewSite, controllers.NewUser,
+	controllers.Set,
 )
 
 type frontendRoutes routeutil.Routes

@@ -19,10 +19,13 @@ var superSet = wire.NewSet(
 	core.NewCaptchaStore, core.NewCaptchaManager,
 	core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers,
 	provideRouter,
-	provideEnforcer, access.New,
+	core.NewEnforcer, access.New,
 
-	// controllers
+	// common controllers
 	controllers.NewCaptcha,
+
+	// middlewares
+	core.MiddlewareSet,
 )
 
 func initializeServer() (*core.Server, func(), error) {

@@ -1,6 +1,9 @@
 package core
 
-import "github.com/rs/cors"
+import (
+	"github.com/clevergo/clevergo"
+	"github.com/rs/cors"
+)
 
 type CORSConfig struct {
 	AllowedOrigins     []string `koanf:"allowed_origins"`
@@ -18,4 +21,11 @@ func NewCORS(cfg CORSConfig) *cors.Cors {
 		AllowCredentials: cfg.AllowedCredentials,
 		Debug:            cfg.Debug,
 	})
+}
+
+type CORSMiddleware clevergo.MiddlewareFunc
+
+func NewCORSMiddleware(cfg CORSConfig) CORSMiddleware {
+	fn := NewCORS(cfg).Handler
+	return CORSMiddleware(clevergo.WrapHH(fn))
 }

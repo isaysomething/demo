@@ -13,7 +13,6 @@ import (
 	commonctlrs "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
-	"github.com/clevergo/demo/pkg/corsmidware"
 	"github.com/clevergo/demo/pkg/routeutil"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
@@ -42,12 +41,20 @@ var serveAPICmd = &cobra.Command{
 
 var apiSet = wire.NewSet(
 	provideAPIApp, provideAPIRouteGroups, provideAPIUserManager,
-	controllers.NewUser, controllers.NewPost,
+	controllers.Set,
 )
 
-func provideAPIServer(logger log.Logger, routeGroups apiRouteGroups, userManager *apiUserManager, authenticator auth.Authenticator) *core.Server {
+func provideAPIServer(
+	logger log.Logger,
+	routeGroups apiRouteGroups,
+	userManager *apiUserManager,
+	authenticator auth.Authenticator,
+	corsMidware core.CORSMiddleware,
+) *core.Server {
 	router := clevergo.NewRouter()
-	router.Use(corsmidware.Default())
+	router.Use(
+		clevergo.MiddlewareFunc(corsMidware),
+	)
 	srv := core.NewServer(router, logger)
 	srv.Addr = ":4040"
 	for _, g := range routeGroups {

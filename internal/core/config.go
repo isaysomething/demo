@@ -11,6 +11,7 @@ type Config struct {
 	Captcha   CaptchaConfig   `koanf:"captcha"`
 	Migration MigrationConfig `koanf:"migration"`
 	CORS      CORSConfig      `koanf:"cors"`
+	CSRF      CSRFConfig      `koanf:"csrf"`
 	JWT       JWTConfig       `koanf:"jwt"`
 	Redis     RedisConfig     `koanf:"redis"`
 	Log       LogConfig       `koanf:"log"`
