@@ -9,7 +9,7 @@ require (
 	github.com/alexedwards/scs/v2 v2.3.0
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 	github.com/casbin/casbin/v2 v2.2.1
-	github.com/clevergo/auth v0.2.1-0.20200316035840-18b30e386e08
+	github.com/clevergo/auth v0.2.1-0.20200402040858-d64c0f0ff6b4
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/stores/redisstore v0.1.2

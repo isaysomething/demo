@@ -65,11 +65,9 @@ func (m *Manager) userFromContext(ctx context.Context) *User {
 }
 
 func (m *Manager) userFromSession(r *http.Request, w http.ResponseWriter) (*User, error) {
-	log.Println(m.sessionManager == nil)
 	if m.sessionManager == nil {
 		return nil, errors.New("session was disabled")
 	}
-	log.Println(m.sessionManager == nil)
 	ctx := r.Context()
 	if !m.sessionManager.Exists(ctx, m.authIDParam) {
 		return nil, errors.New("no auth")
@@ -195,7 +193,6 @@ func (m *Manager) Middleware(authenticator auth.Authenticator) clevergo.Middlewa
 		return func(ctx *clevergo.Context) error {
 			user, err := m.Get(ctx.Request, ctx.Response)
 			if err != nil {
-				// http.Error(w, err.Error(), http.StatusInternalServerError)
 				log.Println(err)
 			}
 			if user.IsGuest() {

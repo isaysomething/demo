@@ -23,6 +23,7 @@ var configSet = wire.NewSet(
 	provideCORSConfig,
 	provideParams,
 	provideViewConfig,
+	provideJWTConfig,
 )
 
 func provideDBConfig() core.DBConfig {
@@ -63,6 +64,10 @@ func provideCORSConfig() core.CORSConfig {
 
 func provideViewConfig() core.ViewConfig {
 	return cfg.View
+}
+
+func provideJWTConfig() core.JWTConfig {
+	return cfg.JWT
 }
 
 func provideParams() core.Params {

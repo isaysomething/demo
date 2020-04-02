@@ -1,27 +1,26 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/models"
-	"github.com/dgrijalva/jwt-go"
 )
 
 // User controller.
 type User struct {
 	*api.Application
 	captchaManager *captchas.Manager
+	jwtManager     *core.JWTManager
 }
 
 // NewUser returns an user controller.
-func NewUser(app *api.Application, captchaManager *captchas.Manager) *User {
-	return &User{app, captchaManager}
+func NewUser(app *api.Application, captchaManager *captchas.Manager, jwtManager *core.JWTManager) *User {
+	return &User{app, captchaManager, jwtManager}
 }
 
 // Index returns users list.
@@ -47,20 +46,13 @@ func (u *User) Login(ctx *clevergo.Context) error {
 		return u.Error(ctx, err)
 	}
 
-	now := time.Now()
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  v.ID,
-		"isa": now.Unix(),
-		"exp": now.Add(time.Second * 3600).Unix(),
-	})
-	tokenString, err := token.SignedString([]byte("123456"))
+	token, err := u.jwtManager.New(v.GetID())
 	if err != nil {
-		fmt.Println(1)
 		return u.Error(ctx, err)
 	}
 
 	return u.Success(ctx, map[string]interface{}{
-		"access_token": tokenString,
+		"access_token": token,
 	})
 }
 

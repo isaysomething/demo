@@ -9,7 +9,6 @@ import (
 	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/pkg/users"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -21,40 +20,32 @@ func NewUserManager(identityStore auth.IdentityStore, sessionManager *scs.Sessio
 
 // IdentityStore is an identity store.
 type IdentityStore struct {
-	db *sqlx.DB
+	db      *sqlx.DB
+	manager *JWTManager
 }
 
 // NewIdentityStore returns an identity store instance.
-func NewIdentityStore(db *sqlx.DB) auth.IdentityStore {
-	return &IdentityStore{db: db}
+func NewIdentityStore(db *sqlx.DB, manager *JWTManager) auth.IdentityStore {
+	return &IdentityStore{db: db, manager: manager}
 }
 
 // GetIdentity implements IdentityStore.GetIdentity.
-func (is *IdentityStore) GetIdentity(id string) (auth.Identity, error) {
+func (s *IdentityStore) GetIdentity(id string) (auth.Identity, error) {
 	intID, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid ID %q: %s", id, err)
 	}
-	user, err := models.GetUser(is.db, intID)
+	user, err := models.GetUser(s.db, intID)
 	return user, err
 }
 
 // GetIdentityByToken implements IdentityStore.GetIdentityByToken.
-func (is *IdentityStore) GetIdentityByToken(token, tokenType string) (auth.Identity, error) {
-	t, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", t.Header["alg"])
-		}
-
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return []byte("123456"), nil
-	})
+func (s *IdentityStore) GetIdentityByToken(token, tokenType string) (auth.Identity, error) {
+	claims, err := s.manager.Parse(token)
 	if err != nil {
 		return nil, err
 	}
-	c, _ := t.Claims.(jwt.MapClaims)
-	user, err := models.GetUser(is.db, c["id"])
+	user, err := models.GetUser(s.db, claims.Subject)
 	if err != nil {
 		return nil, err
 	}

@@ -41,7 +41,9 @@ func initializeServer() (*core.Server, func(), error) {
 	redisConfig := provideRedisConfig()
 	store := core.NewSessionStore(redisConfig)
 	sessionManager := core.NewSessionManager(sessionConfig, store)
-	identityStore := core.NewIdentityStore(db)
+	jwtConfig := provideJWTConfig()
+	jwtManager := core.NewJWTManager(jwtConfig)
+	identityStore := core.NewIdentityStore(db, jwtManager)
 	manager := core.NewUserManager(identityStore, sessionManager)
 	mailerConfig := provideMailerConfig()
 	dialer := core.NewMailer(mailerConfig)
@@ -102,7 +104,9 @@ func initializeAPIServer() (*core.Server, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	identityStore := core.NewIdentityStore(db)
+	jwtConfig := provideJWTConfig()
+	jwtManager := core.NewJWTManager(jwtConfig)
+	identityStore := core.NewIdentityStore(db, jwtManager)
 	sessionConfig := provideSessionConfig()
 	redisConfig := provideRedisConfig()
 	store := core.NewSessionStore(redisConfig)
@@ -118,7 +122,7 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	captchaConfig := provideCaptchaConfig()
 	captchasStore := core.NewCaptchaStore(redisConfig)
 	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
-	user := controllers3.NewUser(application, captchasManager)
+	user := controllers3.NewUser(application, captchasManager, jwtManager)
 	captcha := controllers2.NewCaptcha(captchasManager)
 	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
 	authenticator := core.NewAuthenticator(identityStore)
@@ -134,5 +138,5 @@ func initializeAPIServer() (*core.Server, func(), error) {
 // wire.go:
 
 var superSet = wire.NewSet(
-	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter, core.NewEnforcer, access.New, controllers2.NewCaptcha, core.MiddlewareSet,
+	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter, core.NewEnforcer, access.New, core.NewJWTManager, controllers2.NewCaptcha, core.MiddlewareSet,
 )

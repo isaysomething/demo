@@ -74,6 +74,8 @@ github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5P
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
 github.com/clevergo/auth v0.2.1-0.20200316035840-18b30e386e08 h1:Zh+eaFUEVnbiadbBkjl/gqXttNLrjKU/sVmVOnvBVZs=
 github.com/clevergo/auth v0.2.1-0.20200316035840-18b30e386e08/go.mod h1:TRk6PBmlH6m1RvA4PrtDeu/+rR1x7CC5oUBdIYWAyg0=
+github.com/clevergo/auth v0.2.1-0.20200402040858-d64c0f0ff6b4 h1:pk3qVavOafCR23VlivtgQI/3rMAg5/D46R4L/A40u3c=
+github.com/clevergo/auth v0.2.1-0.20200402040858-d64c0f0ff6b4/go.mod h1:TRk6PBmlH6m1RvA4PrtDeu/+rR1x7CC5oUBdIYWAyg0=
 github.com/clevergo/captchas v0.3.1/go.mod h1:MgQIvLx9mhOoScMJnSFvXuqbAQVIwWtLJ862K1jRvR8=
 github.com/clevergo/captchas v0.3.2 h1:/P/Lc8umYp052aGeyiQf8a8mED+g+lmZLqmogMrt1e0=
 github.com/clevergo/captchas v0.3.2/go.mod h1:MgQIvLx9mhOoScMJnSFvXuqbAQVIwWtLJ862K1jRvR8=

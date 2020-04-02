@@ -20,6 +20,7 @@ var superSet = wire.NewSet(
 	core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers,
 	provideRouter,
 	core.NewEnforcer, access.New,
+	core.NewJWTManager,
 
 	// common controllers
 	controllers.NewCaptcha,
