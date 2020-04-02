@@ -9,7 +9,7 @@ require (
 	github.com/alexedwards/scs/v2 v2.3.0
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 	github.com/casbin/casbin/v2 v2.2.1
-	github.com/clevergo/auth v0.2.1-0.20200402040858-d64c0f0ff6b4
+	github.com/clevergo/auth v0.2.1-0.20200402042530-4089e3e3cc26
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/stores/redisstore v0.1.2
@@ -36,7 +36,6 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/wire v0.4.0
 	github.com/gorilla/csrf v1.6.2
-	github.com/gorilla/handlers v1.4.2
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/knadh/koanf v0.8.1
 	github.com/memwey/casbin-sqlx-adapter v0.2.0
@@ -53,6 +52,6 @@ require (
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	golang.org/x/tools v0.0.0-20200312194400-c312e98713c2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/mail.v2 v2.3.1
+	gopkg.in/mail.v2 v2.3.1 // indirect
 	honnef.co/go/tools v0.0.1-2020.1.3 // indirect
 )
