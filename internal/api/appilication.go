@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/alexedwards/scs/v2"
+	"github.com/clevergo/auth"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
@@ -35,7 +36,7 @@ func New(
 	params core.Params,
 	db *sqlx.DB,
 	sessionManager *scs.SessionManager,
-	userManager *users.Manager,
+	userManager *UserManager,
 	mailer *mail.Dialer,
 	accessManager *access.Manager,
 ) *Application {
@@ -45,8 +46,16 @@ func New(
 		core.SetDB(db),
 		core.SetSessionManager(sessionManager),
 		core.SetMailer(mailer),
-		core.SetUserManager(userManager),
+		core.SetUserManager(userManager.Manager),
 		core.SetAccessManager(accessManager),
 	}
 	return &Application{core.New(opts...)}
+}
+
+type UserManager struct {
+	*users.Manager
+}
+
+func NewUserManager(identityStore auth.IdentityStore) *UserManager {
+	return &UserManager{Manager: users.New(identityStore)}
 }

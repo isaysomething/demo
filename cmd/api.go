@@ -11,7 +11,6 @@ import (
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/routeutil"
-	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
 	"github.com/google/wire"
 	"github.com/spf13/cobra"
@@ -36,20 +35,22 @@ var serveAPICmd = &cobra.Command{
 
 var apiSet = wire.NewSet(
 	api.New,
-	provideAPIRouteGroups, provideAPIUserManager,
+	provideAPIRouteGroups,
+	api.NewUserManager,
 	controllers.Set,
 )
 
 func provideAPIServer(
 	logger log.Logger,
 	routeGroups *apiRouteGroups,
-	userManager *apiUserManager,
+	userManager *api.UserManager,
 	authenticator auth.Authenticator,
 	corsMidware core.CORSMiddleware,
 ) *core.Server {
 	router := clevergo.NewRouter()
 	router.Use(
 		clevergo.MiddlewareFunc(corsMidware),
+		userManager.Middleware(authenticator),
 	)
 	srv := core.NewServer(router, logger)
 	srv.Addr = cfg.API.Addr
@@ -89,12 +90,4 @@ func provideAPIRouteGroups(
 	}
 
 	return &apiRouteGroups{gs}
-}
-
-type apiUserManager struct {
-	*users.Manager
-}
-
-func provideAPIUserManager(identityStore auth.IdentityStore) *apiUserManager {
-	return &apiUserManager{Manager: users.New(identityStore)}
 }
