@@ -8,7 +8,6 @@ import (
 	"github.com/alexedwards/scs/redisstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/pkg/sessionmidware"
 	"github.com/gomodule/redigo/redis"
 )
 
@@ -55,5 +54,5 @@ func NewSessionStore(cfg RedisConfig) scs.Store {
 type SessionMiddleware clevergo.MiddlewareFunc
 
 func NewSessionMiddleware(manager *scs.SessionManager) SessionMiddleware {
-	return SessionMiddleware(sessionmidware.New(manager))
+	return SessionMiddleware(clevergo.WrapHH(manager.LoadAndSave))
 }

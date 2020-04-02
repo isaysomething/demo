@@ -5,7 +5,6 @@ import (
 
 	"github.com/CloudyKit/jet/v3"
 	"github.com/alexedwards/scs/v2"
-	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/users"
@@ -30,7 +29,6 @@ type Application struct {
 	sessionManager *scs.SessionManager
 	mailer         *mail.Dialer
 	userManager    *users.Manager
-	captchaManager *captchas.Manager
 	params         Params
 	viewManager    *ViewManager
 	beforeRender   func(*BeforeRenderEvent)
@@ -61,10 +59,6 @@ func (app *Application) Logger() log.Logger {
 
 func (app *Application) Mailer() *mail.Dialer {
 	return app.mailer
-}
-
-func (app *Application) CaptcpaManager() *captchas.Manager {
-	return app.captchaManager
 }
 
 func (app *Application) SessionManager() *scs.SessionManager {

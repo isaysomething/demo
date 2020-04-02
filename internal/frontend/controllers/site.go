@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 
+	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
@@ -13,10 +14,11 @@ import (
 
 type Site struct {
 	*frontend.Application
+	captchaManager *captchas.Manager
 }
 
-func NewSite(app *frontend.Application) *Site {
-	return &Site{app}
+func NewSite(app *frontend.Application, captchaManager *captchas.Manager) *Site {
+	return &Site{app, captchaManager}
 }
 
 func (s *Site) Index(ctx *clevergo.Context) error {
@@ -29,7 +31,7 @@ func (s *Site) About(ctx *clevergo.Context) error {
 
 func (s *Site) Contact(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
-		form := forms.NewContact(s.Mailer(), s.CaptcpaManager())
+		form := forms.NewContact(s.Mailer(), s.captchaManager)
 		if err := form.Handle(ctx); err != nil {
 			s.Logger().Error(err)
 			return jsend.Error(ctx.Response, err.Error())

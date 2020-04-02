@@ -6,9 +6,11 @@
 package cmd
 
 import (
+	"github.com/clevergo/demo/internal/api"
 	controllers3 "github.com/clevergo/demo/internal/api/controllers"
 	controllers2 "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
+	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
@@ -26,13 +28,15 @@ func initializeServer() (*core.Server, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	params := provideParams()
 	dbConfig := provideDBConfig()
 	db, cleanup2, err := core.NewDB(dbConfig)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	viewManager := provideView()
+	viewConfig := provideViewConfig()
+	viewManager := core.NewViewManager(viewConfig)
 	sessionConfig := provideSessionConfig()
 	redisConfig := provideRedisConfig()
 	store := core.NewSessionStore(redisConfig)
@@ -41,9 +45,6 @@ func initializeServer() (*core.Server, func(), error) {
 	manager := core.NewUserManager(identityStore, sessionManager)
 	mailerConfig := provideMailerConfig()
 	dialer := core.NewMailer(mailerConfig)
-	captchaConfig := provideCaptchaConfig()
-	captchasStore := core.NewCaptchaStore(redisConfig)
-	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
 	enforcer, err := core.NewEnforcer(dbConfig)
 	if err != nil {
 		cleanup2()
@@ -51,11 +52,14 @@ func initializeServer() (*core.Server, func(), error) {
 		return nil, nil, err
 	}
 	accessManager := access.New(enforcer, manager)
-	application := provideApp(logger, db, viewManager, sessionManager, manager, dialer, captchasManager, accessManager)
-	site := controllers.NewSite(application)
+	application := frontend.New(logger, params, db, viewManager, sessionManager, manager, dialer, accessManager)
+	captchaConfig := provideCaptchaConfig()
+	captchasStore := core.NewCaptchaStore(redisConfig)
+	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
+	site := controllers.NewSite(application, captchasManager)
 	captcha := controllers2.NewCaptcha(captchasManager)
-	user := controllers.NewUser(application)
-	cmdFrontendRoutes := provideFrontendRoutes(site, captcha, user)
+	user := controllers.NewUser(application, captchasManager)
+	cmdRoutes := provideRoutes(site, captcha, user)
 	csrfConfig := provideCSRFConfig()
 	csrfMiddleware := core.NewCSRFMiddleware(csrfConfig)
 	i18NConfig := provideI18NConfig()
@@ -73,8 +77,8 @@ func initializeServer() (*core.Server, func(), error) {
 	m := core.NewMinify()
 	minifyMiddleware := core.NewMinifyMiddleware(m)
 	loggingMiddleware := core.NewLoggingMiddleware()
-	router := provideRouter(application, cmdFrontendRoutes, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware)
-	server := provideServer(router, logger, m)
+	router := provideRouter(application, cmdRoutes, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware)
+	server := provideServer(router, logger)
 	return server, func() {
 		cleanup2()
 		cleanup()
@@ -105,17 +109,18 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	sessionManager := core.NewSessionManager(sessionConfig, store)
 	manager := core.NewUserManager(identityStore, sessionManager)
 	accessManager := access.New(enforcer, manager)
-	cmdApiUserManager := provideAPIUserManager(identityStore)
+	params := provideParams()
 	mailerConfig := provideMailerConfig()
 	dialer := core.NewMailer(mailerConfig)
+	application := api.New(logger, params, db, sessionManager, manager, dialer, accessManager)
+	post := controllers3.NewPost(application)
 	captchaConfig := provideCaptchaConfig()
 	captchasStore := core.NewCaptchaStore(redisConfig)
 	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
-	application := provideAPIApp(logger, db, sessionManager, cmdApiUserManager, dialer, captchasManager, accessManager)
-	post := controllers3.NewPost(application)
-	user := controllers3.NewUser(application)
+	user := controllers3.NewUser(application, captchasManager)
 	captcha := controllers2.NewCaptcha(captchasManager)
 	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
+	cmdApiUserManager := provideAPIUserManager(identityStore)
 	authenticator := core.NewAuthenticator(identityStore)
 	corsConfig := provideCORSConfig()
 	corsMiddleware := core.NewCORSMiddleware(corsConfig)

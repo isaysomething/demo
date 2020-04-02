@@ -1,6 +1,8 @@
 package core
 
 import (
+	"path"
+
 	"github.com/CloudyKit/jet/v3"
 	packrloader "github.com/clevergo/jet-packrloader"
 	"github.com/gobuffalo/packr/v2"
@@ -29,7 +31,9 @@ func (m *ViewManager) GetTemplate(name string) (*jet.Template, error) {
 }
 
 // NewViewManager returns a view manager associative with the given config.
-func NewViewManager(box *packr.Box, cfg ViewConfig) *ViewManager {
+func NewViewManager(cfg ViewConfig) *ViewManager {
+	viewPath := path.Join(cfg.Path, "views")
+	box := packr.New(viewPath, viewPath)
 	m := &ViewManager{
 		Set:    jet.NewHTMLSetLoader(packrloader.New(box)),
 		suffix: cfg.Suffix,

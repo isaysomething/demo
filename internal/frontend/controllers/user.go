@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
@@ -17,11 +18,12 @@ import (
 // User user controller.
 type User struct {
 	*frontend.Application
+	captchaManager *captchas.Manager
 }
 
 // NewUser returns a user controller.
-func NewUser(app *frontend.Application) *User {
-	return &User{app}
+func NewUser(app *frontend.Application, captchaManager *captchas.Manager) *User {
+	return &User{app, captchaManager}
 }
 
 func (u *User) Index(ctx *clevergo.Context) error {
@@ -43,7 +45,7 @@ func (u *User) Login(ctx *clevergo.Context) error {
 	}
 
 	if ctx.IsPost() {
-		form := forms.NewLogin(u.DB(), user, u.CaptcpaManager())
+		form := forms.NewLogin(u.DB(), user, u.captchaManager)
 		if _, err := form.Handle(ctx); err != nil {
 			return jsend.Error(ctx.Response, err.Error())
 		}
@@ -82,7 +84,7 @@ func (u *User) CheckEmail(ctx *clevergo.Context) error {
 
 func (u *User) ResendVerificationEmail(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
-		form := forms.NewResendVerificationEmail(u.DB(), u.Mailer(), u.CaptcpaManager())
+		form := forms.NewResendVerificationEmail(u.DB(), u.Mailer(), u.captchaManager)
 		if err := form.Handle(ctx); err != nil {
 			return jsend.Error(ctx.Response, err.Error())
 		}
@@ -112,7 +114,7 @@ func (u *User) Signup(ctx *clevergo.Context) error {
 		return nil
 	}
 
-	form := forms.NewSignup(u.DB(), user, u.CaptcpaManager())
+	form := forms.NewSignup(u.DB(), user, u.captchaManager)
 	var err error
 	form.RegisterOnAfterSignup(listeners.SendVerificationEmail(u.Mailer()))
 	if ctx.IsPost() {
@@ -151,7 +153,7 @@ func (u *User) VerifyEmail(ctx *clevergo.Context) (err error) {
 
 func (u *User) RequestResetPassword(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
-		form := forms.NewRequestResetPassword(u.DB(), u.Mailer(), u.CaptcpaManager())
+		form := forms.NewRequestResetPassword(u.DB(), u.Mailer(), u.captchaManager)
 		if err := form.Handle(ctx); err != nil {
 			return jsend.Error(ctx.Response, err.Error())
 		}

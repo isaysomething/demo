@@ -1,6 +1,8 @@
 package routeutil
 
 import (
+	"net/http"
+
 	"github.com/clevergo/clevergo"
 )
 
@@ -27,6 +29,31 @@ func NewRoute(method, path string, handle clevergo.Handle) *Route {
 		handle: handle,
 	}
 }
+
+func Get(path string, handle clevergo.Handle) *Route {
+	return NewRoute(http.MethodGet, path, handle)
+}
+
+func Post(path string, handle clevergo.Handle) *Route {
+	return NewRoute(http.MethodPost, path, handle)
+}
+
+func Delete(path string, handle clevergo.Handle) *Route {
+	return NewRoute(http.MethodDelete, path, handle)
+}
+
+func Options(path string, handle clevergo.Handle) *Route {
+	return NewRoute(http.MethodOptions, path, handle)
+}
+
+func Put(path string, handle clevergo.Handle) *Route {
+	return NewRoute(http.MethodPut, path, handle)
+}
+
+func Patch(path string, handle clevergo.Handle) *Route {
+	return NewRoute(http.MethodPatch, path, handle)
+}
+
 func (r *Route) Name(name string) *Route {
 	r.name = name
 	return r

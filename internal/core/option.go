@@ -6,7 +6,6 @@ import (
 
 	"github.com/CloudyKit/jet/v3"
 	"github.com/alexedwards/scs/v2"
-	"github.com/clevergo/captchas"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
@@ -82,12 +81,6 @@ func SetViewManager(m *ViewManager) Option {
 func SetMailer(mailer *mail.Dialer) Option {
 	return func(app *Application) {
 		app.mailer = mailer
-	}
-}
-
-func SetCaptchaManager(manager *captchas.Manager) Option {
-	return func(app *Application) {
-		app.captchaManager = manager
 	}
 }
 

@@ -2,11 +2,8 @@ package cmd
 
 import (
 	stdlog "log"
-	"net/http"
 
-	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/auth"
-	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/api/controllers"
@@ -16,9 +13,7 @@ import (
 	"github.com/clevergo/demo/pkg/routeutil"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
-	"github.com/go-mail/mail"
 	"github.com/google/wire"
-	"github.com/jmoiron/sqlx"
 	"github.com/spf13/cobra"
 )
 
@@ -40,13 +35,14 @@ var serveAPICmd = &cobra.Command{
 }
 
 var apiSet = wire.NewSet(
-	provideAPIApp, provideAPIRouteGroups, provideAPIUserManager,
+	api.New,
+	provideAPIRouteGroups, provideAPIUserManager,
 	controllers.Set,
 )
 
 func provideAPIServer(
 	logger log.Logger,
-	routeGroups apiRouteGroups,
+	routeGroups *apiRouteGroups,
 	userManager *apiUserManager,
 	authenticator auth.Authenticator,
 	corsMidware core.CORSMiddleware,
@@ -56,54 +52,43 @@ func provideAPIServer(
 		clevergo.MiddlewareFunc(corsMidware),
 	)
 	srv := core.NewServer(router, logger)
-	srv.Addr = ":4040"
-	for _, g := range routeGroups {
-		g.Register(router)
-	}
+	srv.Addr = cfg.API.Addr
+	routeGroups.Register(router)
 
 	return srv
 }
 
-func provideAPIApp(
-	logger log.Logger,
-	db *sqlx.DB,
-	sessionManager *scs.SessionManager,
-	userManager *apiUserManager,
-	mailer *mail.Dialer,
-	captchaManager *captchas.Manager,
-	accessManager *access.Manager,
-) *api.Application {
-	app := newApp(logger, cfg.Params, db, nil, sessionManager, userManager.Manager, mailer, captchaManager, accessManager)
-	return &api.Application{Application: app}
+type apiRouteGroups struct {
+	routeutil.Groups
 }
-
-type apiRouteGroups routeutil.Groups
 
 func provideAPIRouteGroups(
 	accessManager *access.Manager,
 	post *controllers.Post,
 	user *controllers.User,
 	captcha *commonctlrs.Captcha,
-) apiRouteGroups {
-	return apiRouteGroups{
+) *apiRouteGroups {
+	gs := routeutil.Groups{
 		routeutil.NewGroup("/v1", routeutil.Routes{
-			routeutil.NewRoute(http.MethodPost, "/captcha", captcha.Generate),
-			routeutil.NewRoute(http.MethodPost, "/check-captcha", captcha.Verify),
+			routeutil.Post("/captcha", captcha.Generate),
+			routeutil.Post("/check-captcha", captcha.Verify),
 
-			routeutil.NewRoute(http.MethodPost, "/user/login", user.Login),
-			routeutil.NewRoute(http.MethodGet, "/user/info", user.Info),
-			routeutil.NewRoute(http.MethodPost, "/user/logout", user.Logout),
+			routeutil.Post("/user/login", user.Login),
+			routeutil.Get("/user/info", user.Info),
+			routeutil.Post("/user/logout", user.Logout),
 
-			routeutil.NewRoute(http.MethodGet, "/users", user.Index).Name("users"),
-			routeutil.NewRoute(http.MethodGet, "/users/:id", user.Index).Name("user"),
+			routeutil.Get("/users", user.Index).Name("users"),
+			routeutil.Get("/users/:id", user.Index).Name("user"),
 
-			routeutil.NewRoute(http.MethodGet, "/posts", post.Index).Name("posts"),
-			routeutil.NewRoute(http.MethodGet, "/posts/:id", post.View),
-			routeutil.NewRoute(http.MethodPost, "/posts/:id", post.Create),
-			routeutil.NewRoute(http.MethodPut, "/posts/:id", post.Update),
-			routeutil.NewRoute(http.MethodDelete, "/posts/:id", post.Delete),
+			routeutil.Get("/posts", post.Index).Name("posts"),
+			routeutil.Get("/posts/:id", post.View),
+			routeutil.Post("/posts/:id", post.Create),
+			routeutil.Put("/posts/:id", post.Update),
+			routeutil.Delete("/posts/:id", post.Delete),
 		}),
 	}
+
+	return &apiRouteGroups{gs}
 }
 
 type apiUserManager struct {

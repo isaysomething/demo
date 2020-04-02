@@ -21,6 +21,8 @@ var configSet = wire.NewSet(
 	provideI18NConfig,
 	provideCSRFConfig,
 	provideCORSConfig,
+	provideParams,
+	provideViewConfig,
 )
 
 func provideDBConfig() core.DBConfig {
@@ -57,6 +59,14 @@ func provideCSRFConfig() core.CSRFConfig {
 
 func provideCORSConfig() core.CORSConfig {
 	return cfg.CORS
+}
+
+func provideViewConfig() core.ViewConfig {
+	return cfg.View
+}
+
+func provideParams() core.Params {
+	return cfg.Params
 }
 
 func parseConfig() error {

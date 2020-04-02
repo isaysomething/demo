@@ -1,7 +1,8 @@
 package core
 
 type Config struct {
-	Server    ServerConfig    `koanf:"server"`
+	HTTP      ServerConfig    `koanf:"http"`
+	API       ServerConfig    `koanf:"api"`
 	Params    Params          `koanf:"params"`
 	DB        DBConfig        `koanf:"db"`
 	View      ViewConfig      `koanf:"view"`
@@ -20,19 +21,6 @@ type Config struct {
 type ServerConfig struct {
 	Addr string `koanf:"addr"`
 	Root string `koanf:"root"`
-
-	SSL         bool   `koanf:"ssl"`
-	SSLCertFile string `koanf:"ssl_cert_file"`
-	SSLKeyFile  string `koanf:"ssl_key_file"`
-
-	Log LogConfig `koanf:"log"`
-
-	AccessLog         bool   `koanf:"access_log"`
-	AccessLogFile     string `koanf:"access_log_file"`
-	AccessLogFileMode uint32 `koanf:"access_log_file_mode"`
-
-	Gzip      bool `koanf:"gzip"`
-	GzipLevel int  `koanf:"gzip_level"`
 }
 
 type MigrationConfig struct {

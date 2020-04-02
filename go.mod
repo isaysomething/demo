@@ -13,7 +13,7 @@ require (
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/stores/redisstore v0.1.2
-	github.com/clevergo/clevergo v1.7.1-0.20200401083322-3343ce773a31
+	github.com/clevergo/clevergo v1.8.0
 	github.com/clevergo/form v1.1.0
 	github.com/clevergo/i18n v1.0.2
 	github.com/clevergo/jet-packrloader v0.1.0
@@ -53,6 +53,6 @@ require (
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
 	golang.org/x/tools v0.0.0-20200312194400-c312e98713c2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/mail.v2 v2.3.1 // indirect
+	gopkg.in/mail.v2 v2.3.1
 	honnef.co/go/tools v0.0.1-2020.1.3 // indirect
 )

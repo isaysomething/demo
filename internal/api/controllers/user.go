@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/forms"
@@ -15,11 +16,12 @@ import (
 // User controller.
 type User struct {
 	*api.Application
+	captchaManager *captchas.Manager
 }
 
 // NewUser returns an user controller.
-func NewUser(app *api.Application) *User {
-	return &User{app}
+func NewUser(app *api.Application, captchaManager *captchas.Manager) *User {
+	return &User{app, captchaManager}
 }
 
 // Index returns users list.
@@ -39,7 +41,7 @@ func (u *User) Login(ctx *clevergo.Context) error {
 		ctx.Redirect("/backend/", http.StatusFound)
 		return nil
 	}
-	form := forms.NewLogin(u.DB(), user, u.CaptcpaManager())
+	form := forms.NewLogin(u.DB(), user, u.captchaManager)
 	v, err := form.Handle(ctx)
 	if err != nil {
 		return u.Error(ctx, err)
