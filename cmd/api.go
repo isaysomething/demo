@@ -52,6 +52,8 @@ func provideAPIServer(
 		clevergo.MiddlewareFunc(corsMidware),
 		userManager.Middleware(authenticator),
 	)
+	router.ErrorHandler = api.NewErrorHandler()
+
 	srv := core.NewServer(router, logger)
 	srv.Addr = cfg.API.Addr
 	routeGroups.Register(router)

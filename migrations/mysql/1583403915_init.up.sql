@@ -1,5 +1,5 @@
 CREATE TABLE `users` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `verification_token` char(64),
@@ -27,6 +27,18 @@ CREATE TABLE `auth_rules` (
     `v4` VARCHAR(255) NOT NULL DEFAULT '',
     `v5` VARCHAR(255) NOT NULL DEFAULT '',
     PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `posts` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `status` INT NOT NULL,
+  `user_id` BIGINT NOT NULL,
+  `title` VARCHAR(64) NOT NULL,
+  `content` TEXT NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_posts_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO`users`(id, username, email, hashed_password, `status`, created_at) VALUES

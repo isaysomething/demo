@@ -1,23 +1,32 @@
 package controllers
 
 import (
+	"fmt"
+
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
+	"github.com/clevergo/demo/internal/models"
 )
 
 // Post controller.
 type Post struct {
-	app *api.Application
+	*api.Application
 }
 
 // NewPost returns an Post controller.
 func NewPost(app *api.Application) *Post {
-	return &Post{app: app}
+	return &Post{app}
 }
 
-// Index returns posts list.
+// Index lists posts.
 func (u *Post) Index(ctx *clevergo.Context) error {
-	return nil
+	posts, err := models.GetPosts(u.DB(), 0, 10)
+	fmt.Println(posts, err)
+	if err != nil {
+		return err
+	}
+
+	return u.Success(ctx, posts)
 }
 
 // View returns post info.

@@ -1,11 +1,15 @@
 package models
 
+import (
+	"database/sql"
+	"time"
+
+	"github.com/jmoiron/sqlx"
+)
+
 const (
 	PostStatusDraft     = 0
 	PostStatusPublished = 1
-
-	PostVisibilityPrivate = 0
-	PostVisibilityPublic  = 1
 
 	PostTypePost     = 1
 	PostTypePage     = 2
@@ -13,13 +17,22 @@ const (
 )
 
 type Post struct {
-	Model
-	UserID     uint64 `gorm:"index;not null"`
-	Title      string
-	Excerpt    string `gorm:"not null;default:''"`
-	Status     int    `gorm:"not null;default:0"`
-	Visibility int    `gorm:"not null;default:1"`
-	Type       int    `gorm:"not null;"`
+	ID        uint64       `db:"id"`
+	UserID    uint64       `db:"user_id"`
+	Title     string       `db:"title"`
+	Content   string       `db:"content"`
+	Status    int          `db:"status"`
+	CreatedAt time.Time    `db:"created_at"`
+	UpdatedAt sql.NullTime `db:"updated_at"`
+}
 
-	User User
+func GetPosts(db *sqlx.DB, offset, limit int) (posts []Post, err error) {
+	err = db.Select(posts, "SELECT * FROM posts LIMIT ? OFFSET ?", limit, offset)
+	return
+}
+
+func GetPost(db *sqlx.DB, id uint64) (Post, error) {
+	post := Post{}
+	err := db.Get(&post, "SELECT * FROM posts WHERE id=?", id)
+	return post, err
 }
