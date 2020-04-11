@@ -21,3 +21,11 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function fetchList(query) {
+  return request({
+    url: '/users',
+    method: 'get',
+    params: query
+  })
+}

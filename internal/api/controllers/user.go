@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
@@ -9,6 +10,7 @@ import (
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/jsend"
 )
 
 // User controller.
@@ -25,7 +27,31 @@ func NewUser(app *api.Application, captchaManager *captchas.Manager, jwtManager 
 
 // Index returns users list.
 func (u *User) Index(ctx *clevergo.Context) error {
-	return nil
+	page := ctx.DefaultQuery("page", "1")
+	pageNum, err := strconv.Atoi(page)
+	if err != nil {
+		return err
+	}
+
+	limit := ctx.DefaultQuery("limit", "10")
+	limitNum, err := strconv.Atoi(limit)
+	if err != nil {
+		return nil
+	}
+
+	count, err := models.GetUserCount(u.DB())
+	if err != nil {
+		return err
+	}
+
+	users, err := models.GetUsers(u.DB(), pageNum, limitNum)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(200, jsend.New(map[string]interface{}{
+		"total": count,
+		"items": users,
+	}))
 }
 
 // View returns user info.

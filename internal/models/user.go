@@ -26,16 +26,16 @@ func init() {
 }
 
 type User struct {
-	ID                 int64          `db:"id"`
-	Username           string         `db:"username"`
-	Email              string         `db:"email"`
+	ID                 int64          `db:"id" json:"id"`
+	Username           string         `db:"username" json:"username"`
+	Email              string         `db:"email" json:"email"`
 	VerificationToken  sql.NullString `db:"verification_token"`
 	HashedPassword     string         `db:"hashed_password"`
 	PasswordResetToken sql.NullString `db:"password_reset_token"`
-	Status             int            `db:"status"`
-	CreatedAt          time.Time      `db:"created_at"`
-	UpdatedAt          sql.NullTime   `db:"updated_at"`
-	DeletedAt          sql.NullTime   `db:"deleted_at"`
+	Status             int            `db:"status" json:"status"`
+	CreatedAt          time.Time      `db:"created_at" json:"created_at"`
+	UpdatedAt          sql.NullTime   `db:"updated_at" json:"updated_at"`
+	DeletedAt          sql.NullTime   `db:"deleted_at" json:"deleted_at"`
 }
 
 func (u User) GetID() string {
@@ -213,4 +213,15 @@ func validateToken(token string, duration int64) error {
 		return nil
 	}
 	return errors.New("token expired")
+}
+
+func GetUsers(db *sqlx.DB, page, limit int) ([]User, error) {
+	users := []User{}
+	err := db.Select(&users, "SELECT * FROM users ORDER BY id ASC LIMIT ? OFFSET ?", limit, (page-1)*limit)
+	return users, err
+}
+
+func GetUserCount(db *sqlx.DB) (count int, err error) {
+	err = db.Get(&count, "SELECT count(*) FROM users")
+	return
 }
