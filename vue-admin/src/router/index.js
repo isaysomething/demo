@@ -100,12 +100,23 @@ export const constantRoutes = [
     path: '/post',
     component: Layout,
     redirect: '/post/index',
+    name: 'Post',
+    meta: {
+      title: 'post',
+      icon: 'documentation'
+    },
     children: [
       {
         path: 'post',
         component: () => import('@/views/post/index'),
         name: 'Post',
-        meta: { title: 'post', icon: 'documentation', affix: true }
+        meta: { title: 'post', icon: 'list', affix: true }
+      },
+      {
+        path: 'create',
+        component: () => import('@/views/post/create'),
+        name: 'CreatePost',
+        meta: { title: 'createPost', icon: 'edit' }
       }
     ]
   },

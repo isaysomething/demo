@@ -85,6 +85,7 @@ func provideAPIRouteGroups(
 
 			routeutil.Get("/posts", post.Index).Name("posts"),
 			routeutil.Get("/posts/:id", post.View),
+			routeutil.Post("/posts", post.Create),
 			routeutil.Post("/posts/:id", post.Create),
 			routeutil.Put("/posts/:id", post.Update),
 			routeutil.Delete("/posts/:id", post.Delete),

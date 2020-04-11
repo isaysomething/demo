@@ -64,7 +64,8 @@ export default {
     externalLink: 'External Link',
     profile: 'Profile',
     user: 'User',
-    post: 'Post'
+    post: 'Post',
+    createPost: 'Create Post'
   },
   navbar: {
     dashboard: 'Dashboard',

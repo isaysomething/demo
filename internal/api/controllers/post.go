@@ -1,9 +1,11 @@
 package controllers
 
 import (
-	"github.com/clevergo/jsend"
 	"net/http"
 	"strconv"
+
+	"github.com/clevergo/form"
+	"github.com/clevergo/jsend"
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
@@ -51,12 +53,26 @@ func (p *Post) Index(ctx *clevergo.Context) error {
 
 // View returns post info.
 func (p *Post) View(ctx *clevergo.Context) error {
-	return nil
+	id, err := ctx.Params.Int64("id")
+	if err != nil {
+		return err
+	}
+	post, err := models.GetPost(p.DB(), id)
+	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
 // Create creates a post.
 func (p *Post) Create(ctx *clevergo.Context) error {
-	return nil
+	post := new(models.Post)
+	if err := form.Decode(ctx.Request, post); err != nil {
+		return err
+	}
+
+	if err := post.Save(p.DB()); err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
 // Update udpates a post.

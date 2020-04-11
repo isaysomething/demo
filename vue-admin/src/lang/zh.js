@@ -64,7 +64,8 @@ export default {
     externalLink: '外链',
     profile: '个人中心',
     user: '用户',
-    post: '文章'
+    post: '文章',
+    createPost: '创建文章'
   },
   navbar: {
     dashboard: '首页',

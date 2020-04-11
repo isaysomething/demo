@@ -74,9 +74,8 @@ export default {
     },
     statusText(status) {
       const statusMap = {
-        0: 'deleted',
-        1: 'inactive',
-        10: 'active'
+        0: 'Draft',
+        1: 'Published'
       }
       return statusMap[status]
     }

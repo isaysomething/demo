@@ -17,13 +17,35 @@ const (
 )
 
 type Post struct {
-	ID        uint64       `db:"id" json:"id"`
+	ID        int64        `db:"id" json:"id"`
 	UserID    uint64       `db:"user_id" json:"user_id"`
 	Title     string       `db:"title" json:"title"`
 	Content   string       `db:"content" json:"content"`
 	Status    int          `db:"status" json:"status"`
 	CreatedAt time.Time    `db:"created_at" json:"created_at"`
 	UpdatedAt sql.NullTime `db:"updated_at" json:"updated_at"`
+}
+
+func (p *Post) Save(db *sqlx.DB) error {
+	res, err := db.Exec(
+		"INSERT INTO posts(id, user_id, title, content, status, created_at, updated_at) VALUES(null, ?, ?, ?, ?, ?, ?)",
+		p.UserID,
+		p.Title,
+		p.Content,
+		p.Status,
+		p.CreatedAt,
+		time.Now(),
+	)
+	if err != nil {
+		return err
+	}
+
+	p.ID, err = res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GetPostCount(db *sqlx.DB) (count int, err error) {
@@ -33,12 +55,12 @@ func GetPostCount(db *sqlx.DB) (count int, err error) {
 
 func GetPosts(db *sqlx.DB, page, limit int) (posts []Post, err error) {
 	posts = []Post{}
-	err = db.Select(&posts, "SELECT * FROM posts ORDER BY created_at LIMIT ? OFFSET ?", limit, (page-1)*limit)
+	err = db.Select(&posts, "SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?", limit, (page-1)*limit)
 	return
 }
 
-func GetPost(db *sqlx.DB, id uint64) (Post, error) {
-	post := Post{}
-	err := db.Get(&post, "SELECT * FROM posts WHERE id=?", id)
+func GetPost(db *sqlx.DB, id int64) (*Post, error) {
+	post := new(Post)
+	err := db.Get(post, "SELECT * FROM posts WHERE id=?", id)
 	return post, err
 }
