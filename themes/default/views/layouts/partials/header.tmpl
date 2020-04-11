@@ -24,10 +24,10 @@
           {{T("text.contact")}}
         </a>
       </li>
+
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <a class="nav-link" href="#" id="languageDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="fas fa-language fa-fw"></i>
-          {{T("text.language")}}
         </a>
         <div id="langSelector" class="dropdown-menu" aria-labelledby="languageDropdown">
           <a class="dropdown-item" data-id="en" >English</a>
@@ -35,9 +35,11 @@
           <a class="dropdown-item" data-id="zh-Hant" >繁體中文</a>
         </div>
       </li>
+      
     </ul>
 
     <ul class="navbar-nav ml-auto">
+
       {{if isset(.user)}}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -71,6 +73,7 @@
         </a>
       </li>
       {{end}}
+
     </ul>
   </div>
 </nav>
