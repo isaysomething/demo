@@ -63,7 +63,8 @@ export default {
     i18n: 'I18n',
     externalLink: 'External Link',
     profile: 'Profile',
-    user: 'User'
+    user: 'User',
+    post: 'Post'
   },
   navbar: {
     dashboard: 'Dashboard',

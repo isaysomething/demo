@@ -63,7 +63,8 @@ export default {
     i18n: '国际化',
     externalLink: '外链',
     profile: '个人中心',
-    user: '用户'
+    user: '用户',
+    post: '文章'
   },
   navbar: {
     dashboard: '首页',

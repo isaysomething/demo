@@ -1,7 +1,9 @@
 package controllers
 
 import (
-	"fmt"
+	"github.com/clevergo/jsend"
+	"net/http"
+	"strconv"
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
@@ -19,32 +21,50 @@ func NewPost(app *api.Application) *Post {
 }
 
 // Index lists posts.
-func (u *Post) Index(ctx *clevergo.Context) error {
-	posts, err := models.GetPosts(u.DB(), 0, 10)
-	fmt.Println(posts, err)
+func (p *Post) Index(ctx *clevergo.Context) error {
+	page := ctx.DefaultQuery("page", "1")
+	pageNum, err := strconv.Atoi(page)
 	if err != nil {
 		return err
 	}
 
-	return u.Success(ctx, posts)
+	limit := ctx.DefaultQuery("limit", "10")
+	limitNum, err := strconv.Atoi(limit)
+	if err != nil {
+		return nil
+	}
+
+	count, err := models.GetPostCount(p.DB())
+	if err != nil {
+		return err
+	}
+
+	users, err := models.GetPosts(p.DB(), pageNum, limitNum)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, jsend.New(map[string]interface{}{
+		"total": count,
+		"items": users,
+	}))
 }
 
 // View returns post info.
-func (u *Post) View(ctx *clevergo.Context) error {
+func (p *Post) View(ctx *clevergo.Context) error {
 	return nil
 }
 
 // Create creates a post.
-func (u *Post) Create(ctx *clevergo.Context) error {
+func (p *Post) Create(ctx *clevergo.Context) error {
 	return nil
 }
 
 // Update udpates a post.
-func (u *Post) Update(ctx *clevergo.Context) error {
+func (p *Post) Update(ctx *clevergo.Context) error {
 	return nil
 }
 
 // Delete deletes a post.
-func (u *Post) Delete(ctx *clevergo.Context) error {
+func (p *Post) Delete(ctx *clevergo.Context) error {
 	return nil
 }

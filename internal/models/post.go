@@ -17,17 +17,23 @@ const (
 )
 
 type Post struct {
-	ID        uint64       `db:"id"`
-	UserID    uint64       `db:"user_id"`
-	Title     string       `db:"title"`
-	Content   string       `db:"content"`
-	Status    int          `db:"status"`
-	CreatedAt time.Time    `db:"created_at"`
-	UpdatedAt sql.NullTime `db:"updated_at"`
+	ID        uint64       `db:"id" json:"id"`
+	UserID    uint64       `db:"user_id" json:"user_id"`
+	Title     string       `db:"title" json:"title"`
+	Content   string       `db:"content" json:"content"`
+	Status    int          `db:"status" json:"status"`
+	CreatedAt time.Time    `db:"created_at" json:"created_at"`
+	UpdatedAt sql.NullTime `db:"updated_at" json:"updated_at"`
 }
 
-func GetPosts(db *sqlx.DB, offset, limit int) (posts []Post, err error) {
-	err = db.Select(posts, "SELECT * FROM posts LIMIT ? OFFSET ?", limit, offset)
+func GetPostCount(db *sqlx.DB) (count int, err error) {
+	err = db.Get(&count, "SELECT count(*) FROM posts")
+	return
+}
+
+func GetPosts(db *sqlx.DB, page, limit int) (posts []Post, err error) {
+	posts = []Post{}
+	err = db.Select(&posts, "SELECT * FROM posts ORDER BY created_at LIMIT ? OFFSET ?", limit, (page-1)*limit)
 	return
 }
 
