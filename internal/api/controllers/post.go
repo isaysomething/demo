@@ -75,9 +75,24 @@ func (p *Post) Create(ctx *clevergo.Context) error {
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
-// Update udpates a post.
+// Update updates a post.
 func (p *Post) Update(ctx *clevergo.Context) error {
-	return nil
+	id, err := ctx.Params.Int64("id")
+	if err != nil {
+		return  err
+	}
+	post, err := models.GetPost(p.DB(), id)
+	if err != nil {
+		return err
+	}
+	if err := form.Decode(ctx.Request, post); err != nil {
+		return err
+	}
+	if err = post.Update(p.DB()); err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
 // Delete deletes a post.

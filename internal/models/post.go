@@ -29,12 +29,24 @@ type Post struct {
 func (p *Post) Save(db *sqlx.DB) error {
 	res, err := db.Exec(
 		"INSERT INTO posts(id, user_id, title, content, status, created_at, updated_at) VALUES(null, ?, ?, ?, ?, ?, ?)",
-		p.UserID,
-		p.Title,
-		p.Content,
-		p.Status,
-		p.CreatedAt,
-		time.Now(),
+		p.UserID, p.Title, p.Content, p.Status, p.CreatedAt, time.Now(),
+	)
+	if err != nil {
+		return err
+	}
+
+	p.ID, err = res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *Post) Update(db *sqlx.DB) error {
+	res, err := db.Exec(
+		"UPDATE posts SET title=?, content=?, status=?, updated_at=? WHERE id=?",
+		p.Title, p.Content, p.Status, time.Now(), p.ID,
 	)
 	if err != nil {
 		return err

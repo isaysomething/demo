@@ -7,6 +7,7 @@ import (
 
 type CORSConfig struct {
 	AllowedOrigins     []string `koanf:"allowed_origins"`
+	AllowedMethods     []string `koanf:"allowed_methods"`
 	AllowedHeaders     []string `koanf:"allowed_headers"`
 	MaxAge             int      `koanf:"max_age"`
 	AllowedCredentials bool     `koanf:"allow_credentials"`
@@ -19,6 +20,7 @@ func NewCORS(cfg CORSConfig) *cors.Cors {
 		AllowedHeaders:   cfg.AllowedHeaders,
 		MaxAge:           cfg.MaxAge,
 		AllowCredentials: cfg.AllowedCredentials,
+		AllowedMethods: cfg.AllowedMethods,
 		Debug:            cfg.Debug,
 	})
 }

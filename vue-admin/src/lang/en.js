@@ -65,7 +65,8 @@ export default {
     profile: 'Profile',
     user: 'User',
     post: 'Post',
-    createPost: 'Create Post'
+    createPost: 'Create Post',
+    editPost: 'Edit Post'
   },
   navbar: {
     dashboard: 'Dashboard',

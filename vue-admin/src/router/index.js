@@ -107,7 +107,7 @@ export const constantRoutes = [
     },
     children: [
       {
-        path: 'post',
+        path: 'index',
         component: () => import('@/views/post/index'),
         name: 'Post',
         meta: { title: 'post', icon: 'list', affix: true }
@@ -117,6 +117,13 @@ export const constantRoutes = [
         component: () => import('@/views/post/create'),
         name: 'CreatePost',
         meta: { title: 'createPost', icon: 'edit' }
+      },
+      {
+        path: 'edit/:id(\\d+)',
+        component: () => import('@/views/post/edit'),
+        name: 'EditPost',
+        meta: { title: 'editPost', noCache: true, activeMenu: '/post/list' },
+        hidden: true
       }
     ]
   },

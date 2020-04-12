@@ -65,7 +65,8 @@ export default {
     profile: '个人中心',
     user: '用户',
     post: '文章',
-    createPost: '创建文章'
+    createPost: '创建文章',
+    editPost: '编辑文章'
   },
   navbar: {
     dashboard: '首页',

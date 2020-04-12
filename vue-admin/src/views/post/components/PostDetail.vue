@@ -35,6 +35,7 @@
 import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { fetchPost, createPost } from '@/api/post'
+import { updatePost } from '../../../api/post'
 
 const defaultForm = {
   id: undefined,
@@ -82,8 +83,8 @@ export default {
   },
   created() {
     if (this.isEdit) {
-      const id = this.$route.params && this.$route.params.id
-      this.fetchData(id)
+      this.postForm.id = this.$route.params && this.$route.params.id
+      this.fetchData()
     }
 
     // Why need to make a copy of this.$route here?
@@ -95,10 +96,6 @@ export default {
     fetchData() {
       fetchPost(this.postForm.id).then(response => {
         this.postForm = response.data
-
-        // just for test
-        this.postForm.title += `   Article Id:${this.postForm.id}`
-        this.postForm.content_short += `   Article Id:${this.postForm.id}`
 
         // set tagsview title
         this.setTagsViewTitle()
@@ -120,20 +117,36 @@ export default {
     },
     createPost() {
       this.loading = true
-      createPost(this.postForm).then(response => {
-        this.$notify({
-          title: '成功',
-          message: '发布文章成功',
-          type: 'success',
-          duration: 2000
+      if (this.postForm.id) {
+        updatePost(this.postForm.id, this.postForm).then(response => {
+          this.$notify({
+            title: '成功',
+            message: '更新文章成功',
+            type: 'success',
+            duration: 2000
+          })
+          this.loading = false
+          this.fetchData()
+        }).catch(err => {
+          console.log(err)
+          this.loading = false
         })
-        this.loading = false
-        this.postForm.id = response.data.id
-        this.fetchData()
-      }).catch(err => {
-        console.log(err)
-        this.loading = false
-      })
+      } else {
+        createPost(this.postForm).then(response => {
+          this.$notify({
+            title: '成功',
+            message: '发布文章成功',
+            type: 'success',
+            duration: 2000
+          })
+          this.loading = false
+          this.postForm.id = response.data.id
+          this.fetchData()
+        }).catch(err => {
+          console.log(err)
+          this.loading = false
+        })
+      }
     },
     submitForm() {
       console.log(this.postForm)

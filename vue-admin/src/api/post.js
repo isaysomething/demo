@@ -21,3 +21,11 @@ export function createPost(data) {
     data
   })
 }
+
+export function updatePost(id, data) {
+  return request({
+    url: '/posts/' + id,
+    method: 'PUT',
+    data
+  })
+}
