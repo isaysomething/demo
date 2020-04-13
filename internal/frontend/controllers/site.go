@@ -12,24 +12,30 @@ import (
 	"github.com/clevergo/jsend"
 )
 
-type Site struct {
+func RegisterSite(router clevergo.IRouter, app *frontend.Application, captchaManager *captchas.Manager) {
+	s := &site{app, captchaManager}
+
+	router.Get("/", s.index, clevergo.RouteName("index"))
+	router.Get("/robots.txt", s.robots)
+	router.Get("/about", s.about, clevergo.RouteName("about"))
+	router.Get("/contact", s.contact, clevergo.RouteName("contact"))
+	router.Post("/contact", s.contact)
+}
+
+type site struct {
 	*frontend.Application
 	captchaManager *captchas.Manager
 }
 
-func NewSite(app *frontend.Application, captchaManager *captchas.Manager) *Site {
-	return &Site{app, captchaManager}
-}
-
-func (s *Site) Index(ctx *clevergo.Context) error {
+func (s *site) index(ctx *clevergo.Context) error {
 	return s.Render(ctx, "site/index", nil)
 }
 
-func (s *Site) About(ctx *clevergo.Context) error {
+func (s *site) about(ctx *clevergo.Context) error {
 	return s.Render(ctx, "site/about", nil)
 }
 
-func (s *Site) Contact(ctx *clevergo.Context) error {
+func (s *site) contact(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
 		form := forms.NewContact(s.Mailer(), s.captchaManager)
 		if err := form.Handle(ctx); err != nil {
@@ -44,7 +50,7 @@ func (s *Site) Contact(ctx *clevergo.Context) error {
 	return err
 }
 
-func (s *Site) Robots(ctx *clevergo.Context) error {
+func (s *site) robots(ctx *clevergo.Context) error {
 	ctx.WriteString(fmt.Sprintf("User-agent: %s\n", "*"))
 	return nil
 }

@@ -34,6 +34,7 @@ require (
 	github.com/go-yaml/yaml v2.1.0+incompatible // indirect
 	github.com/gobuffalo/packr/v2 v2.8.0
 	github.com/golang-migrate/migrate/v4 v4.10.0
+	github.com/golang/mock v1.4.0
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/wire v0.4.0
 	github.com/gorilla/csrf v1.6.2

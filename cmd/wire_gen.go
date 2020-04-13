@@ -9,7 +9,6 @@ import (
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend"
-	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
 
@@ -56,9 +55,6 @@ func initializeServer() (*core.Server, func(), error) {
 	captchaConfig := provideCaptchaConfig()
 	captchasStore := core.NewCaptchaStore(redisConfig)
 	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
-	site := controllers.NewSite(application, captchasManager)
-	user := controllers.NewUser(application, captchasManager)
-	cmdRoutes := provideRoutes(site, user)
 	csrfConfig := provideCSRFConfig()
 	csrfMiddleware := core.NewCSRFMiddleware(csrfConfig)
 	i18NConfig := provideI18NConfig()
@@ -76,7 +72,7 @@ func initializeServer() (*core.Server, func(), error) {
 	m := core.NewMinify()
 	minifyMiddleware := core.NewMinifyMiddleware(m)
 	loggingMiddleware := core.NewLoggingMiddleware()
-	router := provideRouter(application, cmdRoutes, captchasManager, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware)
+	router := provideRouter(application, captchasManager, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware)
 	server := provideServer(router, logger)
 	return server, func() {
 		cleanup2()

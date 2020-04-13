@@ -5,6 +5,8 @@ import (
 	"path"
 	"reflect"
 
+	"github.com/clevergo/demo/internal/frontend/controllers"
+
 	"github.com/clevergo/captchas"
 	commonctlrs "github.com/clevergo/demo/internal/controllers"
 
@@ -12,8 +14,6 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend"
-	"github.com/clevergo/demo/internal/frontend/controllers"
-	"github.com/clevergo/demo/pkg/routeutil"
 	"github.com/clevergo/log"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gobuffalo/packr/v2"
@@ -23,45 +23,7 @@ import (
 var frontendSet = wire.NewSet(
 	frontend.New,
 	core.NewViewManager,
-	provideRoutes,
-	controllers.Set,
 )
-
-type routes struct {
-	routeutil.Routes
-}
-
-func provideRoutes(
-	site *controllers.Site,
-	user *controllers.User,
-) *routes {
-	rs := routeutil.Routes{
-		routeutil.Get("/", site.Index).Name("home"),
-		routeutil.Get("/robots.txt", site.Robots),
-		routeutil.Get("/about", site.About).Name("about"),
-		routeutil.Get("/contact", site.Contact).Name("contact"),
-		routeutil.Post("/contact", site.Contact),
-
-		routeutil.Get("/user", user.Index).Name("user"),
-		routeutil.Get("/login", user.Login).Name("login"),
-		routeutil.Post("/login", user.Login),
-		routeutil.Post("/logout", user.Logout).Name("logout"),
-		routeutil.Get("/signup", user.Signup).Name("signup"),
-		routeutil.Post("/signup", user.Signup),
-		routeutil.Post("/user/check-email", user.CheckEmail),
-		routeutil.Post("/user/check-username", user.CheckUsername),
-		routeutil.Get("/user/request-reset-password", user.RequestResetPassword).Name("request-reset-password"),
-		routeutil.Post("/user/request-reset-password", user.RequestResetPassword),
-		routeutil.Get("/user/reset-password", user.ResetPassword).Name("reset-password"),
-		routeutil.Post("/user/reset-password", user.ResetPassword),
-		routeutil.Get("/user/verify-email", user.VerifyEmail).Name("verify-email"),
-		routeutil.Get("/user/resend-verification-email", user.ResendVerificationEmail).Name("resend-verification-email"),
-		routeutil.Post("/user/resend-verification-email", user.ResendVerificationEmail),
-		routeutil.Post("/user/change-password", user.ChangePassword).Name("change-password"),
-	}
-
-	return &routes{rs}
-}
 
 func provideServer(router *clevergo.Router, logger log.Logger) *core.Server {
 	srv := core.NewServer(router, logger)
@@ -71,7 +33,6 @@ func provideServer(router *clevergo.Router, logger log.Logger) *core.Server {
 
 func provideRouter(
 	app *frontend.Application,
-	routes *routes,
 	captchaManager *captchas.Manager,
 	csrfMidware core.CSRFMiddleware,
 	i18nMidware core.I18NMiddleware,
@@ -111,7 +72,8 @@ func provideRouter(
 
 	router.ServeFiles("/static/*filepath", packr.New("frontend", path.Join(cfg.View.Path, "static")))
 	commonctlrs.RegisterCaptcha(router, captchaManager)
-	routes.Register(router)
+	controllers.RegisterSite(router, app, captchaManager)
+	controllers.RegisterUser(router, app, captchaManager)
 
 	return router
 }
