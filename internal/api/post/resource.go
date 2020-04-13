@@ -1,4 +1,4 @@
-package controllers
+package post
 
 import (
 	"net/http"
@@ -12,18 +12,20 @@ import (
 	"github.com/clevergo/demo/internal/models"
 )
 
-// Post controller.
-type Post struct {
+func RegisterRoutes(router clevergo.IRouter, app *api.Application) {
+	r := &resource{app}
+	router.Get("/posts", r.query)
+	router.Get("/posts/:id", r.get)
+	router.Post("/posts", r.create)
+	router.Put("/posts/:id", r.update)
+	router.Delete("/posts/:id", r.delete)
+}
+
+type resource struct {
 	*api.Application
 }
 
-// NewPost returns an Post controller.
-func NewPost(app *api.Application) *Post {
-	return &Post{app}
-}
-
-// Index lists posts.
-func (p *Post) Index(ctx *clevergo.Context) error {
+func (r *resource) query(ctx *clevergo.Context) error {
 	page := ctx.DefaultQuery("page", "1")
 	pageNum, err := strconv.Atoi(page)
 	if err != nil {
@@ -36,12 +38,12 @@ func (p *Post) Index(ctx *clevergo.Context) error {
 		return nil
 	}
 
-	count, err := models.GetPostCount(p.DB())
+	count, err := models.GetPostCount(r.DB())
 	if err != nil {
 		return err
 	}
 
-	users, err := models.GetPosts(p.DB(), pageNum, limitNum)
+	users, err := models.GetPosts(r.DB(), pageNum, limitNum)
 	if err != nil {
 		return err
 	}
@@ -51,51 +53,47 @@ func (p *Post) Index(ctx *clevergo.Context) error {
 	}))
 }
 
-// View returns post info.
-func (p *Post) View(ctx *clevergo.Context) error {
+func (r *resource) get(ctx *clevergo.Context) error {
 	id, err := ctx.Params.Int64("id")
 	if err != nil {
 		return err
 	}
-	post, err := models.GetPost(p.DB(), id)
+	post, err := models.GetPost(r.DB(), id)
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
-// Create creates a post.
-func (p *Post) Create(ctx *clevergo.Context) error {
+func (r *resource) create(ctx *clevergo.Context) error {
 	post := new(models.Post)
 	if err := form.Decode(ctx.Request, post); err != nil {
 		return err
 	}
 
-	if err := post.Save(p.DB()); err != nil {
+	if err := post.Save(r.DB()); err != nil {
 		return err
 	}
 
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
-// Update updates a post.
-func (p *Post) Update(ctx *clevergo.Context) error {
+func (r *resource) update(ctx *clevergo.Context) error {
 	id, err := ctx.Params.Int64("id")
 	if err != nil {
-		return  err
+		return err
 	}
-	post, err := models.GetPost(p.DB(), id)
+	post, err := models.GetPost(r.DB(), id)
 	if err != nil {
 		return err
 	}
 	if err := form.Decode(ctx.Request, post); err != nil {
 		return err
 	}
-	if err = post.Update(p.DB()); err != nil {
+	if err = post.Update(r.DB()); err != nil {
 		return err
 	}
 
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
-// Delete deletes a post.
-func (p *Post) Delete(ctx *clevergo.Context) error {
+func (r *resource) delete(ctx *clevergo.Context) error {
 	return nil
 }

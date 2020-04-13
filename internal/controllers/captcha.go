@@ -1,48 +1,51 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
+	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
 )
 
-type captcha struct {
+func RegisterCaptcha(router clevergo.IRouter, manager *captchas.Manager) {
+	c := &captcha{manager}
+	router.Post("/captcha", c.generate, clevergo.RouteName("captcha"))
+	router.Post("/check-captcha", c.verify)
+}
+
+type captchaForm struct {
 	ID      string `json:"id"`
 	Captcha string `json:"captcha"`
 }
 
-type Captcha struct {
+type captcha struct {
 	manager *captchas.Manager
 }
 
-func NewCaptcha(manager *captchas.Manager) *Captcha {
-	return &Captcha{manager: manager}
-}
-
-func (c *Captcha) Generate(ctx *clevergo.Context) error {
+func (c *captcha) generate(ctx *clevergo.Context) error {
 	captcha, err := c.manager.Generate()
 	if err != nil {
-		return jsend.Error(ctx.Response, err.Error())
+		return err
 	}
 
-	data := map[string]string{
+	return ctx.JSON(http.StatusOK, jsend.New(core.Map{
 		"id":   captcha.ID(),
 		"data": captcha.EncodeToString(),
-	}
-
-	return jsend.Success(ctx.Response, data)
+	}))
 }
 
-func (c *Captcha) Verify(ctx *clevergo.Context) error {
-	captcha := captcha{}
-	if err := form.Decode(ctx.Request, &captcha); err != nil {
-		return jsend.Error(ctx.Response, err.Error())
+func (c *captcha) verify(ctx *clevergo.Context) error {
+	f := captchaForm{}
+	if err := form.Decode(ctx.Request, &f); err != nil {
+		return err
 	}
 
-	if err := c.manager.Verify(captcha.ID, captcha.Captcha, false); err != nil {
-		return jsend.Error(ctx.Response, err.Error())
+	if err := c.manager.Verify(f.ID, f.Captcha, false); err != nil {
+		return err
 	}
 
-	return jsend.Success(ctx.Response, nil)
+	return ctx.JSON(http.StatusOK, jsend.New(nil))
 }

@@ -20,7 +20,7 @@ func NewCORS(cfg CORSConfig) *cors.Cors {
 		AllowedHeaders:   cfg.AllowedHeaders,
 		MaxAge:           cfg.MaxAge,
 		AllowCredentials: cfg.AllowedCredentials,
-		AllowedMethods: cfg.AllowedMethods,
+		AllowedMethods:   cfg.AllowedMethods,
 		Debug:            cfg.Debug,
 	})
 }

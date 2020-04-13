@@ -3,7 +3,6 @@
 package cmd
 
 import (
-	"github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
@@ -21,9 +20,6 @@ var superSet = wire.NewSet(
 	provideRouter,
 	core.NewEnforcer, access.New,
 	core.NewJWTManager,
-
-	// common controllers
-	controllers.NewCaptcha,
 
 	// middlewares
 	core.MiddlewareSet,

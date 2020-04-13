@@ -7,8 +7,6 @@ package cmd
 
 import (
 	"github.com/clevergo/demo/internal/api"
-	controllers3 "github.com/clevergo/demo/internal/api/controllers"
-	controllers2 "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/frontend/controllers"
@@ -59,9 +57,8 @@ func initializeServer() (*core.Server, func(), error) {
 	captchasStore := core.NewCaptchaStore(redisConfig)
 	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
 	site := controllers.NewSite(application, captchasManager)
-	captcha := controllers2.NewCaptcha(captchasManager)
 	user := controllers.NewUser(application, captchasManager)
-	cmdRoutes := provideRoutes(site, captcha, user)
+	cmdRoutes := provideRoutes(site, user)
 	csrfConfig := provideCSRFConfig()
 	csrfMiddleware := core.NewCSRFMiddleware(csrfConfig)
 	i18NConfig := provideI18NConfig()
@@ -79,7 +76,7 @@ func initializeServer() (*core.Server, func(), error) {
 	m := core.NewMinify()
 	minifyMiddleware := core.NewMinifyMiddleware(m)
 	loggingMiddleware := core.NewLoggingMiddleware()
-	router := provideRouter(application, cmdRoutes, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware)
+	router := provideRouter(application, cmdRoutes, captchasManager, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware)
 	server := provideServer(router, logger)
 	return server, func() {
 		cleanup2()
@@ -93,42 +90,39 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	params := provideParams()
 	dbConfig := provideDBConfig()
-	enforcer, err := core.NewEnforcer(dbConfig)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
 	db, cleanup2, err := core.NewDB(dbConfig)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	jwtConfig := provideJWTConfig()
-	jwtManager := core.NewJWTManager(jwtConfig)
-	identityStore := core.NewIdentityStore(db, jwtManager)
 	sessionConfig := provideSessionConfig()
 	redisConfig := provideRedisConfig()
 	store := core.NewSessionStore(redisConfig)
 	sessionManager := core.NewSessionManager(sessionConfig, store)
-	manager := core.NewUserManager(identityStore, sessionManager)
-	accessManager := access.New(enforcer, manager)
-	params := provideParams()
+	jwtConfig := provideJWTConfig()
+	jwtManager := core.NewJWTManager(jwtConfig)
+	identityStore := core.NewIdentityStore(db, jwtManager)
 	userManager := api.NewUserManager(identityStore)
 	mailerConfig := provideMailerConfig()
 	dialer := core.NewMailer(mailerConfig)
+	enforcer, err := core.NewEnforcer(dbConfig)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	manager := core.NewUserManager(identityStore, sessionManager)
+	accessManager := access.New(enforcer, manager)
 	application := api.New(logger, params, db, sessionManager, userManager, dialer, accessManager)
-	post := controllers3.NewPost(application)
 	captchaConfig := provideCaptchaConfig()
 	captchasStore := core.NewCaptchaStore(redisConfig)
 	captchasManager := core.NewCaptchaManager(captchaConfig, captchasStore)
-	user := controllers3.NewUser(application, captchasManager, jwtManager)
-	captcha := controllers2.NewCaptcha(captchasManager)
-	cmdApiRouteGroups := provideAPIRouteGroups(accessManager, post, user, captcha)
 	authenticator := core.NewAuthenticator(identityStore)
 	corsConfig := provideCORSConfig()
 	corsMiddleware := core.NewCORSMiddleware(corsConfig)
-	server := provideAPIServer(logger, cmdApiRouteGroups, userManager, authenticator, corsMiddleware)
+	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware)
 	return server, func() {
 		cleanup2()
 		cleanup()
@@ -138,5 +132,5 @@ func initializeAPIServer() (*core.Server, func(), error) {
 // wire.go:
 
 var superSet = wire.NewSet(
-	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter, core.NewEnforcer, access.New, core.NewJWTManager, controllers2.NewCaptcha, core.MiddlewareSet,
+	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter, core.NewEnforcer, access.New, core.NewJWTManager, core.MiddlewareSet,
 )

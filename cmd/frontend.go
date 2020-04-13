@@ -5,9 +5,11 @@ import (
 	"path"
 	"reflect"
 
+	"github.com/clevergo/captchas"
+	commonctlrs "github.com/clevergo/demo/internal/controllers"
+
 	"github.com/CloudyKit/jet/v3"
 	"github.com/clevergo/clevergo"
-	commonctlrs "github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/frontend/controllers"
@@ -31,7 +33,6 @@ type routes struct {
 
 func provideRoutes(
 	site *controllers.Site,
-	captcha *commonctlrs.Captcha,
 	user *controllers.User,
 ) *routes {
 	rs := routeutil.Routes{
@@ -40,8 +41,6 @@ func provideRoutes(
 		routeutil.Get("/about", site.About).Name("about"),
 		routeutil.Get("/contact", site.Contact).Name("contact"),
 		routeutil.Post("/contact", site.Contact),
-		routeutil.Post("/captcha", captcha.Generate).Name("captcha"),
-		routeutil.Post("/check-captcha", captcha.Verify),
 
 		routeutil.Get("/user", user.Index).Name("user"),
 		routeutil.Get("/login", user.Login).Name("login"),
@@ -73,6 +72,7 @@ func provideServer(router *clevergo.Router, logger log.Logger) *core.Server {
 func provideRouter(
 	app *frontend.Application,
 	routes *routes,
+	captchaManager *captchas.Manager,
 	csrfMidware core.CSRFMiddleware,
 	i18nMidware core.I18NMiddleware,
 	gzipMidware core.GzipMiddleware,
@@ -110,6 +110,7 @@ func provideRouter(
 	app.ViewManager().AddGlobalFunc("route", routeFunc)
 
 	router.ServeFiles("/static/*filepath", packr.New("frontend", path.Join(cfg.View.Path, "static")))
+	commonctlrs.RegisterCaptcha(router, captchaManager)
 	routes.Register(router)
 
 	return router
