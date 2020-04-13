@@ -17,6 +17,7 @@ require (
 	github.com/clevergo/form v1.2.0
 	github.com/clevergo/i18n v1.0.2
 	github.com/clevergo/jet-packrloader v0.1.0
+	github.com/clevergo/jetrenderer v0.1.0
 	github.com/clevergo/jsend v1.1.0
 	github.com/clevergo/log v0.3.0
 	github.com/clevergo/log/zapadapter v0.3.0

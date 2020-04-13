@@ -89,6 +89,7 @@ github.com/clevergo/clevergo v1.8.1-0.20200402090902-df33deafd823 h1:zfzP5UIzQqq
 github.com/clevergo/clevergo v1.8.1-0.20200402090902-df33deafd823/go.mod h1:/BB51A8ohBG/GCHbN7mUPK6vJNm6XXC+4V/yS0c7RsA=
 github.com/clevergo/clevergo v1.8.1 h1:TFqxvExb68k05kbnOGrnnrvi1cb+7iFNc+bvtxnYwCU=
 github.com/clevergo/clevergo v1.8.1/go.mod h1:/BB51A8ohBG/GCHbN7mUPK6vJNm6XXC+4V/yS0c7RsA=
+github.com/clevergo/clevergo v1.8.2-0.20200403071649-aec1c54d3400/go.mod h1:CXwWkYV6APhZU4XQ4QS6LvsutBaZYi0wMDOanjuOIlg=
 github.com/clevergo/clevergo v1.10.0 h1:21dnoGmbt75HTxFbmJUuMAXSi02ciBtOzZtUP14ckkQ=
 github.com/clevergo/clevergo v1.10.0/go.mod h1:CXwWkYV6APhZU4XQ4QS6LvsutBaZYi0wMDOanjuOIlg=
 github.com/clevergo/form v1.1.0 h1:l42zo8Bu4Bh2gtTGPmjf1HdR5UY9ZarPhrR14lU0kJI=
@@ -99,6 +100,8 @@ github.com/clevergo/i18n v1.0.2 h1:BnF0Z2q5INRQrgQn9ZUgk5s+VUud5+IRDUAyAg+bIfE=
 github.com/clevergo/i18n v1.0.2/go.mod h1:1bALbvlWLHCWxQIL/of9I2uqLivc9CUWrun/S3y2zb0=
 github.com/clevergo/jet-packrloader v0.1.0 h1:nB/+DBfRZUTXffoByIzoXPvGsYXVg9W1/s4KLdmgC4I=
 github.com/clevergo/jet-packrloader v0.1.0/go.mod h1:bAvgTNmOMfzGbEpc1FhPsr2HxwojkXJhKlZRqYCaWWU=
+github.com/clevergo/jetrenderer v0.1.0 h1:aa28kzXK7pcMwdGgV7RiEAQe0/OUAWrNPyI8qPAg910=
+github.com/clevergo/jetrenderer v0.1.0/go.mod h1:ezfLXtvYUXteomT9nn/rv/WbaxMVw0oXTWVH29L/N8E=
 github.com/clevergo/jsend v1.0.2 h1:wW+He/B1LJyE9Ug7vbmQtHi2qfy2wrxehcUpDN+4gRA=
 github.com/clevergo/jsend v1.0.2/go.mod h1:E+I74EoysZjJU0/fYrv1ktIESOq7O4P+VU7JAYsr3Mo=
 github.com/clevergo/jsend v1.1.0 h1:wmKsYv0Bn4Wzisl/p4skyR1Bgt0+vplK85bLXLt7mcM=

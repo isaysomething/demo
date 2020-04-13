@@ -48,7 +48,7 @@ func (u *user) index(ctx *clevergo.Context) error {
 		return nil
 	}
 
-	return u.Render(ctx, "user/index", nil)
+	return ctx.Render(http.StatusOK, "user/index.tmpl", nil)
 }
 
 // Login displays login page and handle login request.
@@ -68,7 +68,7 @@ func (u *user) login(ctx *clevergo.Context) error {
 		return jsend.Success(ctx.Response, nil)
 	}
 
-	return u.Render(ctx, "user/login", nil)
+	return ctx.Render(http.StatusOK, "user/login.tmpl", nil)
 }
 
 func (u *user) checkUsername(ctx *clevergo.Context) error {
@@ -107,7 +107,7 @@ func (u *user) resendVerificationEmail(ctx *clevergo.Context) error {
 		return jsend.Success(ctx.Response, nil)
 	}
 
-	return u.Render(ctx, "user/resend-verification-email", nil)
+	return ctx.Render(http.StatusOK, "user/resend-verification-email.tmpl", nil)
 }
 
 func (u *user) logout(ctx *clevergo.Context) error {
@@ -140,7 +140,7 @@ func (u *user) signup(ctx *clevergo.Context) error {
 		return jsend.Success(ctx.Response, nil)
 	}
 
-	return u.Render(ctx, "user/signup", core.ViewData{
+	return ctx.Render(http.StatusOK, "user/signup.tmpl", core.ViewData{
 		"form":  form,
 		"error": err,
 	})
@@ -149,7 +149,7 @@ func (u *user) signup(ctx *clevergo.Context) error {
 func (u *user) verifyEmail(ctx *clevergo.Context) (err error) {
 	token := ctx.Request.URL.Query().Get("token")
 	if token == "" {
-		ctx.Redirect("/user/resend-verification-email", http.StatusFound)
+		ctx.Redirect("/user/resend-verification-email.tmpl", http.StatusFound)
 		return
 	}
 
@@ -157,7 +157,7 @@ func (u *user) verifyEmail(ctx *clevergo.Context) (err error) {
 	form.Token = token
 	if err = form.Handle(ctx); err != nil {
 		u.AddFlash(ctx, bootstrap.NewDangerAlert(err.Error()))
-		ctx.Redirect("/user/resend-verification-email", http.StatusFound)
+		ctx.Redirect("/user/resend-verification-email.tmpl", http.StatusFound)
 		return nil
 	}
 
@@ -176,7 +176,7 @@ func (u *user) requestResetPassword(ctx *clevergo.Context) error {
 		return jsend.Success(ctx.Response, nil)
 	}
 
-	return u.Render(ctx, "user/request-reset-password", nil)
+	return ctx.Render(http.StatusOK, "user/request-reset-password.tmpl", nil)
 }
 
 func (u *user) resetPassword(ctx *clevergo.Context) error {
@@ -190,7 +190,7 @@ func (u *user) resetPassword(ctx *clevergo.Context) error {
 		return jsend.Success(ctx.Response, nil)
 	}
 
-	return u.Render(ctx, "user/reset-password", core.ViewData{
+	return ctx.Render(http.StatusOK, "user/reset-password.tmpl", core.ViewData{
 		"token": ctx.Request.URL.Query().Get("token"),
 	})
 }

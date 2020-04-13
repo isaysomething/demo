@@ -1,10 +1,6 @@
 package core
 
 import (
-	"reflect"
-	"time"
-
-	"github.com/CloudyKit/jet/v3"
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/clevergo/demo/pkg/users"
@@ -58,34 +54,8 @@ func SetAccessManager(manager *access.Manager) Option {
 	}
 }
 
-func SetViewManager(m *ViewManager) Option {
-	return func(app *Application) {
-		/*m.AddFunc("param", func(name string) interface{} {
-			val, _ := app.params.Get(name)
-			return val
-		})*/
-		//m.AddFunc("title", strings.Title)
-		m.AddGlobalFunc("param", func(a jet.Arguments) reflect.Value {
-			a.RequireNumOfArguments("param", 1, 1)
-			val, _ := app.params.Get(a.Get(0).String())
-
-			return reflect.ValueOf(val)
-		})
-		m.AddGlobalFunc("now", func(_ jet.Arguments) reflect.Value {
-			return reflect.ValueOf(time.Now())
-		})
-		app.viewManager = m
-	}
-}
-
 func SetMailer(mailer *mail.Dialer) Option {
 	return func(app *Application) {
 		app.mailer = mailer
-	}
-}
-
-func SetBeforeRender(f func(*BeforeRenderEvent)) Option {
-	return func(app *Application) {
-		app.beforeRender = f
 	}
 }

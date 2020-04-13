@@ -35,7 +35,7 @@ func (eh *ErrorHandler) Handle(ctx *clevergo.Context, err error) {
 		}
 	}
 
-	if err := eh.app.Render(ctx, eh.viewName, ViewData{
+	if err := ctx.Render(http.StatusInternalServerError, eh.viewName, ViewData{
 		"error": errinfo,
 	}); err != nil {
 		ctx.Error(err.Error(), http.StatusInternalServerError)

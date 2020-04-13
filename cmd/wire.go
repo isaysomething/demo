@@ -21,8 +21,9 @@ var superSet = wire.NewSet(
 	core.NewEnforcer, access.New,
 	core.NewJWTManager,
 
-	// middlewares
 	core.MiddlewareSet,
+
+	core.NewRenderer,
 )
 
 func initializeServer() (*core.Server, func(), error) {

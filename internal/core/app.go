@@ -1,8 +1,6 @@
 package core
 
 import (
-	"bytes"
-
 	"github.com/CloudyKit/jet/v3"
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/clevergo"
@@ -30,8 +28,6 @@ type Application struct {
 	mailer         *mail.Dialer
 	userManager    *users.Manager
 	params         Params
-	viewManager    *ViewManager
-	beforeRender   func(*BeforeRenderEvent)
 	accessManager  *access.Manager
 }
 
@@ -65,10 +61,6 @@ func (app *Application) SessionManager() *scs.SessionManager {
 	return app.sessionManager
 }
 
-func (app *Application) ViewManager() *ViewManager {
-	return app.viewManager
-}
-
 func (app *Application) UserManager() *users.Manager {
 	return app.userManager
 }
@@ -89,41 +81,6 @@ func (app *Application) Flashes(ctx *clevergo.Context) (flashes Flashes) {
 func (app *Application) AddFlash(ctx *clevergo.Context, flash Flash) {
 	flashes := append(app.Flashes(ctx), flash)
 	app.sessionManager.Put(ctx.Request.Context(), "_flash", flashes)
-}
-
-func (app *Application) Render(ctx *clevergo.Context, view string, data ViewData) error {
-	if data == nil && app.beforeRender != nil {
-		data = ViewData{}
-	}
-
-	vars := make(jet.VarMap)
-	if app.beforeRender != nil {
-		event := &BeforeRenderEvent{
-			App:     app,
-			Context: ctx,
-			View:    view,
-			Vars:    vars,
-			Data:    data,
-		}
-		app.beforeRender(event)
-	}
-
-	tmpl, err := app.viewManager.GetTemplate(view)
-	if err != nil {
-		return err
-	}
-
-	var wr bytes.Buffer
-	if err = tmpl.Execute(&wr, vars, data); err != nil {
-		return err
-	}
-
-	ctx.SetContentTypeHTML()
-	if _, err = wr.WriteTo(ctx.Response); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (app *Application) Params() Params {

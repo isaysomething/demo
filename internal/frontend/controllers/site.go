@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
@@ -28,11 +29,11 @@ type site struct {
 }
 
 func (s *site) index(ctx *clevergo.Context) error {
-	return s.Render(ctx, "site/index", nil)
+	return ctx.Render(http.StatusOK, "site/index.tmpl", nil)
 }
 
 func (s *site) about(ctx *clevergo.Context) error {
-	return s.Render(ctx, "site/about", nil)
+	return ctx.Render(http.StatusOK, "site/about.tmpl", nil)
 }
 
 func (s *site) contact(ctx *clevergo.Context) error {
@@ -45,9 +46,7 @@ func (s *site) contact(ctx *clevergo.Context) error {
 		s.AddFlash(ctx, bootstrap.NewSuccessAlert("Thanks for contacting us, we'll get in touch with you as soon as possible."))
 		return jsend.Success(ctx.Response, nil)
 	}
-	err := s.Render(ctx, "site/contact", core.ViewData{})
-	fmt.Println(err)
-	return err
+	return ctx.Render(http.StatusOK, "site/contact.tmpl", core.ViewData{})
 }
 
 func (s *site) robots(ctx *clevergo.Context) error {
