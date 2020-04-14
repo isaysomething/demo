@@ -30,10 +30,11 @@
       <el-table-column align="center" label="Actions" width="120">
         <template slot-scope="scope">
           <router-link :to="'/post/edit/'+scope.row.id">
-            <el-button type="primary" size="small" icon="el-icon-edit">
-              Edit
-            </el-button>
+            <el-button type="primary" size="small" icon="el-icon-edit" />
           </router-link>
+          <el-popconfirm title="Are you sure you want to delete this item?" @onConfirm="handleDelete(scope.row.id)">
+            <el-button slot="reference" type="danger" size="small" icon="el-icon-delete" />
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -43,7 +44,7 @@
 </template>
 
 <script>
-import { fetchList } from '@/api/post'
+import { fetchList, deletePost } from '@/api/post'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
@@ -78,6 +79,11 @@ export default {
         1: 'Published'
       }
       return statusMap[status]
+    },
+    handleDelete(id) {
+      deletePost(id).then(response => {
+        this.getList()
+      })
     }
   }
 }

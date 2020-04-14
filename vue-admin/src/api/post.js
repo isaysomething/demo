@@ -29,3 +29,10 @@ export function updatePost(id, data) {
     data
   })
 }
+
+export function deletePost(id) {
+  return request({
+    url: '/posts/' + id,
+    method: 'DELETE'
+  })
+}

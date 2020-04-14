@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"time"
 
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -26,24 +27,33 @@ type Post struct {
 	UpdatedAt sql.NullTime `db:"updated_at" json:"updated_at"`
 }
 
-func (p *Post) Save(db *sqlx.DB) error {
+func (p *Post) Validate() error {
+	return validation.ValidateStruct(p,
+		validation.Field(&p.Title, validation.Required),
+		validation.Field(&p.Content, validation.Required),
+		validation.Field(&p.Status, validation.In(PostStatusDraft, PostStatusPublished)),
+	)
+}
+
+func (p *Post) Save(db *sqlx.DB) (err error) {
+	if err = p.Validate(); err != nil {
+		return err
+	}
 	res, err := db.Exec(
 		"INSERT INTO posts(id, user_id, title, content, status, created_at, updated_at) VALUES(null, ?, ?, ?, ?, ?, ?)",
-		p.UserID, p.Title, p.Content, p.Status, p.CreatedAt, time.Now(),
+		p.UserID, p.Title, p.Content, p.Status, p.CreatedAt, p.UpdatedAt,
 	)
 	if err != nil {
-		return err
+		return
 	}
-
 	p.ID, err = res.LastInsertId()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return
 }
 
 func (p *Post) Update(db *sqlx.DB) error {
+	if err := p.Validate(); err != nil {
+		return err
+	}
 	res, err := db.Exec(
 		"UPDATE posts SET title=?, content=?, status=?, updated_at=? WHERE id=?",
 		p.Title, p.Content, p.Status, time.Now(), p.ID,
@@ -58,6 +68,11 @@ func (p *Post) Update(db *sqlx.DB) error {
 	}
 
 	return nil
+}
+
+func (p *Post) Delete(db *sqlx.DB) error {
+	_, err := db.Exec("DELETE FROM posts WHERE id = ?", p.ID)
+	return err
 }
 
 func GetPostsCount(db *sqlx.DB) (count int, err error) {

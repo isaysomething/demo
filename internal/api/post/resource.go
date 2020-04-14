@@ -50,31 +50,27 @@ func (r *resource) get(ctx *clevergo.Context) error {
 }
 
 func (r *resource) create(ctx *clevergo.Context) error {
-	post := new(models.Post)
-	if err := ctx.Decode(post); err != nil {
+	form := new(Form)
+	if err := ctx.Decode(form); err != nil {
 		return err
 	}
-
-	if err := post.Save(r.DB()); err != nil {
+	post, err := form.Create(r.DB())
+	if err != nil {
 		return err
 	}
-
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
 func (r *resource) update(ctx *clevergo.Context) error {
-	id, err := ctx.Params.Int64("id")
+	form := new(Form)
+	if err := ctx.Decode(form); err != nil {
+		return err
+	}
+	post, err := r.getPost(ctx)
 	if err != nil {
 		return err
 	}
-	post, err := models.GetPost(r.DB(), id)
-	if err != nil {
-		return err
-	}
-	if err := ctx.Decode(post); err != nil {
-		return err
-	}
-	if err = post.Update(r.DB()); err != nil {
+	if err = form.Update(r.DB(), post); err != nil {
 		return err
 	}
 
@@ -82,5 +78,20 @@ func (r *resource) update(ctx *clevergo.Context) error {
 }
 
 func (r *resource) delete(ctx *clevergo.Context) error {
-	return nil
+	post, err := r.getPost(ctx)
+	if err != nil {
+		return err
+	}
+	if err := post.Delete(r.DB()); err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, jsend.New(nil))
+}
+
+func (r *resource) getPost(ctx *clevergo.Context) (*models.Post, error) {
+	id, err := ctx.Params.Int64("id")
+	if err != nil {
+		return nil, err
+	}
+	return models.GetPost(r.DB(), id)
 }
