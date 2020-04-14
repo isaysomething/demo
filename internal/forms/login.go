@@ -9,7 +9,6 @@ import (
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
 	"github.com/clevergo/demo/pkg/users"
-	"github.com/clevergo/form"
 	"github.com/go-ozzo/ozzo-validation/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jmoiron/sqlx"
@@ -90,7 +89,7 @@ func (l *Login) getIdentity() *models.User {
 
 // Handle handles login request.
 func (l *Login) Handle(ctx *clevergo.Context) (*models.User, error) {
-	if err := form.Decode(ctx.Request, l); err != nil {
+	if err := ctx.Decode(l); err != nil {
 		return nil, err
 	}
 	if err := l.Validate(); err != nil {

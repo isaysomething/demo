@@ -8,7 +8,6 @@ import (
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
 	"github.com/clevergo/demo/pkg/users"
-	"github.com/clevergo/form"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/jmoiron/sqlx"
@@ -64,7 +63,7 @@ func (su *Signup) RegisterOnAfterSignup(f func(AfterSignupEvent)) {
 }
 
 func (su *Signup) Handle(ctx *clevergo.Context) (*models.User, error) {
-	if err := form.Decode(ctx.Request, su); err != nil {
+	if err := ctx.Decode(su); err != nil {
 		return nil, err
 	}
 

@@ -6,6 +6,7 @@ import (
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/demo/internal/api/post"
 	"github.com/clevergo/demo/internal/api/user"
+	"github.com/clevergo/form"
 
 	"github.com/clevergo/auth"
 	"github.com/clevergo/clevergo"
@@ -49,6 +50,7 @@ func provideAPIServer(
 	corsMidware core.CORSMiddleware,
 ) *core.Server {
 	router := clevergo.NewRouter()
+	router.Decoder = form.New()
 	router.Use(
 		clevergo.MiddlewareFunc(corsMidware),
 		userManager.Middleware(authenticator),

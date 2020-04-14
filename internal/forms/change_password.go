@@ -5,7 +5,6 @@ import (
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
-	"github.com/clevergo/form"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jmoiron/sqlx"
 )
@@ -44,7 +43,7 @@ func (f *ChangePassword) validatePassword(value interface{}) error {
 
 // Handle handles request.
 func (f *ChangePassword) Handle(ctx *clevergo.Context) error {
-	if err := form.Decode(ctx.Request, f); err != nil {
+	if err := ctx.Decode(f); err != nil {
 		return err
 	}
 

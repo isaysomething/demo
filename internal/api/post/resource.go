@@ -5,7 +5,6 @@ import (
 
 	"github.com/clevergo/demo/pkg/rest/pagination"
 
-	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
 
 	"github.com/clevergo/clevergo"
@@ -52,7 +51,7 @@ func (r *resource) get(ctx *clevergo.Context) error {
 
 func (r *resource) create(ctx *clevergo.Context) error {
 	post := new(models.Post)
-	if err := form.Decode(ctx.Request, post); err != nil {
+	if err := ctx.Decode(post); err != nil {
 		return err
 	}
 
@@ -72,7 +71,7 @@ func (r *resource) update(ctx *clevergo.Context) error {
 	if err != nil {
 		return err
 	}
-	if err := form.Decode(ctx.Request, post); err != nil {
+	if err := ctx.Decode(post); err != nil {
 		return err
 	}
 	if err = post.Update(r.DB()); err != nil {

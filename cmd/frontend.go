@@ -8,6 +8,7 @@ import (
 	"reflect"
 
 	"github.com/clevergo/demo/pkg/users"
+	"github.com/clevergo/form"
 	"github.com/clevergo/i18n"
 	"github.com/clevergo/jetrenderer"
 	"github.com/gorilla/csrf"
@@ -52,6 +53,7 @@ func provideRouter(
 	router := clevergo.NewRouter()
 	router.NotFound = http.FileServer(packr.New("public", cfg.HTTP.Root))
 	router.Renderer = renderer
+	router.Decoder = form.New()
 	router.Use(
 		clevergo.Recovery(true),
 		clevergo.MiddlewareFunc(loggingMiddleware),

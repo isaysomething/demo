@@ -6,7 +6,6 @@ import (
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/form"
 	"github.com/go-mail/mail"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
@@ -39,7 +38,7 @@ func (c *Contact) Validate() error {
 }
 
 func (c *Contact) Handle(ctx *clevergo.Context) (err error) {
-	if err = form.Decode(ctx.Request, c); err != nil {
+	if err = ctx.Decode(c); err != nil {
 		return
 	}
 	if err = c.Validate(); err != nil {

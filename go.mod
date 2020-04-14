@@ -13,7 +13,7 @@ require (
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/stores/redisstore v0.1.2
-	github.com/clevergo/clevergo v1.10.0
+	github.com/clevergo/clevergo v1.10.1-0.20200414073709-c16687076364
 	github.com/clevergo/form v1.2.0
 	github.com/clevergo/i18n v1.0.2
 	github.com/clevergo/jet-packrloader v0.1.0
@@ -26,22 +26,17 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/eko/gocache v1.0.0
 	github.com/fatih/color v1.9.0
-	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-ozzo/ozzo-validation/v4 v4.1.0
 	github.com/go-redis/redis/v7 v7.2.0
 	github.com/go-sql-driver/mysql v1.5.0
-	github.com/go-yaml/yaml v2.1.0+incompatible // indirect
 	github.com/gobuffalo/packr/v2 v2.8.0
 	github.com/golang-migrate/migrate/v4 v4.10.0
-	github.com/golang/mock v1.4.0
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/wire v0.4.0
 	github.com/gorilla/csrf v1.6.2
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
-	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
-	github.com/jackc/pgx v3.2.0+incompatible // indirect
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/karrick/godirwalk v1.15.6 // indirect
 	github.com/knadh/koanf v0.9.1
@@ -51,9 +46,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/cobra v1.0.0
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tdewolff/minify/v2 v2.7.3
-	go.uber.org/multierr v1.5.0 // indirect
 	go.uber.org/zap v1.14.1
 	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect

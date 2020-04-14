@@ -11,7 +11,6 @@ import (
 	"github.com/clevergo/demo/internal/listeners"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/pkg/bootstrap"
-	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
 )
 
@@ -73,7 +72,7 @@ func (u *user) login(ctx *clevergo.Context) error {
 
 func (u *user) checkUsername(ctx *clevergo.Context) error {
 	f := forms.NewCheckUsername(u.DB())
-	err := form.Decode(ctx.Request, f)
+	err := ctx.Decode(f)
 	if err != nil {
 		return jsend.Error(ctx.Response, err.Error())
 	}
@@ -86,7 +85,7 @@ func (u *user) checkUsername(ctx *clevergo.Context) error {
 
 func (u *user) checkEmail(ctx *clevergo.Context) error {
 	f := forms.NewCheckUserEmail(u.DB())
-	err := form.Decode(ctx.Request, f)
+	err := ctx.Decode(f)
 	if err != nil {
 		return jsend.Error(ctx.Response, err.Error())
 	}

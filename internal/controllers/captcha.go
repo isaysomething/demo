@@ -6,7 +6,6 @@ import (
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
-	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
 )
 
@@ -39,7 +38,7 @@ func (c *captcha) generate(ctx *clevergo.Context) error {
 
 func (c *captcha) verify(ctx *clevergo.Context) error {
 	f := captchaForm{}
-	if err := form.Decode(ctx.Request, &f); err != nil {
+	if err := ctx.Decode(&f); err != nil {
 		return err
 	}
 

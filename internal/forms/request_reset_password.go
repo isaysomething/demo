@@ -9,7 +9,6 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/form"
 	"github.com/go-mail/mail"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
@@ -69,7 +68,7 @@ func (f *RequestResetPassword) getUser() (*models.User, error) {
 }
 
 func (f *RequestResetPassword) Handle(ctx *clevergo.Context) (err error) {
-	if err = form.Decode(ctx.Request, f); err != nil {
+	if err = ctx.Decode(f); err != nil {
 		return
 	}
 	if err = f.Validate(); err != nil {
