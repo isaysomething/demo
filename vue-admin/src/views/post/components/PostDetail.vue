@@ -140,8 +140,10 @@ export default {
             duration: 2000
           })
           this.loading = false
-          this.postForm.id = response.data.id
-          this.fetchData()
+          this.$router.push({
+            name: 'EditPost',
+            params: { id: response.data.id }
+          })
         }).catch(err => {
           console.log(err)
           this.loading = false
