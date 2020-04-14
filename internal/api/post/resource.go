@@ -2,7 +2,8 @@ package post
 
 import (
 	"net/http"
-	"strconv"
+
+	"github.com/clevergo/demo/pkg/rest/pagination"
 
 	"github.com/clevergo/form"
 	"github.com/clevergo/jsend"
@@ -25,32 +26,19 @@ type resource struct {
 	*api.Application
 }
 
-func (r *resource) query(ctx *clevergo.Context) error {
-	page := ctx.DefaultQuery("page", "1")
-	pageNum, err := strconv.Atoi(page)
+func (r *resource) query(ctx *clevergo.Context) (err error) {
+	p := pagination.NewFromContext(ctx)
+
+	p.Items, err = models.GetPosts(r.DB(), p.Limit, p.Offset())
+	if err != nil {
+		return err
+	}
+	p.Total, err = models.GetPostsCount(r.DB())
 	if err != nil {
 		return err
 	}
 
-	limit := ctx.DefaultQuery("limit", "10")
-	limitNum, err := strconv.Atoi(limit)
-	if err != nil {
-		return nil
-	}
-
-	count, err := models.GetPostCount(r.DB())
-	if err != nil {
-		return err
-	}
-
-	users, err := models.GetPosts(r.DB(), pageNum, limitNum)
-	if err != nil {
-		return err
-	}
-	return ctx.JSON(http.StatusOK, jsend.New(map[string]interface{}{
-		"total": count,
-		"items": users,
-	}))
+	return ctx.JSON(http.StatusOK, jsend.New(p))
 }
 
 func (r *resource) get(ctx *clevergo.Context) error {

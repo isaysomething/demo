@@ -2,7 +2,8 @@ package user
 
 import (
 	"net/http"
-	"strconv"
+
+	"github.com/clevergo/demo/pkg/rest/pagination"
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
@@ -28,32 +29,17 @@ type resource struct {
 	jwtManager     *core.JWTManager
 }
 
-func (r *resource) query(ctx *clevergo.Context) error {
-	page := ctx.DefaultQuery("page", "1")
-	pageNum, err := strconv.Atoi(page)
+func (r *resource) query(ctx *clevergo.Context) (err error) {
+	p := pagination.NewFromContext(ctx)
+	p.Items, err = models.GetUsers(r.DB(), p.Limit, p.Offset())
 	if err != nil {
 		return err
 	}
-
-	limit := ctx.DefaultQuery("limit", "10")
-	limitNum, err := strconv.Atoi(limit)
+	p.Total, err = models.GetUsersCount(r.DB())
 	if err != nil {
 		return err
 	}
-
-	count, err := models.GetUserCount(r.DB())
-	if err != nil {
-		return err
-	}
-
-	users, err := models.GetUsers(r.DB(), pageNum, limitNum)
-	if err != nil {
-		return err
-	}
-	return ctx.JSON(200, jsend.New(map[string]interface{}{
-		"total": count,
-		"items": users,
-	}))
+	return ctx.JSON(200, jsend.New(p))
 }
 
 func (r *resource) get(ctx *clevergo.Context) error {

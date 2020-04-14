@@ -60,14 +60,14 @@ func (p *Post) Update(db *sqlx.DB) error {
 	return nil
 }
 
-func GetPostCount(db *sqlx.DB) (count int, err error) {
+func GetPostsCount(db *sqlx.DB) (count int, err error) {
 	err = db.Get(&count, "SELECT count(*) FROM posts")
 	return
 }
 
-func GetPosts(db *sqlx.DB, page, limit int) (posts []Post, err error) {
+func GetPosts(db *sqlx.DB, limit, offset int) (posts []Post, err error) {
 	posts = []Post{}
-	err = db.Select(&posts, "SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?", limit, (page-1)*limit)
+	err = db.Select(&posts, "SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?", limit, offset)
 	return
 }
 

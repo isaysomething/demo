@@ -215,13 +215,13 @@ func validateToken(token string, duration int64) error {
 	return errors.New("token expired")
 }
 
-func GetUsers(db *sqlx.DB, page, limit int) ([]User, error) {
-	users := []User{}
-	err := db.Select(&users, "SELECT * FROM users ORDER BY id ASC LIMIT ? OFFSET ?", limit, (page-1)*limit)
-	return users, err
+func GetUsers(db *sqlx.DB, limit, offset int) (users []User, err error) {
+	users = []User{}
+	err = db.Select(&users, "SELECT * FROM users ORDER BY id ASC LIMIT ? OFFSET ?", limit, offset)
+	return
 }
 
-func GetUserCount(db *sqlx.DB) (count int, err error) {
+func GetUsersCount(db *sqlx.DB) (count int, err error) {
 	err = db.Get(&count, "SELECT count(*) FROM users")
 	return
 }
