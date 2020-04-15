@@ -13,7 +13,7 @@ require (
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/stores/redisstore v0.1.2
-	github.com/clevergo/clevergo v1.10.1-0.20200414073709-c16687076364
+	github.com/clevergo/clevergo v1.11.0
 	github.com/clevergo/form v1.2.0
 	github.com/clevergo/i18n v1.0.2
 	github.com/clevergo/jet-packrloader v0.1.0
