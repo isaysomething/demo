@@ -1,7 +1,8 @@
 package authz
 
 import (
-	"log"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/casbin/casbin/v2"
@@ -9,23 +10,51 @@ import (
 	"github.com/clevergo/demo/pkg/users"
 )
 
-func New(enforcer *casbin.Enforcer, userManager *users.Manager) clevergo.MiddlewareFunc {
+var (
+	ErrUnauthorized = clevergo.NewError(http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+	ErrForbidden    = clevergo.NewError(http.StatusForbidden, errors.New("you are not allowed to access this page"))
+)
+
+type Authorization struct {
+	enforcer    *casbin.Enforcer
+	userManager *users.Manager
+	Skipper     clevergo.Skipper
+}
+
+func New(enforcer *casbin.Enforcer, userManager *users.Manager) *Authorization {
+	return &Authorization{enforcer: enforcer, userManager: userManager}
+}
+
+func (a *Authorization) Middleware() clevergo.MiddlewareFunc {
 	return func(next clevergo.Handle) clevergo.Handle {
 		return func(ctx *clevergo.Context) error {
-			user, _ := userManager.Get(ctx.Request, ctx.Response)
-			if user.IsGuest() {
-				ctx.Error(http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				return nil
-			}
-			ok, err := enforcer.Enforce(user.GetIdentity().GetID, ctx.Request.URL.Path, ctx.Request.Method)
-			if err != nil {
-				log.Println(err)
-			}
-			if !ok {
-				ctx.Error(http.StatusText(http.StatusForbidden), http.StatusForbidden)
-				return nil
+			if a.Skipper == nil || !a.Skipper(ctx) {
+				user, _ := a.userManager.Get(ctx.Request, ctx.Response)
+				if user.IsGuest() {
+					return ErrUnauthorized
+				}
+				fmt.Println(a.getSubject(user), a.getObject(ctx), a.getAction(ctx))
+				ok, err := a.enforcer.Enforce(a.getSubject(user), a.getObject(ctx), a.getAction(ctx))
+				if err != nil {
+					return clevergo.NewError(http.StatusInternalServerError, err)
+				}
+				if !ok {
+					return ErrForbidden
+				}
 			}
 			return next(ctx)
 		}
 	}
+}
+
+func (a *Authorization) getSubject(user *users.User) interface{} {
+	return "user_" + user.GetIdentity().GetID()
+}
+
+func (a *Authorization) getObject(ctx *clevergo.Context) interface{} {
+	return ctx.Request.URL.Path
+}
+
+func (a *Authorization) getAction(ctx *clevergo.Context) interface{} {
+	return ctx.Request.Method
 }

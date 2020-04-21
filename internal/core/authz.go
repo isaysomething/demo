@@ -20,7 +20,7 @@ g = _, _
 e = some(where (p.eft == allow))
 
 [matchers]
-m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+m = g(r.sub, p.sub) && keyMatch(r.obj, p.obj) && regexMatch(r.act, p.act)
 `
 
 func NewEnforcer(cfg DBConfig) (*casbin.Enforcer, error) {
@@ -43,13 +43,9 @@ func NewEnforcer(cfg DBConfig) (*casbin.Enforcer, error) {
 		return nil, err
 	}
 
-	// Reload the policy from file/database.
 	if err = e.LoadPolicy(); err != nil {
 		return nil, err
 	}
-
-	// Save the current policy (usually after changed with Casbin API) back to file/database.
-	//e.SavePolicy()
 
 	return e, nil
 }

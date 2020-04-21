@@ -11,9 +11,10 @@ import (
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
+)
 
+import (
 	_ "github.com/go-sql-driver/mysql"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -118,7 +119,8 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	authenticator := core.NewAuthenticator(identityStore)
 	corsConfig := provideCORSConfig()
 	corsMiddleware := core.NewCORSMiddleware(corsConfig)
-	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware)
+	authzMiddleware := api.NewAuthzMiddleware(enforcer, userManager)
+	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware, authzMiddleware)
 	return server, func() {
 		cleanup2()
 		cleanup()

@@ -6,12 +6,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	serveCmd.AddCommand(
-		serveAPICmd,
-	)
-}
-
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Start front end service",

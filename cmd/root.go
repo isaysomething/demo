@@ -21,6 +21,7 @@ func init() {
 	rootCmd.PersistentFlags().Parse(os.Args[1:])
 	rootCmd.AddCommand(
 		serveCmd,
+		apiCmd,
 		migrateCmd,
 	)
 }

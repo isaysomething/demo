@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var serveAPICmd = &cobra.Command{
+var apiCmd = &cobra.Command{
 	Use:   "api",
 	Short: "Start API service",
 	Long:  `Start API service`,
@@ -38,6 +38,7 @@ var serveAPICmd = &cobra.Command{
 var apiSet = wire.NewSet(
 	api.New,
 	api.NewUserManager,
+	api.NewAuthzMiddleware,
 )
 
 func provideAPIServer(
@@ -48,12 +49,14 @@ func provideAPIServer(
 	userManager *api.UserManager,
 	authenticator auth.Authenticator,
 	corsMidware core.CORSMiddleware,
+	authzMidware api.AuthzMiddleware,
 ) *core.Server {
 	router := clevergo.NewRouter()
 	router.Decoder = form.New()
 	router.Use(
 		clevergo.MiddlewareFunc(corsMidware),
 		userManager.Middleware(authenticator),
+		clevergo.MiddlewareFunc(authzMidware),
 	)
 	router.ErrorHandler = api.NewErrorHandler()
 
