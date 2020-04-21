@@ -7,6 +7,7 @@ package cmd
 
 import (
 	"github.com/clevergo/demo/internal/api"
+	"github.com/clevergo/demo/internal/api/authz"
 	"github.com/clevergo/demo/internal/api/post"
 	"github.com/clevergo/demo/internal/api/user"
 	"github.com/clevergo/demo/internal/controllers/captcha"
@@ -15,9 +16,10 @@ import (
 	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
+)
 
+import (
 	_ "github.com/go-sql-driver/mysql"
-
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -128,8 +130,9 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	authzMiddleware := api.NewAuthzMiddleware(enforcer, userManager)
 	resource := user.New(application, captchasManager, jwtManager, enforcer)
 	postResource := post.New(application)
+	authzResource := authz.New(application, enforcer)
 	captchaCaptcha := captcha.New(captchasManager)
-	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware, authzMiddleware, resource, postResource, captchaCaptcha)
+	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware, authzMiddleware, resource, postResource, authzResource, captchaCaptcha)
 	return server, func() {
 		cleanup2()
 		cleanup()
