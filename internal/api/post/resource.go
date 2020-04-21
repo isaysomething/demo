@@ -3,13 +3,11 @@ package post
 import (
 	"net/http"
 
-	"github.com/clevergo/demo/pkg/rest/pagination"
-
-	"github.com/clevergo/jsend"
-
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/pkg/rest/pagination"
+	"github.com/clevergo/jsend"
 )
 
 type Resource struct {
