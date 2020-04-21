@@ -3,6 +3,7 @@ package user
 import (
 	"net/http"
 
+	"github.com/casbin/casbin/v2"
 	"github.com/clevergo/demo/pkg/rest/pagination"
 
 	"github.com/clevergo/captchas"
@@ -14,8 +15,8 @@ import (
 	"github.com/clevergo/jsend"
 )
 
-func RegisterRoutes(router clevergo.IRouter, app *api.Application, captchaManager *captchas.Manager, jwtManager *core.JWTManager) {
-	r := &resource{app, captchaManager, jwtManager}
+func RegisterRoutes(router clevergo.IRouter, app *api.Application, captchaManager *captchas.Manager, jwtManager *core.JWTManager, enforcer *casbin.Enforcer) {
+	r := &resource{app, captchaManager, jwtManager, enforcer}
 	router.Post("/user/login", r.login)
 	router.Get("/user/info", r.info)
 	router.Post("/user/logout", r.logout)
@@ -27,6 +28,7 @@ type resource struct {
 	*api.Application
 	captchaManager *captchas.Manager
 	jwtManager     *core.JWTManager
+	enforcer       *casbin.Enforcer
 }
 
 func (r *resource) query(ctx *clevergo.Context) (err error) {
@@ -68,10 +70,14 @@ func (r *resource) login(ctx *clevergo.Context) error {
 
 func (r *resource) info(ctx *clevergo.Context) error {
 	user, _ := r.User(ctx)
+	roles, err := r.enforcer.GetRolesForUser("user_" + user.GetIdentity().GetID())
+	if err != nil {
+		return err
+	}
 	identity, _ := user.GetIdentity().(*models.User)
 	return ctx.JSON(http.StatusOK, jsend.New(core.Map{
 		"id":    identity.ID,
-		"roles": []string{"admin"},
+		"roles": roles,
 	}))
 }
 
