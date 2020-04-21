@@ -3,7 +3,6 @@ package cmd
 import (
 	stdlog "log"
 
-	"github.com/casbin/casbin/v2"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/demo/internal/api/post"
 	"github.com/clevergo/demo/internal/api/user"
@@ -40,6 +39,9 @@ var apiSet = wire.NewSet(
 	api.New,
 	api.NewUserManager,
 	api.NewAuthzMiddleware,
+
+	user.New,
+	post.New,
 )
 
 func provideAPIServer(
@@ -51,7 +53,8 @@ func provideAPIServer(
 	authenticator auth.Authenticator,
 	corsMidware core.CORSMiddleware,
 	authzMidware api.AuthzMiddleware,
-	enforcer *casbin.Enforcer,
+	userResource *user.Resource,
+	postResource *post.Resource,
 ) *core.Server {
 	router := clevergo.NewRouter()
 	router.Decoder = form.New()
@@ -63,8 +66,8 @@ func provideAPIServer(
 	router.ErrorHandler = api.NewErrorHandler()
 
 	v1 := router.Group("/v1")
-	post.RegisterRoutes(v1, app)
-	user.RegisterRoutes(v1, app, captchaManager, jwtManager, enforcer)
+	postResource.RegisterRoutes(v1)
+	userResource.RegisterRoutes(v1)
 	controllers.RegisterCaptcha(v1, captchaManager)
 
 	srv := core.NewServer(router, logger)

@@ -7,6 +7,8 @@ package cmd
 
 import (
 	"github.com/clevergo/demo/internal/api"
+	"github.com/clevergo/demo/internal/api/post"
+	"github.com/clevergo/demo/internal/api/user"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/pkg/access"
@@ -120,7 +122,9 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	corsConfig := provideCORSConfig()
 	corsMiddleware := core.NewCORSMiddleware(corsConfig)
 	authzMiddleware := api.NewAuthzMiddleware(enforcer, userManager)
-	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware, authzMiddleware, enforcer)
+	resource := user.New(application, captchasManager, jwtManager, enforcer)
+	postResource := post.New(application)
+	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware, authzMiddleware, resource, postResource)
 	return server, func() {
 		cleanup2()
 		cleanup()

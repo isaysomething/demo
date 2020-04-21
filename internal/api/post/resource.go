@@ -12,8 +12,17 @@ import (
 	"github.com/clevergo/demo/internal/models"
 )
 
-func RegisterRoutes(router clevergo.IRouter, app *api.Application) {
-	r := &resource{app}
+type Resource struct {
+	*api.Application
+}
+
+func New(app *api.Application) *Resource {
+	return &Resource{
+		Application: app,
+	}
+}
+
+func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 	router.Get("/posts", r.query)
 	router.Get("/posts/:id", r.get)
 	router.Post("/posts", r.create)
@@ -21,11 +30,7 @@ func RegisterRoutes(router clevergo.IRouter, app *api.Application) {
 	router.Delete("/posts/:id", r.delete)
 }
 
-type resource struct {
-	*api.Application
-}
-
-func (r *resource) query(ctx *clevergo.Context) (err error) {
+func (r *Resource) query(ctx *clevergo.Context) (err error) {
 	p := pagination.NewFromContext(ctx)
 
 	p.Items, err = models.GetPosts(r.DB(), p.Limit, p.Offset())
@@ -40,7 +45,7 @@ func (r *resource) query(ctx *clevergo.Context) (err error) {
 	return ctx.JSON(http.StatusOK, jsend.New(p))
 }
 
-func (r *resource) get(ctx *clevergo.Context) error {
+func (r *Resource) get(ctx *clevergo.Context) error {
 	id, err := ctx.Params.Int64("id")
 	if err != nil {
 		return err
@@ -49,7 +54,7 @@ func (r *resource) get(ctx *clevergo.Context) error {
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
-func (r *resource) create(ctx *clevergo.Context) error {
+func (r *Resource) create(ctx *clevergo.Context) error {
 	form := new(Form)
 	if err := ctx.Decode(form); err != nil {
 		return err
@@ -61,7 +66,7 @@ func (r *resource) create(ctx *clevergo.Context) error {
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
-func (r *resource) update(ctx *clevergo.Context) error {
+func (r *Resource) update(ctx *clevergo.Context) error {
 	form := new(Form)
 	if err := ctx.Decode(form); err != nil {
 		return err
@@ -77,7 +82,7 @@ func (r *resource) update(ctx *clevergo.Context) error {
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
-func (r *resource) delete(ctx *clevergo.Context) error {
+func (r *Resource) delete(ctx *clevergo.Context) error {
 	post, err := r.getPost(ctx)
 	if err != nil {
 		return err
@@ -88,7 +93,7 @@ func (r *resource) delete(ctx *clevergo.Context) error {
 	return ctx.JSON(http.StatusOK, jsend.New(nil))
 }
 
-func (r *resource) getPost(ctx *clevergo.Context) (*models.Post, error) {
+func (r *Resource) getPost(ctx *clevergo.Context) (*models.Post, error) {
 	id, err := ctx.Params.Int64("id")
 	if err != nil {
 		return nil, err

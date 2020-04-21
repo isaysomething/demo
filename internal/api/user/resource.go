@@ -15,8 +15,23 @@ import (
 	"github.com/clevergo/jsend"
 )
 
-func RegisterRoutes(router clevergo.IRouter, app *api.Application, captchaManager *captchas.Manager, jwtManager *core.JWTManager, enforcer *casbin.Enforcer) {
-	r := &resource{app, captchaManager, jwtManager, enforcer}
+func New(app *api.Application, captchaManager *captchas.Manager, jwtManager *core.JWTManager, enforcer *casbin.Enforcer) *Resource {
+	return &Resource{
+		Application:    app,
+		captchaManager: captchaManager,
+		jwtManager:     jwtManager,
+		enforcer:       enforcer,
+	}
+}
+
+type Resource struct {
+	*api.Application
+	captchaManager *captchas.Manager
+	jwtManager     *core.JWTManager
+	enforcer       *casbin.Enforcer
+}
+
+func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 	router.Post("/user/login", r.login)
 	router.Get("/user/info", r.info)
 	router.Post("/user/logout", r.logout)
@@ -24,14 +39,7 @@ func RegisterRoutes(router clevergo.IRouter, app *api.Application, captchaManage
 	router.Get("/users/:id", r.get)
 }
 
-type resource struct {
-	*api.Application
-	captchaManager *captchas.Manager
-	jwtManager     *core.JWTManager
-	enforcer       *casbin.Enforcer
-}
-
-func (r *resource) query(ctx *clevergo.Context) (err error) {
+func (r *Resource) query(ctx *clevergo.Context) (err error) {
 	p := pagination.NewFromContext(ctx)
 	p.Items, err = models.GetUsers(r.DB(), p.Limit, p.Offset())
 	if err != nil {
@@ -44,11 +52,11 @@ func (r *resource) query(ctx *clevergo.Context) (err error) {
 	return ctx.JSON(200, jsend.New(p))
 }
 
-func (r *resource) get(ctx *clevergo.Context) error {
+func (r *Resource) get(ctx *clevergo.Context) error {
 	return nil
 }
 
-func (r *resource) login(ctx *clevergo.Context) error {
+func (r *Resource) login(ctx *clevergo.Context) error {
 	user, _ := r.User(ctx)
 	if !user.IsGuest() {
 		ctx.Redirect("/backend/", http.StatusFound)
@@ -68,7 +76,7 @@ func (r *resource) login(ctx *clevergo.Context) error {
 	}))
 }
 
-func (r *resource) info(ctx *clevergo.Context) error {
+func (r *Resource) info(ctx *clevergo.Context) error {
 	user, _ := r.User(ctx)
 	roles, err := r.enforcer.GetRolesForUser("user_" + user.GetIdentity().GetID())
 	if err != nil {
@@ -81,7 +89,7 @@ func (r *resource) info(ctx *clevergo.Context) error {
 	}))
 }
 
-func (r *resource) logout(ctx *clevergo.Context) error {
+func (r *Resource) logout(ctx *clevergo.Context) error {
 	user, _ := r.User(ctx)
 	if err := user.Logout(ctx.Request, ctx.Response); err != nil {
 		return err
