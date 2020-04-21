@@ -66,7 +66,10 @@ export default {
     user: '用户',
     post: '文章',
     createPost: '创建文章',
-    editPost: '编辑文章'
+    editPost: '编辑文章',
+    role: '角色',
+    createRole: '创建角色',
+    editRole: '编辑角色'
   },
   navbar: {
     dashboard: '首页',

@@ -25,13 +25,36 @@ func New(app *api.Application, enforcer *casbin.Enforcer) *Resource {
 func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 	router.Get("/roles", r.queryRoles)
 	router.Post("/roles", r.createRole)
+	router.Get("/roles/:name", r.getRole)
 	router.Put("/roles/:name", r.updateRole)
 	router.Delete("/roles/:name", r.deleteRole)
+	router.Get("/permissions", r.queryPermissions)
 }
 
 func (r *Resource) queryRoles(ctx *clevergo.Context) error {
 	roles := r.enforcer.GetAllRoles()
 	return ctx.JSON(http.StatusOK, jsend.New(roles))
+}
+
+func (r *Resource) getRole(ctx *clevergo.Context) error {
+	name := ctx.Params.String("name")
+	if !r.hasRole(name) {
+		ctx.NotFound()
+		return nil
+	}
+	return ctx.JSON(http.StatusOK, jsend.New(clevergo.Map{
+		"name": name,
+	}))
+}
+
+func (r *Resource) hasRole(name string) bool {
+	for _, role := range r.enforcer.GetAllRoles() {
+		if role == name {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (r *Resource) createRole(ctx *clevergo.Context) error {
@@ -44,12 +67,24 @@ func (r *Resource) updateRole(ctx *clevergo.Context) error {
 
 var reservedRoles = []string{"admin", "user"}
 
-func (r *Resource) deleteRole(ctx *clevergo.Context) error {
-	name := ctx.Params.String("name")
+func isReservedRole(name string) bool {
 	for _, role := range reservedRoles {
 		if name == role {
-			return fmt.Errorf("role %q is reserved, you cannot delete it", name)
+			return true
 		}
+	}
+
+	return false
+}
+
+func (r *Resource) deleteRole(ctx *clevergo.Context) error {
+	name := ctx.Params.String("name")
+	if !r.hasRole(name) {
+		ctx.NotFound()
+		return nil
+	}
+	if isReservedRole(name) {
+		return fmt.Errorf("role %q is reserved, you cannot delete it", name)
 	}
 
 	ok, err := r.enforcer.DeleteRole(name)
@@ -61,4 +96,17 @@ func (r *Resource) deleteRole(ctx *clevergo.Context) error {
 	}
 
 	return nil
+}
+
+type Permission struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+var permissions = []Permission{
+	{"create_post", ""},
+}
+
+func (r *Resource) queryPermissions(ctx *clevergo.Context) error {
+	return ctx.JSON(http.StatusOK, jsend.New(permissions))
 }

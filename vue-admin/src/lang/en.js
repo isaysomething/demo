@@ -66,7 +66,10 @@ export default {
     user: 'User',
     post: 'Post',
     createPost: 'Create Post',
-    editPost: 'Edit Post'
+    editPost: 'Edit Post',
+    role: 'Role',
+    createRole: 'Create Role',
+    editRole: 'Edit Role'
   },
   navbar: {
     dashboard: 'Dashboard',

@@ -1,22 +1,14 @@
 <template>
   <div class="createPost-container">
     <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
-      <sticky :z-index="10" :class-name="'sub-navbar '+postForm.status">
-        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
-          Publish
-        </el-button>
-        <el-button v-loading="loading" type="warning" @click="draftForm">
-          Draft
-        </el-button>
-      </sticky>
 
       <div class="createPost-main-container">
         <el-row>
 
           <el-col :span="24">
-            <el-form-item style="margin-bottom: 40px;" prop="title">
-              <MDinput v-model="postForm.title" :maxlength="100" name="name" required>
-                Title
+            <el-form-item style="margin-bottom: 40px;" prop="name">
+              <MDinput v-model="postForm.name" :maxlength="100" name="name" required>
+                Name
               </MDinput>
             </el-form-item>
 
@@ -33,20 +25,17 @@
 
 <script>
 import MDinput from '@/components/MDinput'
-import Sticky from '@/components/Sticky' // 粘性header组件
-import { fetchPost, createPost } from '@/api/post'
-import { updatePost } from '../../../api/post'
+import { getRole, createRole, updateRole } from '@/api/role'
 
 const defaultForm = {
   id: undefined,
-  title: '', // 文章题目
-  content: '', // 文章内容
-  status: 0
+  name: '',
+  permissions: []
 }
 
 export default {
-  name: 'PostDetail',
-  components: { MDinput, Sticky },
+  name: 'RoleDetail',
+  components: { MDinput },
   props: {
     isEdit: {
       type: Boolean,
@@ -94,7 +83,7 @@ export default {
   },
   methods: {
     fetchData() {
-      fetchPost(this.postForm.id).then(response => {
+      getRole(this.postForm.id).then(response => {
         this.postForm = response.data
 
         // set tagsview title
@@ -115,10 +104,10 @@ export default {
       const title = 'Edit Article'
       document.title = `${title} - ${this.postForm.id}`
     },
-    createPost() {
+    createRole() {
       this.loading = true
       if (this.postForm.id) {
-        updatePost(this.postForm.id, this.postForm).then(response => {
+        updateRole(this.postForm.id, this.postForm).then(response => {
           this.$notify({
             title: '成功',
             message: '更新文章成功',
@@ -132,7 +121,7 @@ export default {
           this.loading = false
         })
       } else {
-        createPost(this.postForm).then(response => {
+        createRole(this.postForm).then(response => {
           this.$notify({
             title: '成功',
             message: '发布文章成功',
@@ -155,7 +144,7 @@ export default {
       this.$refs.postForm.validate(valid => {
         if (valid) {
           this.postForm.status = 1
-          this.createPost()
+          this.createRole()
         } else {
           console.log('error submit!!')
           return false

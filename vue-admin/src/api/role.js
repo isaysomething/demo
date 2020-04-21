@@ -29,3 +29,17 @@ export function deleteRole(name) {
     method: 'delete'
   })
 }
+
+export function getRole(name) {
+  return request({
+    url: `/roles/${name}`,
+    method: 'get'
+  })
+}
+
+export function queryPermissions() {
+  return request({
+    url: '/permissions',
+    method: 'get'
+  })
+}
