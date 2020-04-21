@@ -87,12 +87,29 @@ export const constantRoutes = [
     path: '/user',
     component: Layout,
     redirect: '/user/index',
+    meta: {
+      title: 'user',
+      icon: 'user'
+    },
     children: [
       {
         path: 'user',
         component: () => import('@/views/user/index'),
         name: 'User',
-        meta: { title: 'user', icon: 'user', affix: true }
+        meta: { title: 'user', icon: 'list', affix: true }
+      },
+      {
+        path: 'create',
+        component: () => import('@/views/user/create'),
+        name: 'CreateUser',
+        meta: { title: 'createUser', icon: 'add' }
+      },
+      {
+        path: 'edit/:id(\\d+)',
+        component: () => import('@/views/user/edit'),
+        name: 'EditUser',
+        meta: { title: 'editUser', noCache: true, activeMenu: '/user/list' },
+        hidden: true
       }
     ]
   },

@@ -64,6 +64,8 @@ export default {
     externalLink: 'External Link',
     profile: 'Profile',
     user: 'User',
+    createUser: 'Create User',
+    editUser: 'Edit User',
     post: 'Post',
     createPost: 'Create Post',
     editPost: 'Edit Post',

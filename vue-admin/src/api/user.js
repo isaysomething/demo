@@ -22,10 +22,17 @@ export function logout() {
   })
 }
 
-export function fetchList(query) {
+export function queryUsers(query) {
   return request({
     url: '/users',
     method: 'get',
     params: query
+  })
+}
+
+export function deleteUser(id) {
+  return request({
+    url: `/users/${id}`,
+    method: 'delete'
   })
 }

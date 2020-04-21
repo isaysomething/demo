@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/casbin/casbin/v2"
@@ -37,6 +38,7 @@ func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 	router.Post("/user/logout", r.logout)
 	router.Get("/users", r.query)
 	router.Get("/users/:id", r.get)
+	router.Delete("/users/:id", r.delete)
 }
 
 func (r *Resource) query(ctx *clevergo.Context) (err error) {
@@ -54,6 +56,16 @@ func (r *Resource) query(ctx *clevergo.Context) (err error) {
 
 func (r *Resource) get(ctx *clevergo.Context) error {
 	return nil
+}
+
+func (r *Resource) delete(ctx *clevergo.Context) error {
+	id := ctx.Params.String("id")
+	user, _ := r.User(ctx)
+	if user.GetIdentity().GetID() == id {
+		return errors.New("you cannot delete your account")
+	}
+
+	return ctx.JSON(http.StatusOK, jsend.New(nil))
 }
 
 func (r *Resource) login(ctx *clevergo.Context) error {

@@ -64,6 +64,8 @@ export default {
     externalLink: '外链',
     profile: '个人中心',
     user: '用户',
+    createUser: '创建用户',
+    editUser: '编辑用户',
     post: '文章',
     createPost: '创建文章',
     editPost: '编辑文章',
