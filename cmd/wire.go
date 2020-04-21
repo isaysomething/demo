@@ -3,6 +3,7 @@
 package cmd
 
 import (
+	"github.com/clevergo/demo/internal/controllers/captcha"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
@@ -24,6 +25,7 @@ var superSet = wire.NewSet(
 	core.MiddlewareSet,
 
 	core.NewRenderer,
+	captcha.New,
 )
 
 func initializeServer() (*core.Server, func(), error) {

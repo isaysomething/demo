@@ -6,12 +6,12 @@ import (
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/demo/internal/api/post"
 	"github.com/clevergo/demo/internal/api/user"
+	"github.com/clevergo/demo/internal/controllers/captcha"
 	"github.com/clevergo/form"
 
 	"github.com/clevergo/auth"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
-	"github.com/clevergo/demo/internal/controllers"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/log"
 	"github.com/google/wire"
@@ -55,6 +55,7 @@ func provideAPIServer(
 	authzMidware api.AuthzMiddleware,
 	userResource *user.Resource,
 	postResource *post.Resource,
+	captchaCtl *captcha.Captcha,
 ) *core.Server {
 	router := clevergo.NewRouter()
 	router.Decoder = form.New()
@@ -68,7 +69,7 @@ func provideAPIServer(
 	v1 := router.Group("/v1")
 	postResource.RegisterRoutes(v1)
 	userResource.RegisterRoutes(v1)
-	controllers.RegisterCaptcha(v1, captchaManager)
+	captchaCtl.RegisterRoutes(v1)
 
 	srv := core.NewServer(router, logger)
 	srv.Addr = cfg.API.Addr

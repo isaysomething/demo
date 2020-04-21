@@ -13,10 +13,10 @@ import (
 	"github.com/clevergo/jetrenderer"
 	"github.com/gorilla/csrf"
 
+	"github.com/clevergo/demo/internal/controllers/captcha"
 	"github.com/clevergo/demo/internal/frontend/controllers"
 
 	"github.com/clevergo/captchas"
-	commonctlrs "github.com/clevergo/demo/internal/controllers"
 
 	"github.com/CloudyKit/jet/v3"
 	"github.com/clevergo/clevergo"
@@ -30,6 +30,8 @@ import (
 
 var frontendSet = wire.NewSet(
 	frontend.New,
+	controllers.NewSite,
+	controllers.NewUser,
 )
 
 func provideServer(router *clevergo.Router, logger log.Logger) *core.Server {
@@ -49,6 +51,9 @@ func provideRouter(
 	minifyMidware core.MinifyMiddleware,
 	loggingMiddleware core.LoggingMiddleware,
 	renderer *jetrenderer.Renderer,
+	captchaCtl *captcha.Captcha,
+	siteCtl *controllers.Site,
+	userCtl *controllers.User,
 ) *clevergo.Router {
 	router := clevergo.NewRouter()
 	router.NotFound = http.FileServer(packr.New("public", cfg.HTTP.Root))
@@ -107,9 +112,9 @@ func provideRouter(
 	})
 
 	router.ServeFiles("/static/*filepath", packr.New("frontend", path.Join(cfg.View.Path, "static")))
-	commonctlrs.RegisterCaptcha(router, captchaManager)
-	controllers.RegisterSite(router, app, captchaManager)
-	controllers.RegisterUser(router, app, captchaManager)
+	captchaCtl.RegisterRoutes(router)
+	siteCtl.RegisterRoutes(router)
+	userCtl.RegisterRoutes(router)
 
 	return router
 }

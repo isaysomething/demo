@@ -1,4 +1,4 @@
-package controllers
+package captcha
 
 import (
 	"net/http"
@@ -9,22 +9,27 @@ import (
 	"github.com/clevergo/jsend"
 )
 
-func RegisterCaptcha(router clevergo.IRouter, manager *captchas.Manager) {
-	c := &captcha{manager}
-	router.Post("/captcha", c.generate, clevergo.RouteName("captcha"))
-	router.Post("/check-captcha", c.verify)
-}
-
-type captchaForm struct {
+type form struct {
 	ID      string `json:"id"`
 	Captcha string `json:"captcha"`
 }
 
-type captcha struct {
+type Captcha struct {
 	manager *captchas.Manager
 }
 
-func (c *captcha) generate(ctx *clevergo.Context) error {
+func New(manager *captchas.Manager) *Captcha {
+	return &Captcha{
+		manager: manager,
+	}
+}
+
+func (c *Captcha) RegisterRoutes(router clevergo.IRouter) {
+	router.Post("/captcha", c.generate, clevergo.RouteName("captcha"))
+	router.Post("/check-captcha", c.verify)
+}
+
+func (c *Captcha) generate(ctx *clevergo.Context) error {
 	captcha, err := c.manager.Generate()
 	if err != nil {
 		return err
@@ -36,8 +41,8 @@ func (c *captcha) generate(ctx *clevergo.Context) error {
 	}))
 }
 
-func (c *captcha) verify(ctx *clevergo.Context) error {
-	f := captchaForm{}
+func (c *Captcha) verify(ctx *clevergo.Context) error {
+	f := form{}
 	if err := ctx.Decode(&f); err != nil {
 		return err
 	}

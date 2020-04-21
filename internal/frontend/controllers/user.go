@@ -14,9 +14,20 @@ import (
 	"github.com/clevergo/jsend"
 )
 
+type User struct {
+	*frontend.Application
+	captchaManager *captchas.Manager
+}
+
 // NewUser returns a user controller.
-func RegisterUser(router clevergo.IRouter, app *frontend.Application, captchaManager *captchas.Manager) {
-	u := &user{app, captchaManager}
+func NewUser(app *frontend.Application, captchaManager *captchas.Manager) *User {
+	return &User{
+		Application:    app,
+		captchaManager: captchaManager,
+	}
+}
+
+func (u *User) RegisterRoutes(router clevergo.IRouter) {
 	router.Get("/user", u.index, clevergo.RouteName("user"))
 	router.Get("/login", u.login, clevergo.RouteName("login"))
 	router.Post("/login", u.login)
@@ -35,12 +46,7 @@ func RegisterUser(router clevergo.IRouter, app *frontend.Application, captchaMan
 	router.Post("/user/change-password", u.changePassword, clevergo.RouteName("change-password"))
 }
 
-type user struct {
-	*frontend.Application
-	captchaManager *captchas.Manager
-}
-
-func (u *user) index(ctx *clevergo.Context) error {
+func (u *User) index(ctx *clevergo.Context) error {
 	user, _ := u.User(ctx)
 	if user.IsGuest() {
 		ctx.Redirect("/login", http.StatusFound)
@@ -51,7 +57,7 @@ func (u *user) index(ctx *clevergo.Context) error {
 }
 
 // Login displays login page and handle login request.
-func (u *user) login(ctx *clevergo.Context) error {
+func (u *User) login(ctx *clevergo.Context) error {
 	user, _ := u.User(ctx)
 	if !user.IsGuest() {
 		ctx.Redirect("/", http.StatusFound)
@@ -70,7 +76,7 @@ func (u *user) login(ctx *clevergo.Context) error {
 	return ctx.Render(http.StatusOK, "user/login.tmpl", nil)
 }
 
-func (u *user) checkUsername(ctx *clevergo.Context) error {
+func (u *User) checkUsername(ctx *clevergo.Context) error {
 	f := forms.NewCheckUsername(u.DB())
 	err := ctx.Decode(f)
 	if err != nil {
@@ -83,7 +89,7 @@ func (u *user) checkUsername(ctx *clevergo.Context) error {
 	return jsend.Success(ctx.Response, nil)
 }
 
-func (u *user) checkEmail(ctx *clevergo.Context) error {
+func (u *User) checkEmail(ctx *clevergo.Context) error {
 	f := forms.NewCheckUserEmail(u.DB())
 	err := ctx.Decode(f)
 	if err != nil {
@@ -96,7 +102,7 @@ func (u *user) checkEmail(ctx *clevergo.Context) error {
 	return jsend.Success(ctx.Response, nil)
 }
 
-func (u *user) resendVerificationEmail(ctx *clevergo.Context) error {
+func (u *User) resendVerificationEmail(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
 		form := forms.NewResendVerificationEmail(u.DB(), u.Mailer(), u.captchaManager)
 		if err := form.Handle(ctx); err != nil {
@@ -109,7 +115,7 @@ func (u *user) resendVerificationEmail(ctx *clevergo.Context) error {
 	return ctx.Render(http.StatusOK, "user/resend-verification-email.tmpl", nil)
 }
 
-func (u *user) logout(ctx *clevergo.Context) error {
+func (u *User) logout(ctx *clevergo.Context) error {
 	user, _ := u.User(ctx)
 	if !user.IsGuest() {
 		if err := user.Logout(ctx.Request, ctx.Response); err != nil {
@@ -121,7 +127,7 @@ func (u *user) logout(ctx *clevergo.Context) error {
 	return nil
 }
 
-func (u *user) signup(ctx *clevergo.Context) error {
+func (u *User) signup(ctx *clevergo.Context) error {
 	user, _ := u.User(ctx)
 	if !user.IsGuest() {
 		ctx.Redirect("/", http.StatusFound)
@@ -145,7 +151,7 @@ func (u *user) signup(ctx *clevergo.Context) error {
 	})
 }
 
-func (u *user) verifyEmail(ctx *clevergo.Context) (err error) {
+func (u *User) verifyEmail(ctx *clevergo.Context) (err error) {
 	token := ctx.Request.URL.Query().Get("token")
 	if token == "" {
 		ctx.Redirect("/user/resend-verification-email.tmpl", http.StatusFound)
@@ -165,7 +171,7 @@ func (u *user) verifyEmail(ctx *clevergo.Context) (err error) {
 	return
 }
 
-func (u *user) requestResetPassword(ctx *clevergo.Context) error {
+func (u *User) requestResetPassword(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
 		form := forms.NewRequestResetPassword(u.DB(), u.Mailer(), u.captchaManager)
 		if err := form.Handle(ctx); err != nil {
@@ -178,7 +184,7 @@ func (u *user) requestResetPassword(ctx *clevergo.Context) error {
 	return ctx.Render(http.StatusOK, "user/request-reset-password.tmpl", nil)
 }
 
-func (u *user) resetPassword(ctx *clevergo.Context) error {
+func (u *User) resetPassword(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
 		form := forms.NewResetPassword(u.DB())
 		err := form.Handle(ctx)
@@ -194,7 +200,7 @@ func (u *user) resetPassword(ctx *clevergo.Context) error {
 	})
 }
 
-func (u *user) changePassword(ctx *clevergo.Context) (err error) {
+func (u *User) changePassword(ctx *clevergo.Context) (err error) {
 	user, _ := u.User(ctx)
 	if user.IsGuest() {
 		ctx.Redirect("/login", http.StatusFound)

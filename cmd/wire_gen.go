@@ -9,14 +9,15 @@ import (
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/api/post"
 	"github.com/clevergo/demo/internal/api/user"
+	"github.com/clevergo/demo/internal/controllers/captcha"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/frontend"
+	"github.com/clevergo/demo/internal/frontend/controllers"
 	"github.com/clevergo/demo/pkg/access"
 	"github.com/google/wire"
-)
 
-import (
 	_ "github.com/go-sql-driver/mysql"
+
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
@@ -75,7 +76,10 @@ func initializeServer() (*core.Server, func(), error) {
 	loggingMiddleware := core.NewLoggingMiddleware()
 	viewConfig := provideViewConfig()
 	renderer := core.NewRenderer(viewConfig)
-	router := provideRouter(application, captchasManager, manager, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware, renderer)
+	captchaCaptcha := captcha.New(captchasManager)
+	site := controllers.NewSite(application, captchasManager)
+	user := controllers.NewUser(application, captchasManager)
+	router := provideRouter(application, captchasManager, manager, csrfMiddleware, i18NMiddleware, gzipMiddleware, sessionMiddleware, minifyMiddleware, loggingMiddleware, renderer, captchaCaptcha, site, user)
 	server := provideServer(router, logger)
 	return server, func() {
 		cleanup2()
@@ -124,7 +128,8 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	authzMiddleware := api.NewAuthzMiddleware(enforcer, userManager)
 	resource := user.New(application, captchasManager, jwtManager, enforcer)
 	postResource := post.New(application)
-	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware, authzMiddleware, resource, postResource)
+	captchaCaptcha := captcha.New(captchasManager)
+	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware, authzMiddleware, resource, postResource, captchaCaptcha)
 	return server, func() {
 		cleanup2()
 		cleanup()
@@ -134,5 +139,5 @@ func initializeAPIServer() (*core.Server, func(), error) {
 // wire.go:
 
 var superSet = wire.NewSet(
-	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter, core.NewEnforcer, access.New, core.NewJWTManager, core.MiddlewareSet, core.NewRenderer,
+	configSet, core.NewDB, core.NewSessionStore, core.NewSessionManager, core.NewMailer, core.NewLogger, core.NewAuthenticator, core.NewIdentityStore, core.NewUserManager, core.NewCaptchaStore, core.NewCaptchaManager, core.NewI18N, core.NewFileStore, core.NewI18NLanguageParsers, provideRouter, core.NewEnforcer, access.New, core.NewJWTManager, core.MiddlewareSet, core.NewRenderer, captcha.New,
 )

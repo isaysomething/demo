@@ -13,9 +13,19 @@ import (
 	"github.com/clevergo/jsend"
 )
 
-func RegisterSite(router clevergo.IRouter, app *frontend.Application, captchaManager *captchas.Manager) {
-	s := &site{app, captchaManager}
+type Site struct {
+	*frontend.Application
+	captchaManager *captchas.Manager
+}
 
+func NewSite(app *frontend.Application, captchaManager *captchas.Manager) *Site {
+	return &Site{
+		Application:    app,
+		captchaManager: captchaManager,
+	}
+}
+
+func (s *Site) RegisterRoutes(router clevergo.IRouter) {
 	router.Get("/", s.index, clevergo.RouteName("index"))
 	router.Get("/robots.txt", s.robots)
 	router.Get("/about", s.about, clevergo.RouteName("about"))
@@ -23,20 +33,15 @@ func RegisterSite(router clevergo.IRouter, app *frontend.Application, captchaMan
 	router.Post("/contact", s.contact)
 }
 
-type site struct {
-	*frontend.Application
-	captchaManager *captchas.Manager
+func (s *Site) index(ctx *clevergo.Context) error {
+	return ctx.Render(http.StatusOK, "Site/index.tmpl", nil)
 }
 
-func (s *site) index(ctx *clevergo.Context) error {
-	return ctx.Render(http.StatusOK, "site/index.tmpl", nil)
+func (s *Site) about(ctx *clevergo.Context) error {
+	return ctx.Render(http.StatusOK, "Site/about.tmpl", nil)
 }
 
-func (s *site) about(ctx *clevergo.Context) error {
-	return ctx.Render(http.StatusOK, "site/about.tmpl", nil)
-}
-
-func (s *site) contact(ctx *clevergo.Context) error {
+func (s *Site) contact(ctx *clevergo.Context) error {
 	if ctx.IsPost() {
 		form := forms.NewContact(s.Mailer(), s.captchaManager)
 		if err := form.Handle(ctx); err != nil {
@@ -46,10 +51,10 @@ func (s *site) contact(ctx *clevergo.Context) error {
 		s.AddFlash(ctx, bootstrap.NewSuccessAlert("Thanks for contacting us, we'll get in touch with you as soon as possible."))
 		return jsend.Success(ctx.Response, nil)
 	}
-	return ctx.Render(http.StatusOK, "site/contact.tmpl", core.ViewData{})
+	return ctx.Render(http.StatusOK, "Site/contact.tmpl", core.ViewData{})
 }
 
-func (s *site) robots(ctx *clevergo.Context) error {
+func (s *Site) robots(ctx *clevergo.Context) error {
 	ctx.WriteString(fmt.Sprintf("User-agent: %s\n", "*"))
 	return nil
 }
