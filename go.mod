@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/CloudyKit/jet/v3 v3.0.0
+	github.com/Masterminds/squirrel v1.2.0
 	github.com/NYTimes/gziphandler v1.1.1
 	github.com/alexedwards/scs/redisstore v0.0.0-20200225172727-3308e1066830
 	github.com/alexedwards/scs/v2 v2.3.0

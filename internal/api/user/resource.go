@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/casbin/casbin/v2"
 	"github.com/clevergo/demo/pkg/rest/pagination"
 
@@ -63,6 +64,14 @@ func (r *Resource) delete(ctx *clevergo.Context) error {
 	user, _ := r.User(ctx)
 	if user.GetIdentity().GetID() == id {
 		return errors.New("you cannot delete your account")
+	}
+
+	sql, _, err := squirrel.Delete("users").Where("id=?", id).ToSql()
+	if err != nil {
+		return err
+	}
+	if _, err := r.DB().Exec(sql); err != nil {
+		return err
 	}
 
 	return ctx.JSON(http.StatusOK, jsend.New(nil))
