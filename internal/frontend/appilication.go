@@ -4,7 +4,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
 	"github.com/go-mail/mail"
@@ -17,7 +17,7 @@ type Application struct {
 func New(
 	logger log.Logger,
 	params core.Params,
-	db *db.DB,
+	db *sqlex.DB,
 	sessionManager *scs.SessionManager,
 	userManager *users.Manager,
 	mailer *mail.Dialer,

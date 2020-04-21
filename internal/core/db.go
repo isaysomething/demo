@@ -1,7 +1,7 @@
 package core
 
 import (
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 )
 
 // DBConfig is a database config.
@@ -11,15 +11,15 @@ type DBConfig struct {
 }
 
 // NewDB returns a sqlx.DB with the given config.
-func NewDB(cfg DBConfig) (*db.DB, func(), error) {
-	conn, err := db.Open(cfg.Driver, cfg.DSN)
+func NewDB(cfg DBConfig) (*sqlex.DB, func(), error) {
+	db, err := sqlex.Open(cfg.Driver, cfg.DSN)
 	if err != nil {
 		return nil, nil, err
 	}
-	conn.SetLogger(&db.StdLogger{})
+	db.SetLogger(&sqlex.StdLogger{})
 
-	return conn, func() {
-		if err := conn.Close(); err != nil {
+	return db, func() {
+		if err := db.Close(); err != nil {
 		}
 	}, nil
 }

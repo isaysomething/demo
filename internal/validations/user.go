@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/clevergo/demo/internal/models"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -32,7 +32,7 @@ func UserPassword(user *models.User) validation.RuleFunc {
 }
 
 // IsUsernameTaken validates whether the username was taken.
-func IsUsernameTaken(db *db.DB) validation.RuleFunc {
+func IsUsernameTaken(db *sqlex.DB) validation.RuleFunc {
 	return func(value interface{}) error {
 		username, _ := value.(string)
 		_, err := models.GetUserByUsername(db, username)
@@ -44,7 +44,7 @@ func IsUsernameTaken(db *db.DB) validation.RuleFunc {
 }
 
 // IsUserEmailTaken validates whether the user email was taken.
-func IsUserEmailTaken(db *db.DB) validation.RuleFunc {
+func IsUserEmailTaken(db *sqlex.DB) validation.RuleFunc {
 	return func(value interface{}) error {
 		email, _ := value.(string)
 		if _, err := models.GetUserByEmail(db, email); err == nil || err != sql.ErrNoRows {

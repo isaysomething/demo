@@ -5,18 +5,18 @@ import (
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type ResetPassword struct {
-	db       *db.DB
+	db       *sqlex.DB
 	user     *models.User
 	Token    string `json:"token"`
 	Password string `json:"password"`
 }
 
-func NewResetPassword(db *db.DB) *ResetPassword {
+func NewResetPassword(db *sqlex.DB) *ResetPassword {
 	return &ResetPassword{
 		db: db,
 	}

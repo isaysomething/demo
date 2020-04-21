@@ -7,7 +7,7 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/clevergo/demo/pkg/users"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
@@ -22,7 +22,7 @@ type AfterSignupEvent struct {
 }
 
 type Signup struct {
-	db             *db.DB
+	db             *sqlex.DB
 	user           *users.User
 	captchaManager *captchas.Manager
 	Email          string `json:"email" xml:"email"`
@@ -33,7 +33,7 @@ type Signup struct {
 	onAfterSignup  []func(AfterSignupEvent)
 }
 
-func NewSignup(db *db.DB, user *users.User, captchaManager *captchas.Manager) *Signup {
+func NewSignup(db *sqlex.DB, user *users.User, captchaManager *captchas.Manager) *Signup {
 	return &Signup{
 		db:             db,
 		user:           user,

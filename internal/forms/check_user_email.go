@@ -2,17 +2,17 @@ package forms
 
 import (
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type CheckUserEmail struct {
-	db    *db.DB
+	db    *sqlex.DB
 	Email string `json:"email"`
 }
 
-func NewCheckUserEmail(db *db.DB) *CheckUserEmail {
+func NewCheckUserEmail(db *sqlex.DB) *CheckUserEmail {
 	return &CheckUserEmail{db: db}
 }
 

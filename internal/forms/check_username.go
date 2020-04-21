@@ -2,16 +2,16 @@ package forms
 
 import (
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type CheckUsername struct {
-	db       *db.DB
+	db       *sqlex.DB
 	Username string `json:"username"`
 }
 
-func NewCheckUsername(db *db.DB) *CheckUsername {
+func NewCheckUsername(db *sqlex.DB) *CheckUsername {
 	return &CheckUsername{db: db}
 }
 

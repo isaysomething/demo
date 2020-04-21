@@ -8,7 +8,7 @@ import (
 	"github.com/clevergo/auth"
 	"github.com/clevergo/auth/authenticators"
 	"github.com/clevergo/demo/internal/models"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/clevergo/demo/pkg/users"
 )
 
@@ -20,12 +20,12 @@ func NewUserManager(identityStore auth.IdentityStore, sessionManager *scs.Sessio
 
 // IdentityStore is an identity store.
 type IdentityStore struct {
-	db      *db.DB
+	db      *sqlex.DB
 	manager *JWTManager
 }
 
 // NewIdentityStore returns an identity store instance.
-func NewIdentityStore(db *db.DB, manager *JWTManager) auth.IdentityStore {
+func NewIdentityStore(db *sqlex.DB, manager *JWTManager) auth.IdentityStore {
 	return &IdentityStore{db: db, manager: manager}
 }
 

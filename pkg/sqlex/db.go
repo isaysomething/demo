@@ -1,4 +1,4 @@
-package db
+package sqlex
 
 import (
 	"database/sql"

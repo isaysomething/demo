@@ -9,14 +9,14 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/go-mail/mail"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type RequestResetPassword struct {
-	db             *db.DB
+	db             *sqlex.DB
 	mailer         *mail.Dialer
 	captchaManager *captchas.Manager
 	user           *models.User
@@ -25,7 +25,7 @@ type RequestResetPassword struct {
 	CaptchaID      string `json:"captcha_id"`
 }
 
-func NewRequestResetPassword(db *db.DB, mailer *mail.Dialer, captchaManager *captchas.Manager) *RequestResetPassword {
+func NewRequestResetPassword(db *sqlex.DB, mailer *mail.Dialer, captchaManager *captchas.Manager) *RequestResetPassword {
 	return &RequestResetPassword{
 		db:             db,
 		mailer:         mailer,

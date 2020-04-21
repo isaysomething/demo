@@ -9,14 +9,14 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/go-mail/mail"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type ResendVerificationEmail struct {
-	db             *db.DB
+	db             *sqlex.DB
 	mailer         *mail.Dialer
 	captchaManager *captchas.Manager
 	user           *models.User
@@ -25,7 +25,7 @@ type ResendVerificationEmail struct {
 	CaptchaID      string `valid:"required" json:"captcha_id" xml:"captcha_id"`
 }
 
-func NewResendVerificationEmail(db *db.DB, mailer *mail.Dialer, captchaManager *captchas.Manager) *ResendVerificationEmail {
+func NewResendVerificationEmail(db *sqlex.DB, mailer *mail.Dialer, captchaManager *captchas.Manager) *ResendVerificationEmail {
 	return &ResendVerificationEmail{
 		db:             db,
 		mailer:         mailer,

@@ -6,7 +6,7 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
-	"github.com/clevergo/demo/pkg/db"
+	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/jsend"
 	"github.com/clevergo/log"
@@ -34,7 +34,7 @@ func (app *Application) Error(ctx *clevergo.Context, err error) error {
 func New(
 	logger log.Logger,
 	params core.Params,
-	db *db.DB,
+	db *sqlex.DB,
 	sessionManager *scs.SessionManager,
 	userManager *UserManager,
 	mailer *mail.Dialer,
