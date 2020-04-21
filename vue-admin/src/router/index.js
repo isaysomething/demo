@@ -103,7 +103,7 @@ export const constantRoutes = [
     name: 'Post',
     meta: {
       title: 'post',
-      icon: 'documentation'
+      icon: 'post'
     },
     children: [
       {
