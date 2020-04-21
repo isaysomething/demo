@@ -128,6 +128,37 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/role',
+    component: Layout,
+    redirect: '/role/index',
+    name: 'Role',
+    meta: {
+      title: 'role',
+      icon: 'role'
+    },
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/role/index'),
+        name: 'Role',
+        meta: { title: 'role', icon: 'list', affix: true }
+      },
+      {
+        path: 'create',
+        component: () => import('@/views/role/create'),
+        name: 'CreateRole',
+        meta: { title: 'createRole', icon: 'edit' }
+      },
+      {
+        path: 'edit/:id(\\w+)',
+        component: () => import('@/views/role/edit'),
+        name: 'EditRole',
+        meta: { title: 'editRole', noCache: true, activeMenu: '/role/list' },
+        hidden: true
+      }
+    ]
+  },
+  {
     path: '/documentation',
     component: Layout,
     children: [

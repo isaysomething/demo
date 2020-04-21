@@ -1,6 +1,7 @@
 package authz
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/casbin/casbin/v2"
@@ -41,6 +42,23 @@ func (r *Resource) updateRole(ctx *clevergo.Context) error {
 	return nil
 }
 
+var reservedRoles = []string{"admin", "user"}
+
 func (r *Resource) deleteRole(ctx *clevergo.Context) error {
+	name := ctx.Params.String("name")
+	for _, role := range reservedRoles {
+		if name == role {
+			return fmt.Errorf("role %q is reserved, you cannot delete it", name)
+		}
+	}
+
+	ok, err := r.enforcer.DeleteRole(name)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("failed to delete role %q", name)
+	}
+
 	return nil
 }
