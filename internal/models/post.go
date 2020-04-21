@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/clevergo/demo/pkg/db"
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -35,7 +35,7 @@ func (p *Post) Validate() error {
 	)
 }
 
-func (p *Post) Save(db *sqlx.DB) (err error) {
+func (p *Post) Save(db *db.DB) (err error) {
 	if err = p.Validate(); err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (p *Post) Save(db *sqlx.DB) (err error) {
 	return
 }
 
-func (p *Post) Update(db *sqlx.DB) error {
+func (p *Post) Update(db *db.DB) error {
 	if err := p.Validate(); err != nil {
 		return err
 	}
@@ -70,23 +70,23 @@ func (p *Post) Update(db *sqlx.DB) error {
 	return nil
 }
 
-func (p *Post) Delete(db *sqlx.DB) error {
+func (p *Post) Delete(db *db.DB) error {
 	_, err := db.Exec("DELETE FROM posts WHERE id = ?", p.ID)
 	return err
 }
 
-func GetPostsCount(db *sqlx.DB) (count int, err error) {
+func GetPostsCount(db *db.DB) (count int, err error) {
 	err = db.Get(&count, "SELECT count(*) FROM posts")
 	return
 }
 
-func GetPosts(db *sqlx.DB, limit, offset int) (posts []Post, err error) {
+func GetPosts(db *db.DB, limit, offset int) (posts []Post, err error) {
 	posts = []Post{}
 	err = db.Select(&posts, "SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?", limit, offset)
 	return
 }
 
-func GetPost(db *sqlx.DB, id int64) (*Post, error) {
+func GetPost(db *db.DB, id int64) (*Post, error) {
 	post := new(Post)
 	err := db.Get(post, "SELECT * FROM posts WHERE id=?", id)
 	return post, err

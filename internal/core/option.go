@@ -3,16 +3,16 @@ package core
 import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/demo/pkg/access"
+	"github.com/clevergo/demo/pkg/db"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
 	"github.com/eko/gocache/store"
 	"github.com/go-mail/mail"
-	"github.com/jmoiron/sqlx"
 )
 
 type Option func(*Application)
 
-func SetDB(db *sqlx.DB) Option {
+func SetDB(db *db.DB) Option {
 	return func(app *Application) {
 		app.db = db
 	}

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/clevergo/demo/internal/models"
-	"github.com/jmoiron/sqlx"
+	"github.com/clevergo/demo/pkg/db"
 )
 
 type Form struct {
@@ -14,7 +14,7 @@ type Form struct {
 	Status  int    `json:"status"`
 }
 
-func (f *Form) Create(db *sqlx.DB) (p *models.Post, err error) {
+func (f *Form) Create(db *db.DB) (p *models.Post, err error) {
 	now := time.Now()
 	p = &models.Post{
 		Title:     f.Title,
@@ -27,7 +27,7 @@ func (f *Form) Create(db *sqlx.DB) (p *models.Post, err error) {
 	return
 }
 
-func (f *Form) Update(db *sqlx.DB, p *models.Post) (err error) {
+func (f *Form) Update(db *db.DB, p *models.Post) (err error) {
 	now := time.Now()
 	p.Title = f.Title
 	p.Content = f.Content

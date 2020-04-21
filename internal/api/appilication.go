@@ -6,11 +6,11 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/pkg/access"
+	"github.com/clevergo/demo/pkg/db"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/jsend"
 	"github.com/clevergo/log"
 	"github.com/go-mail/mail"
-	"github.com/jmoiron/sqlx"
 )
 
 // Application API application.
@@ -34,7 +34,7 @@ func (app *Application) Error(ctx *clevergo.Context, err error) error {
 func New(
 	logger log.Logger,
 	params core.Params,
-	db *sqlx.DB,
+	db *db.DB,
 	sessionManager *scs.SessionManager,
 	userManager *UserManager,
 	mailer *mail.Dialer,

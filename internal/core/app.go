@@ -5,11 +5,11 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/pkg/access"
+	"github.com/clevergo/demo/pkg/db"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/clevergo/log"
 	"github.com/eko/gocache/store"
 	"github.com/go-mail/mail"
-	"github.com/jmoiron/sqlx"
 )
 
 type BeforeRenderEvent struct {
@@ -22,7 +22,7 @@ type BeforeRenderEvent struct {
 
 type Application struct {
 	cache          store.StoreInterface
-	db             *sqlx.DB
+	db             *db.DB
 	logger         log.Logger
 	sessionManager *scs.SessionManager
 	mailer         *mail.Dialer
@@ -41,7 +41,7 @@ func New(opts ...Option) *Application {
 	return app
 }
 
-func (app *Application) DB() *sqlx.DB {
+func (app *Application) DB() *db.DB {
 	return app.db
 }
 

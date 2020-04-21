@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/clevergo/demo/pkg/db"
 	"github.com/clevergo/strutil"
-	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -62,7 +62,7 @@ func (u *User) ValidateVerificationToken(duration int64) error {
 	return validateToken(u.VerificationToken.String, duration)
 }
 
-func (u *User) VerifyEmail(db *sqlx.DB) error {
+func (u *User) VerifyEmail(db *db.DB) error {
 	_, err := db.NamedExec("UPDATE users SET verification_token=null, status=:status WHERE id=:id", map[string]interface{}{
 		"status": UserStatusActive,
 		"id":     u.ID,
@@ -71,7 +71,7 @@ func (u *User) VerifyEmail(db *sqlx.DB) error {
 	return err
 }
 
-func (u *User) UpdatePassword(db *sqlx.DB, password string) error {
+func (u *User) UpdatePassword(db *db.DB, password string) error {
 	password, err := generatePassword(password)
 	if err != nil {
 		return err
@@ -88,7 +88,7 @@ func (u *User) UpdatePassword(db *sqlx.DB, password string) error {
 	return err
 }
 
-func (u *User) GeneratePasswordResetToken(db *sqlx.DB) error {
+func (u *User) GeneratePasswordResetToken(db *db.DB) error {
 	token := generateToken(64)
 	_, err := db.NamedExec(
 		"UPDATE users SET password_reset_token=:token, updated_at=:updated_at WHERE id = :id",
@@ -107,7 +107,7 @@ func (u *User) GeneratePasswordResetToken(db *sqlx.DB) error {
 	return nil
 }
 
-func (u *User) GenerateVerificationToken(db *sqlx.DB) error {
+func (u *User) GenerateVerificationToken(db *db.DB) error {
 	token := generateToken(64)
 	_, err := db.NamedExec(
 		"UPDATE users SET verification_token=:token, updated_at=:updated_at WHERE id = :id",
@@ -134,7 +134,7 @@ func generatePassword(password string) (string, error) {
 	return string(hashed), nil
 }
 
-func CreateUser(db *sqlx.DB, username, email, password string) (*User, error) {
+func CreateUser(db *db.DB, username, email, password string) (*User, error) {
 	hashedPassword, err := generatePassword(password)
 	if err != nil {
 		return nil, err
@@ -159,31 +159,31 @@ func CreateUser(db *sqlx.DB, username, email, password string) (*User, error) {
 	return GetUser(db, id)
 }
 
-func GetUser(db *sqlx.DB, id interface{}) (*User, error) {
+func GetUser(db *db.DB, id interface{}) (*User, error) {
 	user := &User{}
 	err := db.Get(user, "SELECT * FROM users WHERE id=?", id)
 	return user, err
 }
 
-func GetUserByUsername(db *sqlx.DB, username string) (*User, error) {
+func GetUserByUsername(db *db.DB, username string) (*User, error) {
 	u := &User{}
 	err := db.Get(u, "SELECT * FROM users WHERE username=?", username)
 	return u, err
 }
 
-func GetUserByEmail(db *sqlx.DB, email string) (*User, error) {
+func GetUserByEmail(db *db.DB, email string) (*User, error) {
 	user := &User{}
 	err := db.Get(user, "SELECT * FROM users WHERE email=?", email)
 	return user, err
 }
 
-func GetUserByVerificationToken(db *sqlx.DB, token string) (*User, error) {
+func GetUserByVerificationToken(db *db.DB, token string) (*User, error) {
 	user := &User{}
 	err := db.Get(user, "SELECT * FROM users WHERE verification_token=?", token)
 	return user, err
 }
 
-func GetUserByPasswordResetToken(db *sqlx.DB, token string) (*User, error) {
+func GetUserByPasswordResetToken(db *db.DB, token string) (*User, error) {
 	user := &User{}
 	err := db.Get(user, "SELECT * FROM users WHERE password_reset_token=?", token)
 	return user, err
@@ -215,13 +215,13 @@ func validateToken(token string, duration int64) error {
 	return errors.New("token expired")
 }
 
-func GetUsers(db *sqlx.DB, limit, offset int) (users []User, err error) {
+func GetUsers(db *db.DB, limit, offset int) (users []User, err error) {
 	users = []User{}
 	err = db.Select(&users, "SELECT * FROM users ORDER BY id ASC LIMIT ? OFFSET ?", limit, offset)
 	return
 }
 
-func GetUsersCount(db *sqlx.DB) (count int, err error) {
+func GetUsersCount(db *db.DB) (count int, err error) {
 	err = db.Get(&count, "SELECT count(*) FROM users")
 	return
 }

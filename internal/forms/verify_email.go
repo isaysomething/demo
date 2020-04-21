@@ -3,17 +3,17 @@ package forms
 import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/pkg/db"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/jmoiron/sqlx"
 )
 
 type VerifyEmail struct {
-	db    *sqlx.DB
+	db    *db.DB
 	user  *models.User
 	Token string `json:"token"`
 }
 
-func NewVerifyEmail(db *sqlx.DB) *VerifyEmail {
+func NewVerifyEmail(db *db.DB) *VerifyEmail {
 	return &VerifyEmail{
 		db: db,
 	}

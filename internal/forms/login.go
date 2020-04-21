@@ -8,15 +8,15 @@ import (
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/internal/validations"
+	"github.com/clevergo/demo/pkg/db"
 	"github.com/clevergo/demo/pkg/users"
 	"github.com/go-ozzo/ozzo-validation/is"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/jmoiron/sqlx"
 )
 
 // Login is a login form.
 type Login struct {
-	db             *sqlx.DB
+	db             *db.DB
 	user           *users.User
 	identity       *models.User
 	captchaManager *captchas.Manager
@@ -27,7 +27,7 @@ type Login struct {
 }
 
 // NewLogin returns a login form.
-func NewLogin(db *sqlx.DB, user *users.User, captchaManager *captchas.Manager) *Login {
+func NewLogin(db *db.DB, user *users.User, captchaManager *captchas.Manager) *Login {
 	return &Login{
 		db:             db,
 		user:           user,
