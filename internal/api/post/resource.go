@@ -5,18 +5,19 @@ import (
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
-	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/pkg/rest/pagination"
 	"github.com/clevergo/jsend"
 )
 
 type Resource struct {
 	*api.Application
+	service Service
 }
 
-func New(app *api.Application) *Resource {
+func New(app *api.Application, service Service) *Resource {
 	return &Resource{
 		Application: app,
+		service:     service,
 	}
 }
 
@@ -31,11 +32,11 @@ func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 func (r *Resource) query(ctx *clevergo.Context) (err error) {
 	p := pagination.NewFromContext(ctx)
 
-	p.Items, err = models.GetPosts(r.DB(), p.Limit, p.Offset())
+	p.Items, err = r.service.Query(p.Limit, p.Offset())
 	if err != nil {
 		return err
 	}
-	p.Total, err = models.GetPostsCount(r.DB())
+	p.Total, err = r.service.Count()
 	if err != nil {
 		return err
 	}
@@ -48,7 +49,7 @@ func (r *Resource) get(ctx *clevergo.Context) error {
 	if err != nil {
 		return err
 	}
-	post, err := models.GetPost(r.DB(), id)
+	post, err := r.service.Get(id)
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 
@@ -57,7 +58,7 @@ func (r *Resource) create(ctx *clevergo.Context) error {
 	if err := ctx.Decode(form); err != nil {
 		return err
 	}
-	post, err := form.Create(r.DB())
+	post, err := r.service.Create(form)
 	if err != nil {
 		return err
 	}
@@ -65,15 +66,16 @@ func (r *Resource) create(ctx *clevergo.Context) error {
 }
 
 func (r *Resource) update(ctx *clevergo.Context) error {
+	id, err := ctx.Params.Int64("id")
+	if err != nil {
+		return err
+	}
 	form := new(Form)
 	if err := ctx.Decode(form); err != nil {
 		return err
 	}
-	post, err := r.getPost(ctx)
+	post, err := r.service.Update(id, form)
 	if err != nil {
-		return err
-	}
-	if err = form.Update(r.DB(), post); err != nil {
 		return err
 	}
 
@@ -81,20 +83,13 @@ func (r *Resource) update(ctx *clevergo.Context) error {
 }
 
 func (r *Resource) delete(ctx *clevergo.Context) error {
-	post, err := r.getPost(ctx)
+	id, err := ctx.Params.Int64("id")
 	if err != nil {
 		return err
 	}
-	if err := post.Delete(r.DB()); err != nil {
+	err = r.service.Delete(id)
+	if err != nil {
 		return err
 	}
 	return ctx.JSON(http.StatusOK, jsend.New(nil))
-}
-
-func (r *Resource) getPost(ctx *clevergo.Context) (*models.Post, error) {
-	id, err := ctx.Params.Int64("id")
-	if err != nil {
-		return nil, err
-	}
-	return models.GetPost(r.DB(), id)
 }

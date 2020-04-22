@@ -42,7 +42,7 @@ var apiSet = wire.NewSet(
 	api.NewAuthzMiddleware,
 
 	user.New,
-	post.New,
+	post.Set,
 	authz.New,
 )
 

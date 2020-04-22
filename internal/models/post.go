@@ -75,17 +75,6 @@ func (p *Post) Delete(db *sqlex.DB) error {
 	return err
 }
 
-func GetPostsCount(db *sqlex.DB) (count int, err error) {
-	err = db.Get(&count, "SELECT count(*) FROM posts")
-	return
-}
-
-func GetPosts(db *sqlex.DB, limit, offset int) (posts []Post, err error) {
-	posts = []Post{}
-	err = db.Select(&posts, "SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?", limit, offset)
-	return
-}
-
 func GetPost(db *sqlex.DB, id int64) (*Post, error) {
 	post := new(Post)
 	err := db.Get(post, "SELECT * FROM posts WHERE id=?", id)
