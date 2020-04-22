@@ -2,16 +2,19 @@ package post
 
 import (
 	"database/sql"
+	"strconv"
 	"time"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/clevergo/clevergo"
+	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/pkg/sqlex"
 )
 
 type Service interface {
 	Get(id int64) (*models.Post, error)
-	Create(form *Form) (*models.Post, error)
+	Create(*clevergo.Context) (*models.Post, error)
 	Count() (int, error)
 	Query(limit, offset int) ([]models.Post, error)
 	Update(id int64, form *Form) (*models.Post, error)
@@ -19,12 +22,14 @@ type Service interface {
 }
 
 type service struct {
-	db *sqlex.DB
+	db          *sqlex.DB
+	userManager *api.UserManager
 }
 
-func NewService(db *sqlex.DB) Service {
+func NewService(db *sqlex.DB, userManager *api.UserManager) Service {
 	return &service{
-		db: db,
+		db:          db,
+		userManager: userManager,
 	}
 }
 
@@ -39,10 +44,17 @@ func (s *service) Get(id int64) (post *models.Post, err error) {
 	return
 }
 
-func (s *service) Create(form *Form) (post *models.Post, err error) {
+func (s *service) Create(ctx *clevergo.Context) (post *models.Post, err error) {
+	user, _ := s.userManager.Get(ctx.Request, ctx.Response)
+	userID, _ := strconv.ParseInt(user.GetIdentity().GetID(), 10, 64)
+	form := new(Form)
+	if err := ctx.Decode(form); err != nil {
+		return nil, err
+	}
 	now := time.Now()
 	post = &models.Post{
 		Title:     form.Title,
+		UserID:    userID,
 		Content:   form.Content,
 		Status:    form.Status,
 		CreatedAt: now,

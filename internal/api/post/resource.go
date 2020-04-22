@@ -54,11 +54,7 @@ func (r *Resource) get(ctx *clevergo.Context) error {
 }
 
 func (r *Resource) create(ctx *clevergo.Context) error {
-	form := new(Form)
-	if err := ctx.Decode(form); err != nil {
-		return err
-	}
-	post, err := r.service.Create(form)
+	post, err := r.service.Create(ctx)
 	if err != nil {
 		return err
 	}
