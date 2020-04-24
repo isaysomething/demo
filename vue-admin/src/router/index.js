@@ -8,8 +8,6 @@ import Layout from '@/layout'
 
 /* Router Modules */
 import componentsRouter from './modules/components'
-import chartsRouter from './modules/charts'
-import tableRouter from './modules/table'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -254,21 +252,6 @@ export const asyncRoutes = [
 
   /** when your routing map is too long, you can split it into small modules **/
   componentsRouter,
-  chartsRouter,
-  tableRouter,
-
-  {
-    path: '/tab',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/tab/index'),
-        name: 'Tab',
-        meta: { title: 'tab', icon: 'tab' }
-      }
-    ]
-  },
 
   {
     path: '/error',
@@ -304,19 +287,6 @@ export const asyncRoutes = [
         component: () => import('@/views/error-log/index'),
         name: 'ErrorLog',
         meta: { title: 'errorLog', icon: 'bug' }
-      }
-    ]
-  },
-
-  {
-    path: '/theme',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/theme/index'),
-        name: 'Theme',
-        meta: { title: 'theme', icon: 'theme' }
       }
     ]
   },
