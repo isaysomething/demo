@@ -1,5 +1,16 @@
 <template>
   <div class="app-container">
+
+    <div class="filter-container">
+      <el-input v-model="listQuery.title" :placeholder="$t('table.title')" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+        {{ $t('table.search') }}
+      </el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
+        {{ $t('table.add') }}
+      </el-button>
+    </div>
+
     <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
       <el-table-column align="center" label="ID" width="80">
         <template slot-scope="scope">
@@ -84,6 +95,10 @@ export default {
       deletePost(id).then(response => {
         this.getList()
       })
+    },
+    handleFilter() {
+      this.listQuery.page = 1
+      this.getList()
     }
   }
 }

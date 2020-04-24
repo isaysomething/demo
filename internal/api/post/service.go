@@ -2,6 +2,7 @@ package post
 
 import (
 	"database/sql"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -16,7 +17,7 @@ type Service interface {
 	Get(id int64) (*models.Post, error)
 	Create(*clevergo.Context) (*models.Post, error)
 	Count() (int, error)
-	Query(limit, offset int) ([]models.Post, error)
+	Query(ctx *clevergo.Context, limit, offset int) ([]models.Post, error)
 	Update(id int64, form *Form) (*models.Post, error)
 	Delete(id int64) error
 }
@@ -88,8 +89,14 @@ func (s *service) Count() (count int, err error) {
 	return
 }
 
-func (s *service) Query(limit, offset int) ([]models.Post, error) {
-	sql, args, err := squirrel.Select("*").From("posts").ToSql()
+func (s *service) Query(ctx *clevergo.Context, limit, offset int) ([]models.Post, error) {
+	query := squirrel.Select("*").From("posts")
+
+	if title := ctx.QueryParam("title"); title != "" {
+		query = query.Where(squirrel.Like{"title": fmt.Sprintf("%%%s%%", title)})
+	}
+
+	sql, args, err := query.ToSql()
 	if err != nil {
 		return nil, err
 	}

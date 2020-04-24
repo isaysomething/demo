@@ -32,7 +32,7 @@ func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 func (r *Resource) query(ctx *clevergo.Context) (err error) {
 	p := pagination.NewFromContext(ctx)
 
-	p.Items, err = r.service.Query(p.Limit, p.Offset())
+	p.Items, err = r.service.Query(ctx, p.Limit, p.Offset())
 	if err != nil {
 		return err
 	}
