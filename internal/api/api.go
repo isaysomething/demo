@@ -33,3 +33,15 @@ func (qp QueryParams) Validate() error {
 		validation.Field(&qp.Direction, validation.In("asc", "desc")),
 	)
 }
+
+func (qp QueryParams) OrderBy() string {
+	if qp.Sort == "" {
+		return ""
+	}
+	orderBy := qp.Sort
+	if qp.Direction != "" {
+		orderBy += " " + qp.Direction
+	}
+
+	return orderBy
+}

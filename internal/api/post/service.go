@@ -102,7 +102,9 @@ func (s *service) Query(limit, offset int, qps *QueryParams) ([]models.Post, err
 	if qps.State != "" {
 		query = query.Where(squirrel.Eq{"state": qps.StateNumber()})
 	}
-	query = query.OrderBy(qps.OrderBy())
+	if orderBy := qps.OrderBy(); orderBy != "" {
+		query = query.OrderBy(orderBy)
+	}
 
 	sql, args, err := query.ToSql()
 	if err != nil {

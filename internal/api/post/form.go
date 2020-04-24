@@ -32,7 +32,3 @@ func (qp QueryParams) StateNumber() int {
 
 	return models.PostStateDraft
 }
-
-func (qp QueryParams) OrderBy() string {
-	return qp.Sort + " " + qp.Direction
-}
