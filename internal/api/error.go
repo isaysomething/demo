@@ -2,6 +2,7 @@ package api
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/jsend"
@@ -15,7 +16,11 @@ func NewErrorHandler() *ErrorHandler {
 }
 
 func (h *ErrorHandler) Handle(ctx *clevergo.Context, err error) {
-	if err = jsend.Error(ctx.Response, err.Error()); err != nil {
+	status := http.StatusOK
+	if e, ok := err.(clevergo.Error); ok {
+		status = e.Status()
+	}
+	if err = ctx.JSON(status, jsend.NewError(err.Error(), 0, nil)); err != nil {
 		log.Println(err)
 	}
 }
