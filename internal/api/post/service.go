@@ -17,7 +17,7 @@ type Service interface {
 	Get(id int64) (*models.Post, error)
 	Create(*clevergo.Context) (*models.Post, error)
 	Count() (int, error)
-	Query(ctx *clevergo.Context, limit, offset int) ([]models.Post, error)
+	Query(limit, offset int, qps *QueryParams) ([]models.Post, error)
 	Update(id int64, form *Form) (*models.Post, error)
 	Delete(id int64) error
 }
@@ -94,18 +94,15 @@ var states = map[string]int{
 	"draft":     models.PostStateDraft,
 }
 
-func (s *service) Query(ctx *clevergo.Context, limit, offset int) ([]models.Post, error) {
+func (s *service) Query(limit, offset int, qps *QueryParams) ([]models.Post, error) {
 	query := squirrel.Select("*").From("posts")
-
-	if title := ctx.QueryParam("title"); title != "" {
-		query = query.Where(squirrel.Like{"title": fmt.Sprintf("%%%s%%", title)})
+	if qps.Title != "" {
+		query = query.Where(squirrel.Like{"title": fmt.Sprintf("%%%s%%", qps.Title)})
 	}
-	if state, ok := states[ctx.QueryParam("state")]; ok {
-		query = query.Where(squirrel.Eq{"state": state})
+	if qps.State != "" {
+		query = query.Where(squirrel.Eq{"state": qps.StateNumber()})
 	}
-	sort := ctx.DefaultQuery("sort", "desc")
-	direction := ctx.DefaultQuery("direction", "created_at")
-	query = query.OrderBy(sort + " " + direction)
+	query = query.OrderBy(qps.OrderBy())
 
 	sql, args, err := query.ToSql()
 	if err != nil {
