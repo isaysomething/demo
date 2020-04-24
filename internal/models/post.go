@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	PostStateDraft     = 0
-	PostStatePublished = 1
+	PostStateDeleted   = 0
+	PostStateDraft     = 1
+	PostStatePublished = 2
 
 	PostTypePost     = 1
 	PostTypePage     = 2

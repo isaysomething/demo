@@ -153,7 +153,7 @@ export default {
       console.log(this.postForm)
       this.$refs.postForm.validate(valid => {
         if (valid) {
-          this.postForm.state = 1
+          this.postForm.state = 2
           this.createPost()
         } else {
           console.log('error submit!!')
@@ -169,7 +169,7 @@ export default {
         })
         return
       }
-      this.postForm.state = 0
+      this.postForm.state = 1
       this.createPost()
     }
   }

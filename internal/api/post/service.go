@@ -94,7 +94,7 @@ var states = map[string]int{
 }
 
 func (s *service) Query(limit, offset int, qps *QueryParams) ([]models.Post, error) {
-	query := squirrel.Select("*").From("posts")
+	query := squirrel.Select("*").From("posts").Where(squirrel.NotEq{"state": models.PostStateDeleted})
 	if qps.Title != "" {
 		query = query.Where(squirrel.Like{"title": fmt.Sprintf("%%%s%%", qps.Title)})
 	}
@@ -120,9 +120,11 @@ func (s *service) Delete(id int64) error {
 	if err != nil {
 		return err
 	}
-	sql, args, err := squirrel.Delete("posts").Where(squirrel.Eq{
-		"id": id,
-	}).ToSql()
+	sql, args, err := squirrel.Update("posts").
+		Set("state", models.PostStateDeleted).
+		Where(squirrel.Eq{
+			"id": id,
+		}).ToSql()
 	if err != nil {
 		return err
 	}
