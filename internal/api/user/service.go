@@ -38,7 +38,7 @@ func (s *service) Query(limit, offset int, qps *QueryParams) (users []models.Use
 		query = query.Where(squirrel.Like{"email": "%" + qps.Email + "%"})
 	}
 	if qps.State != "" {
-		query = query.Where(squirrel.Eq{"state": qps.StateNumber()})
+		query = query.Where(squirrel.Eq{"state": qps.State})
 	}
 	if orderBy := qps.OrderBy(); orderBy != "" {
 		query = query.OrderBy(orderBy)

@@ -2,8 +2,8 @@ package user
 
 import (
 	"github.com/clevergo/demo/internal/api"
-	"github.com/clevergo/demo/internal/models"
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type QueryParams struct {
@@ -16,14 +16,6 @@ type QueryParams struct {
 func (qp QueryParams) Validate() error {
 	return validation.ValidateStruct(&qp,
 		validation.Field(&qp.Sort, validation.Required, validation.In("created_at", "updated_at")),
-		validation.Field(&qp.State, validation.In("active", "inactive")),
+		validation.Field(&qp.State, is.Digit),
 	)
-}
-
-func (qp QueryParams) StateNumber() int {
-	if qp.State == "inactive" {
-		return models.UserStateInactive
-	}
-
-	return models.UserStateActive
 }

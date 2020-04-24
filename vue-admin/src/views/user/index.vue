@@ -96,8 +96,8 @@ export default {
         direction: 'asc'
       },
       stateOptions: [
-        { value: 'active', label: this.$t('user.active') },
-        { value: 'inactive', label: this.$t('user.inactive') }
+        { value: UserStates.ACTIVE, label: this.$t('user.active') },
+        { value: UserStates.INACTIVE, label: this.$t('user.inactive') }
       ],
       sortOptions: [
         { value: 'created_at', label: this.$t('table.created_at') },
