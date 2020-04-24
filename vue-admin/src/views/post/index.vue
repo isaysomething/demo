@@ -3,6 +3,9 @@
 
     <div class="filter-container">
       <el-input v-model="listQuery.title" :placeholder="$t('table.title')" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select v-model="listQuery.state" :placeholder="$t('table.state')" clearable class="filter-item" style="width: 130px">
+        <el-option v-for="(value, key) in states" :key="key" :label="value" :value="key" />
+      </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         {{ $t('table.search') }}
       </el-button>
@@ -69,6 +72,10 @@ export default {
       listQuery: {
         page: 1,
         limit: 10
+      },
+      states: {
+        'draft': 'Draft',
+        'published': 'Published'
       }
     }
   },

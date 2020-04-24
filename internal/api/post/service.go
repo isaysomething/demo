@@ -89,11 +89,19 @@ func (s *service) Count() (count int, err error) {
 	return
 }
 
+var states = map[string]int{
+	"published": models.PostStatePublished,
+	"draft":     models.PostStateDraft,
+}
+
 func (s *service) Query(ctx *clevergo.Context, limit, offset int) ([]models.Post, error) {
 	query := squirrel.Select("*").From("posts")
 
 	if title := ctx.QueryParam("title"); title != "" {
 		query = query.Where(squirrel.Like{"title": fmt.Sprintf("%%%s%%", title)})
+	}
+	if state, ok := states[ctx.QueryParam("state")]; ok {
+		query = query.Where(squirrel.Eq{"state": state})
 	}
 
 	sql, args, err := query.ToSql()
