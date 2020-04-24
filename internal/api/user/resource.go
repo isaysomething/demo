@@ -117,8 +117,10 @@ func (r *Resource) info(ctx *clevergo.Context) error {
 	}
 	identity, _ := user.GetIdentity().(*models.User)
 	return ctx.JSON(http.StatusOK, jsend.New(core.Map{
-		"id":    identity.ID,
-		"roles": roles,
+		"id":       identity.ID,
+		"username": identity.Username,
+		"email":    identity.Email,
+		"roles":    roles,
 	}))
 }
 
