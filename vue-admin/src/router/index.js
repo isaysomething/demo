@@ -160,13 +160,14 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/role/index'),
         name: 'Role',
-        meta: { title: 'role', icon: 'list', affix: true }
+        meta: { title: 'role', icon: 'role', affix: true }
       },
       {
         path: 'create',
         component: () => import('@/views/role/create'),
         name: 'CreateRole',
-        meta: { title: 'createRole', icon: 'edit' }
+        meta: { title: 'createRole', icon: 'edit' },
+        hidden: true
       },
       {
         path: 'edit/:id(\\w+)',
