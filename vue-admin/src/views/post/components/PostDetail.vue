@@ -1,7 +1,7 @@
 <template>
   <div class="createPost-container">
     <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
-      <sticky :z-index="10" :class-name="'sub-navbar '+postForm.status">
+      <sticky :z-index="10" :class-name="'sub-navbar '+postForm.state">
         <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
           Publish
         </el-button>
@@ -34,14 +34,13 @@
 <script>
 import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky' // 粘性header组件
-import { fetchPost, createPost } from '@/api/post'
-import { updatePost } from '../../../api/post'
+import { fetchPost, createPost, updatePost } from '@/api/post'
 
 const defaultForm = {
   id: undefined,
   title: '', // 文章题目
   content: '', // 文章内容
-  status: 0
+  state: 0
 }
 
 export default {
@@ -154,7 +153,7 @@ export default {
       console.log(this.postForm)
       this.$refs.postForm.validate(valid => {
         if (valid) {
-          this.postForm.status = 1
+          this.postForm.state = 1
           this.createPost()
         } else {
           console.log('error submit!!')
@@ -170,7 +169,7 @@ export default {
         })
         return
       }
-      this.postForm.status = 0
+      this.postForm.state = 0
       this.createPost()
     }
   }

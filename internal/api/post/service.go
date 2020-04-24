@@ -103,6 +103,9 @@ func (s *service) Query(ctx *clevergo.Context, limit, offset int) ([]models.Post
 	if state, ok := states[ctx.QueryParam("state")]; ok {
 		query = query.Where(squirrel.Eq{"state": state})
 	}
+	sort := ctx.DefaultQuery("sort", "desc")
+	direction := ctx.DefaultQuery("direction", "created_at")
+	query = query.OrderBy(sort + " " + direction)
 
 	sql, args, err := query.ToSql()
 	if err != nil {

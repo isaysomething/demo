@@ -127,13 +127,14 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/post/index'),
         name: 'Post',
-        meta: { title: 'post', icon: 'list', affix: true }
+        meta: { title: 'post', icon: 'post', affix: true }
       },
       {
         path: 'create',
         component: () => import('@/views/post/create'),
         name: 'CreatePost',
-        meta: { title: 'createPost', icon: 'edit' }
+        meta: { title: 'createPost', icon: 'edit' },
+        hidden: true
       },
       {
         path: 'edit/:id(\\d+)',

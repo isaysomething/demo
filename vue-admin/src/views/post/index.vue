@@ -4,9 +4,15 @@
     <div class="filter-container">
       <el-input v-model="listQuery.title" :placeholder="$t('table.title')" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.state" :placeholder="$t('table.state')" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="(value, key) in states" :key="key" :label="value" :value="key" />
+        <el-option v-for="item in stateOptions" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
+      <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="handleFilter">
+        <el-option v-for="item in sortOptions" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
+      <el-select v-model="listQuery.direction" style="width: 140px" class="filter-item" @change="handleFilter">
+        <el-option v-for="item in directionOptions" :key="item.value" :label="item.label" :value="item.value" />
+      </el-select>
+      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         {{ $t('table.search') }}
       </el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
@@ -21,13 +27,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Title">
+      <el-table-column align="center" :label="$t('table.title')">
         <template slot-scope="scope">
           <span>{{ scope.row.title }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column class-name="state-col" label="State" width="110">
+      <el-table-column class-name="state-col" :label="$t('table.state')" width="80">
         <template slot-scope="{row}">
           <el-tag>
             {{ stateText(row.state) }}
@@ -35,13 +41,19 @@
         </template>
       </el-table-column>
 
-      <el-table-column width="180px" align="center" label="Created At">
+      <el-table-column width="180px" align="center" :label="$t('table.created_at')">
         <template slot-scope="scope">
           <span>{{ scope.row.created_at }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Actions" width="120">
+      <el-table-column width="180px" align="center" :label="$t('table.updated_at')">
+        <template slot-scope="scope">
+          <span>{{ scope.row.updated_at }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" :label="$t('table.actions')" width="120">
         <template slot-scope="scope">
           <router-link :to="'/post/edit/'+scope.row.id">
             <el-button type="primary" size="small" icon="el-icon-edit" />
@@ -71,12 +83,22 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 10
+        limit: 10,
+        sort: 'created_at',
+        direction: 'desc'
       },
-      states: {
-        'draft': 'Draft',
-        'published': 'Published'
-      }
+      stateOptions: [
+        { value: 'draft', label: this.$t('table.draft') },
+        { value: 'published', label: this.$t('table.published') }
+      ],
+      sortOptions: [
+        { value: 'created_at', label: this.$t('table.created_at') },
+        { value: 'updated_at', label: this.$t('table.updated_at') }
+      ],
+      directionOptions: [
+        { value: 'asc', label: this.$t('table.asc') },
+        { value: 'desc', label: this.$t('table.desc') }
+      ]
     }
   },
   created() {
@@ -101,6 +123,11 @@ export default {
     handleDelete(id) {
       deletePost(id).then(response => {
         this.getList()
+      })
+    },
+    handleCreate() {
+      this.$router.push({
+        name: 'CreatePost'
       })
     },
     handleFilter() {

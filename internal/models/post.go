@@ -55,7 +55,7 @@ func (p *Post) Update(db *sqlex.DB) error {
 		return err
 	}
 	res, err := db.Exec(
-		"UPDATE posts SET title=?, content=?, status=?, updated_at=? WHERE id=?",
+		"UPDATE posts SET title=?, content=?, state=?, updated_at=? WHERE id=?",
 		p.Title, p.Content, p.State, time.Now(), p.ID,
 	)
 	if err != nil {
