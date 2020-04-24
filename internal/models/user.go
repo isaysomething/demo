@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"encoding/gob"
 	"errors"
 	"fmt"
@@ -26,16 +25,16 @@ func init() {
 }
 
 type User struct {
-	ID                 int64          `db:"id" json:"id"`
-	Username           string         `db:"username" json:"username"`
-	Email              string         `db:"email" json:"email"`
-	VerificationToken  sql.NullString `db:"verification_token"`
-	HashedPassword     string         `db:"hashed_password"`
-	PasswordResetToken sql.NullString `db:"password_reset_token"`
-	State              int            `db:"state" json:"state"`
-	CreatedAt          time.Time      `db:"created_at" json:"created_at"`
-	UpdatedAt          sqlex.NullTime `db:"updated_at" json:"updated_at"`
-	DeletedAt          sqlex.NullTime `db:"deleted_at" json:"deleted_at"`
+	ID                 int64            `db:"id" json:"id"`
+	Username           string           `db:"username" json:"username"`
+	Email              string           `db:"email" json:"email"`
+	VerificationToken  sqlex.NullString `db:"verification_token"`
+	HashedPassword     string           `db:"hashed_password"`
+	PasswordResetToken sqlex.NullString `db:"password_reset_token"`
+	State              int              `db:"state" json:"state"`
+	CreatedAt          time.Time        `db:"created_at" json:"created_at"`
+	UpdatedAt          sqlex.NullTime   `db:"updated_at" json:"updated_at"`
+	DeletedAt          sqlex.NullTime   `db:"deleted_at" json:"deleted_at"`
 }
 
 func (u User) GetID() string {
@@ -103,7 +102,7 @@ func (u *User) GeneratePasswordResetToken(db *sqlex.DB) error {
 		return err
 	}
 
-	u.PasswordResetToken = sql.NullString{token, true}
+	u.PasswordResetToken = sqlex.ToNullString(token)
 	return nil
 }
 
@@ -121,7 +120,7 @@ func (u *User) GenerateVerificationToken(db *sqlex.DB) error {
 		return err
 	}
 
-	u.VerificationToken = sql.NullString{token, true}
+	u.VerificationToken = sqlex.ToNullString(token)
 	return nil
 }
 
