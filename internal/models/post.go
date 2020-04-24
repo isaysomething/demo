@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/clevergo/demo/pkg/sqlex"
@@ -18,13 +17,13 @@ const (
 )
 
 type Post struct {
-	ID        int64        `db:"id" json:"id"`
-	UserID    int64        `db:"user_id" json:"user_id"`
-	Title     string       `db:"title" json:"title"`
-	Content   string       `db:"content" json:"content"`
-	State     int          `db:"state" json:"state"`
-	CreatedAt time.Time    `db:"created_at" json:"created_at"`
-	UpdatedAt sql.NullTime `db:"updated_at" json:"updated_at"`
+	ID        int64          `db:"id" json:"id"`
+	UserID    int64          `db:"user_id" json:"user_id"`
+	Title     string         `db:"title" json:"title"`
+	Content   string         `db:"content" json:"content"`
+	State     int            `db:"state" json:"state"`
+	CreatedAt time.Time      `db:"created_at" json:"created_at"`
+	UpdatedAt sqlex.NullTime `db:"updated_at" json:"updated_at"`
 }
 
 func (p *Post) Validate() error {

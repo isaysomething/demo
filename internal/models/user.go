@@ -34,8 +34,8 @@ type User struct {
 	PasswordResetToken sql.NullString `db:"password_reset_token"`
 	State              int            `db:"state" json:"state"`
 	CreatedAt          time.Time      `db:"created_at" json:"created_at"`
-	UpdatedAt          sql.NullTime   `db:"updated_at" json:"updated_at"`
-	DeletedAt          sql.NullTime   `db:"deleted_at" json:"deleted_at"`
+	UpdatedAt          sqlex.NullTime `db:"updated_at" json:"updated_at"`
+	DeletedAt          sqlex.NullTime `db:"deleted_at" json:"deleted_at"`
 }
 
 func (u User) GetID() string {

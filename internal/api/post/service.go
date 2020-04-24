@@ -1,7 +1,6 @@
 package post
 
 import (
-	"database/sql"
 	"fmt"
 	"strconv"
 	"time"
@@ -59,7 +58,7 @@ func (s *service) Create(ctx *clevergo.Context) (post *models.Post, err error) {
 		Content:   form.Content,
 		State:     form.State,
 		CreatedAt: now,
-		UpdatedAt: sql.NullTime{Time: now, Valid: true},
+		UpdatedAt: sqlex.ToNullTime(now),
 	}
 	err = post.Save(s.db)
 	return
@@ -75,7 +74,7 @@ func (s *service) Update(id int64, form *Form) (post *models.Post, err error) {
 	post.Title = form.Title
 	post.Content = form.Content
 	post.State = form.State
-	post.UpdatedAt = sql.NullTime{Time: now, Valid: true}
+	post.UpdatedAt = sqlex.ToNullTime(now)
 	err = post.Update(s.db)
 	return
 }
