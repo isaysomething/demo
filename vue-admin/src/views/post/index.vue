@@ -33,7 +33,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column class-name="state-col" :label="$t('table.state')" width="80">
+      <el-table-column class-name="state-col" align="center" :label="$t('table.state')" width="100">
         <template slot-scope="{row}">
           <el-tag>
             {{ stateText(row.state) }}
