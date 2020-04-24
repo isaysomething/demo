@@ -17,7 +17,7 @@ import (
 const (
 	UserStateDeleted  = 0
 	UserStateInactive = 1
-	UserStateActive   = 10
+	UserStateActive   = 2
 )
 
 func init() {

@@ -79,6 +79,7 @@
 <script>
 import { queryUsers, deleteUser } from '@/api/user'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+import UserStates from '@/constants/user-states'
 
 export default {
   name: 'UserList',
@@ -120,13 +121,6 @@ export default {
         this.listLoading = false
       })
     },
-    stateText(state) {
-      const stateMap = {
-        1: this.$t('user.inactive'),
-        10: this.$t('user.active')
-      }
-      return stateMap[state]
-    },
     handleDelete(id) {
       deleteUser(id).then(response => {
         this.getList()
@@ -140,6 +134,12 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
+    },
+    stateText(state) {
+      if (state === UserStates.INACTIVE) {
+        return this.$t('user.inactive')
+      }
+      return this.$t('user.active')
     }
   }
 }
