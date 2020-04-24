@@ -5,7 +5,7 @@ CREATE TABLE `users` (
   `verification_token` char(64),
   `hashed_password` varchar(255) NOT NULL,
   `password_reset_token` char(64),
-  `state` int(11) NOT NULL DEFAULT 10,
+  `state` int(11) NOT NULL DEFAULT 2,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE `auth_rules` (
 
 CREATE TABLE `posts` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `state` INT NOT NULL,
+  `state` INT NOT NULL DEFAULT 1,
   `user_id` BIGINT NOT NULL,
   `title` VARCHAR(64) NOT NULL,
   `content` TEXT NOT NULL,
