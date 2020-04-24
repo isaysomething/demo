@@ -115,8 +115,8 @@ export default {
     },
     stateText(state) {
       const stateMap = {
-        0: 'Draft',
-        1: 'Published'
+        0: this.$t('table.draft'),
+        1: this.$t('table.published')
       }
       return stateMap[state]
     },
