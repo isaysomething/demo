@@ -1,14 +1,19 @@
 package sqlex
 
-import "log"
+import (
+	"log"
+	"time"
+)
 
 type Logger interface {
-	Log(query string, args ...interface{})
+	Log(duration time.Duration, query string, args ...interface{})
 }
 
-type StdLogger struct {
+var StdLogger Logger = &logger{}
+
+type logger struct {
 }
 
-func (l *StdLogger) Log(query string, args ...interface{}) {
-	log.Printf("SQL: %s, args: %+v\n", query, args)
+func (l *logger) Log(duration time.Duration, query string, args ...interface{}) {
+	log.Printf("[%s] [%s] %v\n", duration.String(), query, args)
 }

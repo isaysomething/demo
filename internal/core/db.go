@@ -16,7 +16,7 @@ func NewDB(cfg DBConfig) (*sqlex.DB, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	db.SetLogger(&sqlex.StdLogger{})
+	db.SetLogger(sqlex.StdLogger)
 
 	return db, func() {
 		if err := db.Close(); err != nil {
