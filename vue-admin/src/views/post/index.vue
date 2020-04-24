@@ -43,13 +43,13 @@
 
       <el-table-column width="180px" align="center" :label="$t('table.created_at')">
         <template slot-scope="scope">
-          <span>{{ scope.row.created_at }}</span>
+          <span>{{ scope.row.created_at | parseTime }}</span>
         </template>
       </el-table-column>
 
       <el-table-column width="180px" align="center" :label="$t('table.updated_at')">
         <template slot-scope="scope">
-          <span>{{ scope.row.updated_at }}</span>
+          <span>{{ scope.row.updated_at | parseTime }}</span>
         </template>
       </el-table-column>
 
