@@ -40,5 +40,3 @@ func (n NullTime) UnmarshalJSON(data []byte) error {
 	}
 	return nil
 }
-
-
