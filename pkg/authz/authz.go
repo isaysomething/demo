@@ -2,7 +2,6 @@ package authz
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/casbin/casbin/v2"
@@ -33,7 +32,6 @@ func (a *Authorization) Middleware() clevergo.MiddlewareFunc {
 				if user.IsGuest() {
 					return ErrUnauthorized
 				}
-				fmt.Println(a.getSubject(user), a.getObject(ctx), a.getAction(ctx))
 				ok, err := a.enforcer.Enforce(a.getSubject(user), a.getObject(ctx), a.getAction(ctx))
 				if err != nil {
 					return clevergo.NewError(http.StatusInternalServerError, err)
