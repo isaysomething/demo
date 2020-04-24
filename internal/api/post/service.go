@@ -99,7 +99,7 @@ func (s *service) Query(limit, offset int, qps *QueryParams) ([]models.Post, err
 		query = query.Where(squirrel.Like{"title": fmt.Sprintf("%%%s%%", qps.Title)})
 	}
 	if qps.State != "" {
-		query = query.Where(squirrel.Eq{"state": qps.StateNumber()})
+		query = query.Where(squirrel.Eq{"state": qps.State})
 	}
 	if orderBy := qps.OrderBy(); orderBy != "" {
 		query = query.OrderBy(orderBy)

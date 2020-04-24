@@ -2,8 +2,8 @@ package post
 
 import (
 	"github.com/clevergo/demo/internal/api"
-	"github.com/clevergo/demo/internal/models"
 	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 )
 
 type Form struct {
@@ -21,14 +21,6 @@ type QueryParams struct {
 func (qp QueryParams) Validate() error {
 	return validation.ValidateStruct(&qp,
 		validation.Field(&qp.Sort, validation.Required, validation.In("created_at", "updated_at")),
-		validation.Field(&qp.State, validation.In("published", "draft")),
+		validation.Field(&qp.State, is.Digit),
 	)
-}
-
-func (qp QueryParams) StateNumber() int {
-	if qp.State == "published" {
-		return models.PostStatePublished
-	}
-
-	return models.PostStateDraft
 }

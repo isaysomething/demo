@@ -72,6 +72,7 @@
 <script>
 import { fetchList, deletePost } from '@/api/post'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+import PostStates from '@/constants/post-states'
 
 export default {
   name: 'PostList',
@@ -88,8 +89,8 @@ export default {
         direction: 'desc'
       },
       stateOptions: [
-        { value: 'draft', label: this.$t('table.draft') },
-        { value: 'published', label: this.$t('table.published') }
+        { value: PostStates.DRAFT, label: this.$t('table.draft') },
+        { value: PostStates.PUBLISHED, label: this.$t('table.published') }
       ],
       sortOptions: [
         { value: 'created_at', label: this.$t('table.created_at') },
@@ -114,11 +115,10 @@ export default {
       })
     },
     stateText(state) {
-      const stateMap = {
-        1: this.$t('table.draft'),
-        2: this.$t('table.published')
+      if (state === PostStates.DRAFT) {
+        return this.$t('table.draft')
       }
-      return stateMap[state]
+      return this.$t('table.published')
     },
     handleDelete(id) {
       deletePost(id).then(response => {
