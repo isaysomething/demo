@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Vue Element Admin',
+  title: 'CleverGo Vue Admin',
 
   /**
    * @type {boolean} true | false
