@@ -14,11 +14,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// User statuses.
+// User states.
 const (
-	UserStatusDeleted  = 0
-	UserStatusInactive = 1
-	UserStatusActive   = 10
+	UserStateDeleted  = 0
+	UserStateInactive = 1
+	UserStateActive   = 10
 )
 
 func init() {
@@ -32,7 +32,7 @@ type User struct {
 	VerificationToken  sql.NullString `db:"verification_token"`
 	HashedPassword     string         `db:"hashed_password"`
 	PasswordResetToken sql.NullString `db:"password_reset_token"`
-	Status             int            `db:"status" json:"status"`
+	State              int            `db:"state" json:"state"`
 	CreatedAt          time.Time      `db:"created_at" json:"created_at"`
 	UpdatedAt          sql.NullTime   `db:"updated_at" json:"updated_at"`
 	DeletedAt          sql.NullTime   `db:"deleted_at" json:"deleted_at"`
@@ -43,11 +43,11 @@ func (u User) GetID() string {
 }
 
 func (u User) IsActive() bool {
-	return u.Status == UserStatusActive
+	return u.State == UserStateActive
 }
 
 func (u User) IsDeleted() bool {
-	return u.Status == UserStatusDeleted
+	return u.State == UserStateDeleted
 }
 
 func (u User) ValidatePassword(password string) error {
@@ -63,9 +63,9 @@ func (u *User) ValidateVerificationToken(duration int64) error {
 }
 
 func (u *User) VerifyEmail(db *sqlex.DB) error {
-	_, err := db.NamedExec("UPDATE users SET verification_token=null, status=:status WHERE id=:id", map[string]interface{}{
-		"status": UserStatusActive,
-		"id":     u.ID,
+	_, err := db.NamedExec("UPDATE users SET verification_token=null, state=:state WHERE id=:id", map[string]interface{}{
+		"state": UserStateActive,
+		"id":    u.ID,
 	})
 
 	return err
@@ -141,14 +141,14 @@ func CreateUser(db *sqlex.DB, username, email, password string) (*User, error) {
 	}
 	verificationToken := generateToken(64)
 	res, err := db.NamedExec(
-		`INSERT INTO users (username, email, verification_token, hashed_password, status, created_at) 
-		VALUES (:username, :email, :verification_token, :hashed_password, :status, :created_at)`,
+		`INSERT INTO users (username, email, verification_token, hashed_password, state, created_at) 
+		VALUES (:username, :email, :verification_token, :hashed_password, :state, :created_at)`,
 		map[string]interface{}{
 			"username":           username,
 			"email":              email,
 			"verification_token": verificationToken,
 			"hashed_password":    hashedPassword,
-			"status":             UserStatusInactive,
+			"state":              UserStateInactive,
 			"created_at":         time.Now(),
 		},
 	)

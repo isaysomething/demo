@@ -5,7 +5,7 @@ CREATE TABLE `users` (
   `verification_token` char(64),
   `hashed_password` varchar(255) NOT NULL,
   `password_reset_token` char(64),
-  `status` int(11) NOT NULL DEFAULT 10,
+  `state` int(11) NOT NULL DEFAULT 10,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE `auth_rules` (
 
 CREATE TABLE `posts` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `status` INT NOT NULL,
+  `state` INT NOT NULL,
   `user_id` BIGINT NOT NULL,
   `title` VARCHAR(64) NOT NULL,
   `content` TEXT NOT NULL,
@@ -41,5 +41,5 @@ CREATE TABLE `posts` (
   KEY `idx_posts_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO`users`(id, username, email, hashed_password, `status`, created_at) VALUES
+INSERT INTO`users`(id, username, email, hashed_password, `state`, created_at) VALUES
 (1, 'admin', 'admin@example.com', '$2a$12$R/Agn3zMt2iDF2/VBduy7uR1QLBoSeWrrCEgWByVFDsbRCl6Etbk2', 10, 0);

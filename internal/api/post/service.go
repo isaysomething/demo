@@ -57,7 +57,7 @@ func (s *service) Create(ctx *clevergo.Context) (post *models.Post, err error) {
 		Title:     form.Title,
 		UserID:    userID,
 		Content:   form.Content,
-		Status:    form.Status,
+		State:     form.State,
 		CreatedAt: now,
 		UpdatedAt: sql.NullTime{Time: now, Valid: true},
 	}
@@ -74,7 +74,7 @@ func (s *service) Update(id int64, form *Form) (post *models.Post, err error) {
 	now := time.Now()
 	post.Title = form.Title
 	post.Content = form.Content
-	post.Status = form.Status
+	post.State = form.State
 	post.UpdatedAt = sql.NullTime{Time: now, Valid: true}
 	err = post.Update(s.db)
 	return

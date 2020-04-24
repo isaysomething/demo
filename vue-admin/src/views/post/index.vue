@@ -24,10 +24,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column class-name="status-col" label="Status" width="110">
+      <el-table-column class-name="state-col" label="State" width="110">
         <template slot-scope="{row}">
           <el-tag>
-            {{ statusText(row.status) }}
+            {{ stateText(row.state) }}
           </el-tag>
         </template>
       </el-table-column>
@@ -84,12 +84,12 @@ export default {
         this.listLoading = false
       })
     },
-    statusText(status) {
-      const statusMap = {
+    stateText(state) {
+      const stateMap = {
         0: 'Draft',
         1: 'Published'
       }
-      return statusMap[status]
+      return stateMap[state]
     },
     handleDelete(id) {
       deletePost(id).then(response => {

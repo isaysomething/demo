@@ -30,7 +30,7 @@ func (s *service) Count() (count int, err error) {
 }
 
 func (s *service) Query(limit, offset int) (users []models.User, err error) {
-	sql, args, err := squirrel.Select("*").From("posts").ToSql()
+	sql, args, err := squirrel.Select("*").From("users").ToSql()
 	if err != nil {
 		return nil, err
 	}

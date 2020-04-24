@@ -19,10 +19,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column class-name="status-col" label="Status" width="110">
+      <el-table-column class-name="state-col" label="State" width="110">
         <template slot-scope="{row}">
           <el-tag>
-            {{ statusText(row.status) }}
+            {{ stateText(row.state) }}
           </el-tag>
         </template>
       </el-table-column>
@@ -79,13 +79,12 @@ export default {
         this.listLoading = false
       })
     },
-    statusText(status) {
-      const statusMap = {
-        0: 'deleted',
+    stateText(state) {
+      const stateMap = {
         1: 'inactive',
         10: 'active'
       }
-      return statusMap[status]
+      return stateMap[state]
     },
     handleDelete(id) {
       deleteUser(id).then(response => {

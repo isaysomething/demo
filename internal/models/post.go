@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	PostStatusDraft     = 0
-	PostStatusPublished = 1
+	PostStateDraft     = 0
+	PostStatePublished = 1
 
 	PostTypePost     = 1
 	PostTypePage     = 2
@@ -22,7 +22,7 @@ type Post struct {
 	UserID    int64        `db:"user_id" json:"user_id"`
 	Title     string       `db:"title" json:"title"`
 	Content   string       `db:"content" json:"content"`
-	Status    int          `db:"status" json:"status"`
+	State     int          `db:"state" json:"state"`
 	CreatedAt time.Time    `db:"created_at" json:"created_at"`
 	UpdatedAt sql.NullTime `db:"updated_at" json:"updated_at"`
 }
@@ -31,7 +31,7 @@ func (p *Post) Validate() error {
 	return validation.ValidateStruct(p,
 		validation.Field(&p.Title, validation.Required),
 		validation.Field(&p.Content, validation.Required),
-		validation.Field(&p.Status, validation.In(PostStatusDraft, PostStatusPublished)),
+		validation.Field(&p.State, validation.In(PostStateDraft, PostStatePublished)),
 	)
 }
 
@@ -40,8 +40,8 @@ func (p *Post) Save(db *sqlex.DB) (err error) {
 		return err
 	}
 	res, err := db.Exec(
-		"INSERT INTO posts(id, user_id, title, content, status, created_at, updated_at) VALUES(null, ?, ?, ?, ?, ?, ?)",
-		p.UserID, p.Title, p.Content, p.Status, p.CreatedAt, p.UpdatedAt,
+		"INSERT INTO posts(id, user_id, title, content, state, created_at, updated_at) VALUES(null, ?, ?, ?, ?, ?, ?)",
+		p.UserID, p.Title, p.Content, p.State, p.CreatedAt, p.UpdatedAt,
 	)
 	if err != nil {
 		return
@@ -56,7 +56,7 @@ func (p *Post) Update(db *sqlex.DB) error {
 	}
 	res, err := db.Exec(
 		"UPDATE posts SET title=?, content=?, status=?, updated_at=? WHERE id=?",
-		p.Title, p.Content, p.Status, time.Now(), p.ID,
+		p.Title, p.Content, p.State, time.Now(), p.ID,
 	)
 	if err != nil {
 		return err
