@@ -10,11 +10,14 @@ CREATE TABLE `users` (
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`),
-  UNIQUE KEY `email` (`email`),
-  UNIQUE KEY `verification_token` (`verification_token`),
-  UNIQUE KEY `password_reset_token` (`password_reset_token`),
-  KEY `idx_users_deleted_at` (`deleted_at`)
+  UNIQUE KEY `idx_users_username` (`username`),
+  UNIQUE KEY `idx_users_email` (`email`),
+  UNIQUE KEY `idx_users_verification_token` (`verification_token`),
+  UNIQUE KEY `idx_users_password_reset_token` (`password_reset_token`),
+  KEY `idx_users_state` (`state`),
+  KEY `idx_users_deleted_at` (`deleted_at`),
+  KEY `idx_users_created_at` (`created_at`),
+  KEY `idx_users_updated_at` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `auth_rules` (
@@ -38,7 +41,10 @@ CREATE TABLE `posts` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_posts_user_id` (`user_id`)
+  KEY `idx_posts_user_id` (`user_id`),
+  KEY `idx_posts_state` (`state`),
+  KEY `idx_posts_created_at` (`created_at`),
+  KEY `idx_posts_updated_at` (`updated_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO`users`(id, username, email, hashed_password, `state`, created_at) VALUES
