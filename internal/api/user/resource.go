@@ -17,20 +17,28 @@ import (
 	"github.com/clevergo/jsend"
 )
 
-func New(app *api.Application, captchaManager *captchas.Manager, jwtManager *core.JWTManager, enforcer *casbin.Enforcer) *Resource {
-	return &Resource{
-		Application:    app,
-		captchaManager: captchaManager,
-		jwtManager:     jwtManager,
-		enforcer:       enforcer,
-	}
-}
-
 type Resource struct {
 	*api.Application
 	captchaManager *captchas.Manager
 	jwtManager     *core.JWTManager
 	enforcer       *casbin.Enforcer
+	service        Service
+}
+
+func New(
+	app *api.Application,
+	captchaManager *captchas.Manager,
+	jwtManager *core.JWTManager,
+	enforcer *casbin.Enforcer,
+	service Service,
+) *Resource {
+	return &Resource{
+		Application:    app,
+		captchaManager: captchaManager,
+		jwtManager:     jwtManager,
+		enforcer:       enforcer,
+		service:        service,
+	}
 }
 
 func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
@@ -44,11 +52,11 @@ func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 
 func (r *Resource) query(ctx *clevergo.Context) (err error) {
 	p := pagination.NewFromContext(ctx)
-	p.Items, err = models.GetUsers(r.DB(), p.Limit, p.Offset())
+	p.Items, err = r.service.Query(p.Limit, p.Offset())
 	if err != nil {
 		return err
 	}
-	p.Total, err = models.GetUsersCount(r.DB())
+	p.Total, err = r.service.Count()
 	if err != nil {
 		return err
 	}

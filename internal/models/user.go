@@ -214,14 +214,3 @@ func validateToken(token string, duration int64) error {
 	}
 	return errors.New("token expired")
 }
-
-func GetUsers(db *sqlex.DB, limit, offset int) (users []User, err error) {
-	users = []User{}
-	err = db.Select(&users, "SELECT * FROM users ORDER BY id ASC LIMIT ? OFFSET ?", limit, offset)
-	return
-}
-
-func GetUsersCount(db *sqlex.DB) (count int, err error) {
-	err = db.Get(&count, "SELECT count(*) FROM users")
-	return
-}
