@@ -127,18 +127,21 @@ export const asyncRoutes = [
       title: 'errorPages',
       icon: '404'
     },
+    hidden: true,
     children: [
       {
         path: '401',
         component: () => import('@/views/error-page/401'),
         name: 'Page401',
-        meta: { title: 'page401', noCache: true }
+        meta: { title: 'page401', noCache: true },
+        hidden: true
       },
       {
         path: '404',
         component: () => import('@/views/error-page/404'),
         name: 'Page404',
-        meta: { title: 'page404', noCache: true }
+        meta: { title: 'page404', noCache: true },
+        hidden: true
       }
     ]
   },
@@ -151,7 +154,8 @@ export const asyncRoutes = [
         path: 'log',
         component: () => import('@/views/error-log/index'),
         name: 'ErrorLog',
-        meta: { title: 'errorLog', icon: 'bug' }
+        meta: { title: 'errorLog', icon: 'bug' },
+        hidden: true
       }
     ]
   },
