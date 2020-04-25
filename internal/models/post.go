@@ -35,41 +35,6 @@ func (p *Post) Validate() error {
 	)
 }
 
-func (p *Post) Save(db *sqlex.DB) (err error) {
-	if err = p.Validate(); err != nil {
-		return err
-	}
-	res, err := db.Exec(
-		"INSERT INTO posts(id, user_id, title, content, state, created_at, updated_at) VALUES(null, ?, ?, ?, ?, ?, ?)",
-		p.UserID, p.Title, p.Content, p.State, p.CreatedAt, p.UpdatedAt,
-	)
-	if err != nil {
-		return
-	}
-	p.ID, err = res.LastInsertId()
-	return
-}
-
-func (p *Post) Update(db *sqlex.DB) error {
-	if err := p.Validate(); err != nil {
-		return err
-	}
-	res, err := db.Exec(
-		"UPDATE posts SET title=?, content=?, state=?, updated_at=? WHERE id=?",
-		p.Title, p.Content, p.State, time.Now(), p.ID,
-	)
-	if err != nil {
-		return err
-	}
-
-	p.ID, err = res.LastInsertId()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (p *Post) Delete(db *sqlex.DB) error {
 	_, err := db.Exec("DELETE FROM posts WHERE id = ?", p.ID)
 	return err

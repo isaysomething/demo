@@ -23,8 +23,14 @@
           </el-col>
         </el-row>
 
-        <el-form-item prop="content" style="margin-bottom: 30px;">
-          <el-input v-model="postForm.content" type="textarea" rows="8" />
+        <el-form-item prop="markdown_content" style="margin-bottom: 30px;">
+          <markdown-editor
+            ref="markdownEditor"
+            v-model="postForm.markdown_content"
+            :language="language"
+            height="300px"
+            :options="{hideModeSwitch:true,previewStyle:'tab'}"
+          />
         </el-form-item>
       </div>
     </el-form>
@@ -33,19 +39,21 @@
 
 <script>
 import MDinput from '@/components/MDinput'
-import Sticky from '@/components/Sticky' // 粘性header组件
+import Sticky from '@/components/Sticky'
+import MarkdownEditor from '@/components/MarkdownEditor'
 import { fetchPost, createPost, updatePost } from '@/api/post'
 
 const defaultForm = {
   id: undefined,
-  title: '', // 文章题目
-  content: '', // 文章内容
+  title: '',
+  content: '',
+  markdown_content: '',
   state: 0
 }
 
 export default {
   name: 'PostDetail',
-  components: { MDinput, Sticky },
+  components: { MDinput, Sticky, MarkdownEditor },
   props: {
     isEdit: {
       type: Boolean,
@@ -70,14 +78,21 @@ export default {
       userListOptions: [],
       rules: {
         title: [{ validator: validateRequire }],
-        content: [{ validator: validateRequire }]
+        markdown_content: [{ validator: validateRequire }]
       },
-      tempRoute: {}
+      tempRoute: {},
+      languageTypeList: {
+        'en': 'en_US',
+        'zh': 'zh_CN'
+      }
     }
   },
   computed: {
     lang() {
       return this.$store.getters.language
+    },
+    language() {
+      return this.languageTypeList[this.$store.getters.language]
     }
   },
   created() {
@@ -115,6 +130,7 @@ export default {
       document.title = `${title} - ${this.postForm.id}`
     },
     createPost() {
+      this.postForm.content = this.$refs.markdownEditor.getHtml()
       this.loading = true
       if (this.postForm.id) {
         updatePost(this.postForm.id, this.postForm).then(response => {

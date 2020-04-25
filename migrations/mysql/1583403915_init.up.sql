@@ -1,12 +1,12 @@
 CREATE TABLE `users` (
-  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `verification_token` char(64),
   `hashed_password` varchar(255) NOT NULL,
   `password_reset_token` char(64),
   `state` int(11) NOT NULL DEFAULT 2,
-  `created_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -21,7 +21,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `auth_rules` (
-    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` INT NOT NULL AUTO_INCREMENT,
     `p_type` VARCHAR(32) NOT NULL DEFAULT '',
     `v0` VARCHAR(255) NOT NULL DEFAULT '',
     `v1` VARCHAR(255) NOT NULL DEFAULT '',
@@ -33,18 +33,27 @@ CREATE TABLE `auth_rules` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `posts` (
-  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
   `state` INT NOT NULL DEFAULT 1,
   `user_id` BIGINT NOT NULL,
   `title` VARCHAR(64) NOT NULL,
   `content` TEXT NOT NULL,
-  `created_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL,
   `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_posts_user_id` (`user_id`),
   KEY `idx_posts_state` (`state`),
   KEY `idx_posts_created_at` (`created_at`),
   KEY `idx_posts_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `post_meta` (
+  `post_id` BIGINT NOT NULL,
+  `meta_key` VARCHAR(64) NOT NULL,
+  `meta_value` TEXT NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY(`post_id`, `meta_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO`users`(id, username, email, hashed_password, `state`, created_at) VALUES

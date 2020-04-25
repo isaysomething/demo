@@ -2,14 +2,25 @@ package post
 
 import (
 	"github.com/clevergo/demo/internal/api"
+	"github.com/clevergo/demo/internal/models"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 )
 
 type Form struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
-	State   int    `json:"state"`
+	Title           string `json:"title"`
+	Content         string `json:"content"`
+	MarkdownContent string `json:"markdown_content"`
+	State           int    `json:"state"`
+}
+
+func (f *Form) Validate() error {
+	return validation.ValidateStruct(f,
+		validation.Field(&f.Title, validation.Required),
+		validation.Field(&f.Content, validation.Required),
+		validation.Field(&f.MarkdownContent, validation.Required),
+		validation.Field(&f.State, validation.In(models.PostStateDraft, models.PostStatePublished)),
+	)
 }
 
 type QueryParams struct {
