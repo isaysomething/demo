@@ -22,7 +22,7 @@
 
       <el-dropdown class=" right-menu-item hover-effect" trigger="click">
         <span class="el-dropdown-link">
-          {{ user.name }}<i class="el-icon-arrow-down el-icon--right" />
+          {{ user.name | uppercaseFirst }} <i class="el-icon-arrow-down el-icon--right" />
         </span>
         <el-dropdown-menu slot="dropdown">
           <router-link to="/profile/index">
