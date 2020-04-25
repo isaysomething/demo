@@ -34,11 +34,11 @@ func (s *Site) RegisterRoutes(router clevergo.IRouter) {
 }
 
 func (s *Site) index(ctx *clevergo.Context) error {
-	return ctx.Render(http.StatusOK, "Site/index.tmpl", nil)
+	return ctx.Render(http.StatusOK, "site/index.tmpl", nil)
 }
 
 func (s *Site) about(ctx *clevergo.Context) error {
-	return ctx.Render(http.StatusOK, "Site/about.tmpl", nil)
+	return ctx.Render(http.StatusOK, "site/about.tmpl", nil)
 }
 
 func (s *Site) contact(ctx *clevergo.Context) error {
@@ -51,7 +51,7 @@ func (s *Site) contact(ctx *clevergo.Context) error {
 		s.AddFlash(ctx, bootstrap.NewSuccessAlert("Thanks for contacting us, we'll get in touch with you as soon as possible."))
 		return jsend.Success(ctx.Response, nil)
 	}
-	return ctx.Render(http.StatusOK, "Site/contact.tmpl", core.ViewData{})
+	return ctx.Render(http.StatusOK, "site/contact.tmpl", core.ViewData{})
 }
 
 func (s *Site) robots(ctx *clevergo.Context) error {
