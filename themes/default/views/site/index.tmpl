@@ -1,13 +1,22 @@
 {{extends "layouts/main.tmpl"}}
+{{import "layouts/partials/pagination.tmpl"}}
 
 {{block title()}}
 {{T("text.login")}}
 {{end}}
 
 {{block body()}}
-    <h1 class="title">
-      Hello World
-    </h1>
+
+{{range .pagination.Items}}
+<div class="blog-post">
+  <h2 class="blog-post-title">{{.Title}}</h2>
+  <p class="blog-post-meta">{{.CreatedAt}}</p>
+  {{.Content | raw}}
+</div>
+{{end}}
+
+{{yield pagination(pagination=.pagination)}}
+
 {{end}}
 
 {{block endBody()}}{{end}}

@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/frontend"
+	"github.com/clevergo/demo/internal/models"
 	"github.com/clevergo/demo/pkg/bootstrap"
+	"github.com/clevergo/demo/pkg/rest/pagination"
 	"github.com/clevergo/jsend"
 )
 
@@ -34,7 +37,36 @@ func (s *Site) RegisterRoutes(router clevergo.IRouter) {
 }
 
 func (s *Site) index(ctx *clevergo.Context) error {
-	return ctx.Render(http.StatusOK, "site/index.tmpl", nil)
+	pagination := pagination.NewFromContext(ctx)
+	sql, args, err := squirrel.Select("count(*)").
+		Where(squirrel.Eq{"state": models.PostStatePublished}).
+		From("posts").
+		ToSql()
+	if err != nil {
+		return err
+	}
+	if err = s.DB().Get(&pagination.Total, sql, args...); err != nil {
+		return err
+	}
+
+	sql, args, err = squirrel.Select("*").
+		Where(squirrel.Eq{"state": models.PostStatePublished}).
+		From("posts").
+		OrderBy("created_at DESC").
+		Offset(pagination.Offset()).
+		Limit(pagination.Limit).
+		ToSql()
+	if err != nil {
+		return err
+	}
+	posts := []models.Post{}
+	if err = s.DB().Select(&posts, sql, args...); err != nil {
+		return err
+	}
+	pagination.Items = posts
+	return ctx.Render(http.StatusOK, "site/index.tmpl", clevergo.Map{
+		"pagination": pagination,
+	})
 }
 
 func (s *Site) about(ctx *clevergo.Context) error {

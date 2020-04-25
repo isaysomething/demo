@@ -1,0 +1,16 @@
+{{block pagination(pagination)}}
+<nav aria-label="navigation">
+    <ul class="pagination justify-content-end">
+      {{ if .pagination.HasPrev() }}
+      <li class="page-item">
+        <a class="page-link" href="{{.pagination.PrevURL()}}" tabindex="-1" aria-disabled="true">Prev</a>
+      </li>
+      {{ end }}
+      {{ if .pagination.HasNext() }}
+      <li class="page-item">
+        <a class="page-link" href="{{.pagination.NextURL()}}">Next</a>
+      </li>
+      {{ end }}
+    </ul>
+  </nav>
+{{end}}
