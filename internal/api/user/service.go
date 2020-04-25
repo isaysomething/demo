@@ -7,8 +7,8 @@ import (
 )
 
 type Service interface {
-	Count() (int, error)
-	Query(limit, offset int, qps *QueryParams) ([]models.User, error)
+	Count() (uint64, error)
+	Query(limit, offset uint64, qps *QueryParams) ([]models.User, error)
 }
 
 func NewService(db *sqlex.DB) Service {
@@ -19,7 +19,7 @@ type service struct {
 	db *sqlex.DB
 }
 
-func (s *service) Count() (count int, err error) {
+func (s *service) Count() (count uint64, err error) {
 	sql, args, err := squirrel.Select("count(*)").From("users").ToSql()
 	if err != nil {
 		return 0, err
@@ -29,7 +29,7 @@ func (s *service) Count() (count int, err error) {
 	return
 }
 
-func (s *service) Query(limit, offset int, qps *QueryParams) (users []models.User, err error) {
+func (s *service) Query(limit, offset uint64, qps *QueryParams) (users []models.User, err error) {
 	query := squirrel.Select("*").From("users")
 	if qps.Username != "" {
 		query = query.Where(squirrel.Like{"username": "%" + qps.Username + "%"})

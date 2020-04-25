@@ -7,19 +7,19 @@ import (
 )
 
 var (
-	PageParam  = "page"
-	LimitParam = "limit"
-	MaxLimit   = 1000
+	PageParam         = "page"
+	LimitParam        = "limit"
+	MaxLimit   uint64 = 1000
 )
 
 type Pagination struct {
-	Page  int         `json:"page"`
-	Limit int         `json:"limit"`
-	Total int         `json:"total"`
+	Page  uint64      `json:"page"`
+	Limit uint64      `json:"limit"`
+	Total uint64      `json:"total"`
 	Items interface{} `json:"items"`
 }
 
-func New(page, limit int) *Pagination {
+func New(page, limit uint64) *Pagination {
 	return &Pagination{
 		Page:  page,
 		Limit: limit,
@@ -33,12 +33,12 @@ func NewFromContext(ctx *clevergo.Context) *Pagination {
 	)
 }
 
-func (p *Pagination) Offset() int {
+func (p *Pagination) Offset() uint64 {
 	return (p.Page - 1) * p.Limit
 }
 
-func parsePage(ctx *clevergo.Context, defaultValue int) int {
-	v, err := strconv.Atoi(ctx.QueryParam(PageParam))
+func parsePage(ctx *clevergo.Context, defaultValue uint64) uint64 {
+	v, err := strconv.ParseUint(ctx.QueryParam(PageParam), 10, 64)
 	if err == nil && v > 0 {
 		return v
 	}
@@ -46,8 +46,8 @@ func parsePage(ctx *clevergo.Context, defaultValue int) int {
 	return defaultValue
 }
 
-func parseLimit(ctx *clevergo.Context, defaultValue int) int {
-	v, err := strconv.Atoi(ctx.QueryParam(LimitParam))
+func parseLimit(ctx *clevergo.Context, defaultValue uint64) uint64 {
+	v, err := strconv.ParseUint(ctx.QueryParam(LimitParam), 10, 64)
 	if err == nil && v > 0 {
 		if v > MaxLimit {
 			v = MaxLimit

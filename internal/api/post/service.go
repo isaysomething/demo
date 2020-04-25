@@ -20,8 +20,8 @@ type Post struct {
 type Service interface {
 	Get(id int64) (*Post, error)
 	Create(*clevergo.Context) (*Post, error)
-	Count() (int, error)
-	Query(limit, offset int, qps *QueryParams) ([]models.Post, error)
+	Count() (uint64, error)
+	Query(limit, offset uint64, qps *QueryParams) ([]models.Post, error)
 	Update(id int64, form *Form) (*Post, error)
 	Delete(id int64) error
 }
@@ -156,7 +156,7 @@ func (s *service) Update(id int64, form *Form) (post *Post, err error) {
 	return
 }
 
-func (s *service) Count() (count int, err error) {
+func (s *service) Count() (count uint64, err error) {
 	sql, args, err := squirrel.Select("COUNT(*)").From("posts").
 		Where(squirrel.NotEq{"state": models.PostStateDeleted}).
 		ToSql()
@@ -172,7 +172,7 @@ var states = map[string]int{
 	"draft":     models.PostStateDraft,
 }
 
-func (s *service) Query(limit, offset int, qps *QueryParams) ([]models.Post, error) {
+func (s *service) Query(limit, offset uint64, qps *QueryParams) ([]models.Post, error) {
 	query := squirrel.Select("*").From("posts").Where(squirrel.NotEq{"state": models.PostStateDeleted})
 	if qps.Title != "" {
 		query = query.Where(squirrel.Like{"title": fmt.Sprintf("%%%s%%", qps.Title)})
