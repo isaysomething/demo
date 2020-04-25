@@ -7,6 +7,9 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
+import postRouter from './modules/post'
+import roleRouter from './modules/role'
+import userRouter from './modules/user'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -80,101 +83,6 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/post',
-    component: Layout,
-    redirect: '/post/index',
-    name: 'Post',
-    meta: {
-      title: 'post',
-      icon: 'post'
-    },
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/post/index'),
-        name: 'Post',
-        meta: { title: 'post', icon: 'post', affix: true }
-      },
-      {
-        path: 'create',
-        component: () => import('@/views/post/create'),
-        name: 'CreatePost',
-        meta: { title: 'createPost', icon: 'edit' },
-        hidden: true
-      },
-      {
-        path: 'edit/:id(\\d+)',
-        component: () => import('@/views/post/edit'),
-        name: 'EditPost',
-        meta: { title: 'editPost', noCache: true, activeMenu: '/post/list' },
-        hidden: true
-      }
-    ]
-  },
-  {
-    path: '/user',
-    component: Layout,
-    redirect: '/user/index',
-    meta: {
-      title: 'user',
-      icon: 'user'
-    },
-    children: [
-      {
-        path: 'user',
-        component: () => import('@/views/user/index'),
-        name: 'User',
-        meta: { title: 'user', icon: 'user', affix: true }
-      },
-      {
-        path: 'create',
-        component: () => import('@/views/user/create'),
-        name: 'CreateUser',
-        meta: { title: 'createUser', icon: 'add' },
-        hidden: true
-      },
-      {
-        path: 'edit/:id(\\d+)',
-        component: () => import('@/views/user/edit'),
-        name: 'EditUser',
-        meta: { title: 'editUser', noCache: true, activeMenu: '/user/list' },
-        hidden: true
-      }
-    ]
-  },
-  {
-    path: '/role',
-    component: Layout,
-    redirect: '/role/index',
-    name: 'Role',
-    meta: {
-      title: 'role',
-      icon: 'role'
-    },
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/role/index'),
-        name: 'Role',
-        meta: { title: 'role', icon: 'role', affix: true }
-      },
-      {
-        path: 'create',
-        component: () => import('@/views/role/create'),
-        name: 'CreateRole',
-        meta: { title: 'createRole', icon: 'edit' },
-        hidden: true
-      },
-      {
-        path: 'edit/:id(\\w+)',
-        component: () => import('@/views/role/edit'),
-        name: 'EditRole',
-        meta: { title: 'editRole', noCache: true, activeMenu: '/role/list' },
-        hidden: true
-      }
-    ]
-  },
-  {
     path: '/documentation',
     component: Layout,
     children: [
@@ -207,6 +115,9 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
+  postRouter,
+  userRouter,
+  roleRouter,
   {
     path: '/error',
     component: Layout,
@@ -241,17 +152,6 @@ export const asyncRoutes = [
         component: () => import('@/views/error-log/index'),
         name: 'ErrorLog',
         meta: { title: 'errorLog', icon: 'bug' }
-      }
-    ]
-  },
-
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://github.com/clevergo/clevergo',
-        meta: { title: 'CleverGo', icon: 'link' }
       }
     ]
   },
