@@ -54,6 +54,9 @@ func (r *Resource) get(ctx *clevergo.Context) error {
 		return err
 	}
 	post, err := r.service.Get(id)
+	if err != nil {
+		return err
+	}
 	return ctx.JSON(http.StatusOK, jsend.New(post))
 }
 

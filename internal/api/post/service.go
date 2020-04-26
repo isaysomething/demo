@@ -1,6 +1,7 @@
 package post
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"time"
@@ -38,26 +39,24 @@ func NewService(db *sqlex.DB, userManager *api.UserManager) Service {
 	}
 }
 
-func (s *service) Get(id int64) (post *Post, err error) {
+func (s *service) Get(id int64) (*Post, error) {
 	sql, args, err := squirrel.Select("*").
 		From("posts").
 		Where(squirrel.Eq{"id": id}).ToSql()
 	if err != nil {
 		return nil, err
 	}
-	post = new(Post)
+	post := new(Post)
 	err = s.db.Get(post, sql, args...)
-	if err != nil {
-		return
-	}
-
-	markdownContent, err := models.GetPostMeta(s.db, id, models.PostMetaMarkdownContent)
 	if err != nil {
 		return nil, err
 	}
-	post.MarkdownContent = markdownContent.Value
 
-	return
+	markdownContent, err := models.GetPostMeta(s.db, id, models.PostMetaMarkdownContent)
+	if err == nil {
+		post.MarkdownContent = markdownContent.Value
+	}
+	return post, nil
 }
 
 func (s *service) Create(ctx *clevergo.Context) (*Post, error) {
@@ -71,6 +70,24 @@ func (s *service) Create(ctx *clevergo.Context) (*Post, error) {
 		return nil, err
 	}
 	now := time.Now()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	post, err := s.createPost(tx, userID, form, now)
+	if err != nil {
+		return nil, err
+	}
+	if err = s.createPostMeta(tx, post.ID, models.PostMetaMarkdownContent, form.MarkdownContent, now); err != nil {
+		return nil, err
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
+	return post, nil
+}
+
+func (s *service) createPost(tx *sql.Tx, userID int64, form *Form, now time.Time) (*Post, error) {
 	sql, args, err := squirrel.Insert("posts").
 		SetMap(clevergo.Map{
 			"user_id":    userID,
@@ -83,10 +100,6 @@ func (s *service) Create(ctx *clevergo.Context) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	tx, err := s.db.Begin()
-	if err != nil {
-		return nil, err
-	}
 	res, err := tx.Exec(sql, args...)
 	if err != nil {
 		return nil, err
@@ -95,21 +108,42 @@ func (s *service) Create(ctx *clevergo.Context) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	sql, args, err = squirrel.Insert("post_meta").SetMap(clevergo.Map{
+	return s.Get(postID)
+}
+
+func (s *service) createPostMeta(tx *sql.Tx, postID int64, key, value string, now time.Time) error {
+	sql, args, err := squirrel.Insert("post_meta").SetMap(clevergo.Map{
 		"post_id":    postID,
-		"meta_key":   models.PostMetaMarkdownContent,
-		"meta_value": form.MarkdownContent,
+		"meta_key":   key,
+		"meta_value": value,
 		"created_at": now,
 		"updated_at": sqlex.ToNullTime(now),
 	}).ToSql()
 	if _, err = tx.Exec(sql, args...); err != nil {
-		return nil, err
+		return err
 	}
-	if err = tx.Commit(); err != nil {
-		return nil, err
-	}
+	return nil
+}
 
-	return s.Get(postID)
+func (s *service) updatePostMeta(tx *sql.Tx, postID int64, key, value string, now time.Time) error {
+	_, err := models.GetPostMeta(s.db, postID, key)
+	if err != nil && sql.ErrNoRows == err {
+		return s.createPostMeta(tx, postID, key, value, now)
+	}
+	sql, args, err := squirrel.Update("post_meta").
+		Where(squirrel.Eq{
+			"post_id":  postID,
+			"meta_key": key,
+		}).
+		SetMap(clevergo.Map{
+			"meta_value": value,
+			"updated_at": sqlex.ToNullTime(now),
+		}).
+		ToSql()
+	if _, err = tx.Exec(sql, args...); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *service) Update(id int64, form *Form) (post *Post, err error) {
@@ -137,17 +171,7 @@ func (s *service) Update(id int64, form *Form) (post *Post, err error) {
 	if _, err = tx.Exec(sql, args...); err != nil {
 		return nil, err
 	}
-	sql, args, err = squirrel.Update("post_meta").
-		Where(squirrel.Eq{
-			"post_id":  id,
-			"meta_key": models.PostMetaMarkdownContent,
-		}).
-		SetMap(clevergo.Map{
-			"meta_value": form.MarkdownContent,
-			"updated_at": sqlex.ToNullTime(now),
-		}).
-		ToSql()
-	if _, err = tx.Exec(sql, args...); err != nil {
+	if err = s.updatePostMeta(tx, id, models.PostMetaMarkdownContent, form.MarkdownContent, now); err != nil {
 		return nil, err
 	}
 	if err = tx.Commit(); err != nil {
