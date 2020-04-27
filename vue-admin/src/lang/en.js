@@ -147,7 +147,8 @@ export default {
     created_at: 'Created At',
     updated_at: 'Updated At',
     asc: 'Ascend',
-    desc: 'Descend'
+    desc: 'Descend',
+    name: 'Name'
   },
   user: {
     username: 'Username',

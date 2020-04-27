@@ -32,6 +32,32 @@ CREATE TABLE `auth_rules` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE `auth_items` (
+    `id` VARCHAR(64) NOT NULL,
+    `group_id` INT NOT NULL DEFAULT 0,
+    `name` VARCHAR(64) NOT NULL,
+    `item_type` INT NOT NULL,
+    `reserved` BOOLEAN NOT NULL DEFAULT 0,
+    `obj` VARCHAR(64) NOT NULL DEFAULT '',
+    `act` VARCHAR(64) NOT NULL DEFAULT '',
+    `created_at` datetime NOT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_auth_items_item_type` (`item_type`),
+    KEY `idx_auth_items_created_at` (`created_at`),
+    KEY `idx_auth_items_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `auth_item_groups` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(64) NOT NULL,
+    `created_at` datetime NOT NULL,
+    `updated_at` datetime DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_auth_items_created_at` (`created_at`),
+    KEY `idx_auth_items_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE `posts` (
   `id` BIGINT NOT NULL AUTO_INCREMENT,
   `state` INT NOT NULL DEFAULT 1,

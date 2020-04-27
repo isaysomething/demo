@@ -43,7 +43,7 @@ var apiSet = wire.NewSet(
 
 	user.Set,
 	post.Set,
-	authz.New,
+	authz.Set,
 )
 
 func provideAPIServer(

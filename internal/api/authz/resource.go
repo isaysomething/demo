@@ -7,18 +7,21 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
+	"github.com/clevergo/demo/pkg/rest/pagination"
 	"github.com/clevergo/jsend"
 )
 
 type Resource struct {
 	*api.Application
 	enforcer *casbin.Enforcer
+	service  Service
 }
 
-func New(app *api.Application, enforcer *casbin.Enforcer) *Resource {
+func New(app *api.Application, enforcer *casbin.Enforcer, service Service) *Resource {
 	return &Resource{
 		Application: app,
 		enforcer:    enforcer,
+		service:     service,
 	}
 }
 
@@ -31,9 +34,17 @@ func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 	router.Get("/permissions", r.queryPermissions)
 }
 
-func (r *Resource) queryRoles(ctx *clevergo.Context) error {
-	roles := r.enforcer.GetAllRoles()
-	return ctx.JSON(http.StatusOK, jsend.New(roles))
+func (r *Resource) queryRoles(ctx *clevergo.Context) (err error) {
+	p := pagination.NewFromContext(ctx)
+	p.Total, err = r.service.Count()
+	if err != nil {
+		return err
+	}
+	p.Items, err = r.service.Query(p.Limit, p.Offset())
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, jsend.New(p))
 }
 
 func (r *Resource) getRole(ctx *clevergo.Context) error {

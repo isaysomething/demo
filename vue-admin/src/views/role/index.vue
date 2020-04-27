@@ -2,13 +2,19 @@
   <div class="app-container">
     <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
 
-      <el-table-column align="center" label="Name">
+      <el-table-column align="center" label="ID" width="180">
         <template slot-scope="scope">
-          <span>{{ scope.row }}</span>
+          <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="Actions" width="120">
+      <el-table-column align="center" :label="$t('table.name')">
+        <template slot-scope="scope">
+          <span>{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" :label="$t('table.actions')" width="120">
         <template slot-scope="scope">
           <router-link :to="'/role/edit/'+scope.row">
             <el-button type="primary" size="small" icon="el-icon-edit" />
@@ -46,7 +52,8 @@ export default {
     getList() {
       this.listLoading = true
       queryRoles(this.listQuery).then(response => {
-        this.list = response.data
+        this.list = response.data.items
+        this.total = response.data.total
         this.listLoading = false
       })
     },
