@@ -14,6 +14,7 @@ import (
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/rbac"
 	"github.com/clevergo/jsend"
 )
 
@@ -115,12 +116,37 @@ func (r *Resource) info(ctx *clevergo.Context) error {
 	if err != nil {
 		return err
 	}
+	query := squirrel.Select("id").From("auth_items").Where(squirrel.Eq{"item_type": rbac.TypePermission})
+	policies, err := r.enforcer.GetImplicitPermissionsForUser("user_" + user.GetIdentity().GetID())
+	if err != nil {
+		return err
+	}
+	or := squirrel.Or{}
+	for _, v := range policies {
+		or = append(or, squirrel.Eq{
+			"obj": v[1],
+			"act": v[2],
+		})
+	}
+	query = query.Where(or)
+	sql, args, err := query.ToSql()
+	permissions := []string{}
+	rows, err := r.DB().Queryx(sql, args...)
+	id := ""
+	for rows.Next() {
+		if err = rows.Scan(&id); err != nil {
+			return err
+		}
+		permissions = append(permissions, id)
+	}
+
 	identity, _ := user.GetIdentity().(*models.User)
 	return ctx.JSON(http.StatusOK, jsend.New(core.Map{
-		"id":       identity.ID,
-		"username": identity.Username,
-		"email":    identity.Email,
-		"roles":    roles,
+		"id":          identity.ID,
+		"username":    identity.Username,
+		"email":       identity.Email,
+		"roles":       roles,
+		"permissions": permissions,
 	}))
 }
 
