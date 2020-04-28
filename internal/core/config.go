@@ -39,6 +39,7 @@ type RedisConfig struct {
 
 type JWTConfig struct {
 	SecretKey string `koanf:"secret_key"`
+	Duration  int    `konaf:"duration"`
 }
 
 type I18NConfig struct {

@@ -43,3 +43,10 @@ export function queryPermissions() {
     method: 'get'
   })
 }
+
+export function queryPermissionGroups() {
+  return request({
+    url: '/permission-groups',
+    method: 'get'
+  })
+}

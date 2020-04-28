@@ -1,41 +1,54 @@
 <template>
   <div class="createPost-container">
-    <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
+    <el-form ref="form" :model="form" :rules="rules" class="form-container">
+
+      <sticky :z-index="10" class="sub-navbar">
+        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
+          Submit
+        </el-button>
+      </sticky>
 
       <div class="createPost-main-container">
         <el-row>
 
-          <el-col :span="24">
-            <el-form-item style="margin-bottom: 40px;" prop="name">
-              <MDinput v-model="postForm.name" :maxlength="100" name="name" required>
-                Name
-              </MDinput>
+          <el-col>
+            <el-form-item style="margin-bottom: 40px;" prop="id" label="ID">
+              <el-input v-model="form.id" name="id" required />
             </el-form-item>
+          </el-col>
+
+          <el-col>
+            <el-form-item style="margin-bottom: 40px;" prop="name" :label="$t('table.name')">
+              <el-input v-model="form.name" name="name" required />
+            </el-form-item>
+          </el-col>
+
+          <el-col>
+
+            <el-checkbox-group v-model="form.permissions">
+              <el-form-item v-for="group in permissionGroups" :key="group.id" :label="group.name">
+                <el-checkbox v-for="permission in group.permissions" :key="permission.id" :label="permission.id">
+                  {{ permission.name }}
+                </el-checkbox>
+              </el-form-item>
+            </el-checkbox-group>
 
           </el-col>
+
         </el-row>
 
-        <el-form-item prop="content" style="margin-bottom: 30px;">
-          <el-input v-model="postForm.content" type="textarea" rows="8" />
-        </el-form-item>
       </div>
     </el-form>
   </div>
 </template>
 
 <script>
-import MDinput from '@/components/MDinput'
-import { getRole, createRole, updateRole } from '@/api/role'
-
-const defaultForm = {
-  id: undefined,
-  name: '',
-  permissions: []
-}
+import Sticky from '@/components/Sticky'
+import { getRole, createRole, updateRole, queryPermissionGroups } from '@/api/role'
 
 export default {
   name: 'RoleDetail',
-  components: { MDinput },
+  components: { Sticky },
   props: {
     isEdit: {
       type: Boolean,
@@ -55,14 +68,19 @@ export default {
       }
     }
     return {
-      postForm: Object.assign({}, defaultForm),
+      form: {
+        id: undefined,
+        name: '',
+        permissions: ['user:info']
+      },
       loading: false,
       userListOptions: [],
       rules: {
         title: [{ validator: validateRequire }],
         content: [{ validator: validateRequire }]
       },
-      tempRoute: {}
+      tempRoute: {},
+      permissionGroups: []
     }
   },
   computed: {
@@ -71,8 +89,9 @@ export default {
     }
   },
   created() {
+    this.getPermissions()
     if (this.isEdit) {
-      this.postForm.id = this.$route.params && this.$route.params.id
+      this.form.id = this.$route.params && this.$route.params.id
       this.fetchData()
     }
 
@@ -82,9 +101,13 @@ export default {
     this.tempRoute = Object.assign({}, this.$route)
   },
   methods: {
+    checkPermission(arg1, arg2) {
+      console.log(arg1, arg2)
+    },
     fetchData() {
-      getRole(this.postForm.id).then(response => {
-        this.postForm = response.data
+      getRole(this.form.id).then(response => {
+        this.form = response.data
+        console.log(this.form.permissions)
 
         // set tagsview title
         this.setTagsViewTitle()
@@ -95,19 +118,26 @@ export default {
         console.log(err)
       })
     },
+    getPermissions() {
+      queryPermissionGroups().then(response => {
+        this.permissionGroups = response.data
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     setTagsViewTitle() {
       const title = this.lang === 'zh' ? '编辑文章' : 'Edit Article'
-      const route = Object.assign({}, this.tempRoute, { title: `${title}-${this.postForm.id}` })
+      const route = Object.assign({}, this.tempRoute, { title: `${title}-${this.form.id}` })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
     setPageTitle() {
       const title = 'Edit Article'
-      document.title = `${title} - ${this.postForm.id}`
+      document.title = `${title} - ${this.form.id}`
     },
     createRole() {
       this.loading = true
-      if (this.postForm.id) {
-        updateRole(this.postForm.id, this.postForm).then(response => {
+      if (this.form.id) {
+        updateRole(this.form.id, this.form).then(response => {
           this.$notify({
             title: '成功',
             message: '更新文章成功',
@@ -121,7 +151,7 @@ export default {
           this.loading = false
         })
       } else {
-        createRole(this.postForm).then(response => {
+        createRole(this.form).then(response => {
           this.$notify({
             title: '成功',
             message: '发布文章成功',
@@ -140,10 +170,10 @@ export default {
       }
     },
     submitForm() {
-      console.log(this.postForm)
-      this.$refs.postForm.validate(valid => {
+      console.log(this.form)
+      this.$refs.form.validate(valid => {
         if (valid) {
-          this.postForm.status = 1
+          this.form.status = 1
           this.createRole()
         } else {
           console.log('error submit!!')
@@ -152,14 +182,14 @@ export default {
       })
     },
     draftForm() {
-      if (this.postForm.content.length === 0 || this.postForm.title.length === 0) {
+      if (this.form.content.length === 0 || this.form.title.length === 0) {
         this.$message({
           message: '请填写必要的标题和内容',
           type: 'warning'
         })
         return
       }
-      this.postForm.status = 0
+      this.form.status = 0
       this.createPost()
     }
   }

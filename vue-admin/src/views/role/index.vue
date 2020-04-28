@@ -16,10 +16,10 @@
 
       <el-table-column align="center" :label="$t('table.actions')" width="120">
         <template slot-scope="scope">
-          <router-link :to="'/role/edit/'+scope.row">
+          <router-link :to="'/role/edit/'+scope.row.id">
             <el-button type="primary" size="small" icon="el-icon-edit" />
           </router-link>
-          <el-popconfirm title="Are you sure you want to delete this item?" @onConfirm="handleDelete(scope.row)">
+          <el-popconfirm title="Are you sure you want to delete this item?" @onConfirm="handleDelete(scope.row.id)">
             <el-button slot="reference" type="danger" size="small" icon="el-icon-delete" />
           </el-popconfirm>
         </template>

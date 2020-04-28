@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/casbin/casbin/v2"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
+	"github.com/clevergo/demo/internal/rbac"
 	"github.com/clevergo/demo/pkg/rest/pagination"
 	"github.com/clevergo/jsend"
 )
@@ -32,6 +34,7 @@ func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 	router.Put("/roles/:name", r.updateRole)
 	router.Delete("/roles/:name", r.deleteRole)
 	router.Get("/permissions", r.queryPermissions)
+	router.Get("/permission-groups", r.permissionGroups)
 }
 
 func (r *Resource) queryRoles(ctx *clevergo.Context) (err error) {
@@ -53,8 +56,34 @@ func (r *Resource) getRole(ctx *clevergo.Context) error {
 		ctx.NotFound()
 		return nil
 	}
+
+	query := squirrel.Select("id").From("auth_items").Where(squirrel.Eq{"item_type": rbac.TypePermission})
+	policies, err := r.enforcer.GetImplicitPermissionsForUser(name)
+	if err != nil {
+		return err
+	}
+	or := squirrel.Or{}
+	for _, v := range policies {
+		or = append(or, squirrel.Eq{
+			"obj": v[1],
+			"act": v[2],
+		})
+	}
+	query = query.Where(or)
+	sql, args, err := query.ToSql()
+	permissions := []string{}
+	rows, err := r.DB().Queryx(sql, args...)
+	id := ""
+	for rows.Next() {
+		if err = rows.Scan(&id); err != nil {
+			return err
+		}
+		permissions = append(permissions, id)
+	}
+
 	return ctx.JSON(http.StatusOK, jsend.New(clevergo.Map{
-		"name": name,
+		"name":        name,
+		"permissions": permissions,
 	}))
 }
 
@@ -120,4 +149,32 @@ var permissions = []Permission{
 
 func (r *Resource) queryPermissions(ctx *clevergo.Context) error {
 	return ctx.JSON(http.StatusOK, jsend.New(permissions))
+}
+
+func (r *Resource) permissionGroups(ctx *clevergo.Context) error {
+	sql, args, err := squirrel.Select("g.*").From("auth_item_groups g").
+		Where("EXISTS (SELECT 1 FROM auth_items WHERE group_id = g.id)").
+		ToSql()
+	if err != nil {
+		return err
+	}
+	groups := []rbac.Group{}
+	if err = r.DB().Select(&groups, sql, args...); err != nil {
+		return err
+	}
+	for i, group := range groups {
+		sql, args, err := squirrel.Select("id, name").From("auth_items").
+			Where(squirrel.Eq{
+				"group_id":  group.ID,
+				"item_type": rbac.TypePermission,
+			}).
+			ToSql()
+		if err != nil {
+			return err
+		}
+		if err = r.DB().Select(&groups[i].Permissions, sql, args...); err != nil {
+			return err
+		}
+	}
+	return ctx.JSON(http.StatusOK, jsend.New(groups))
 }
