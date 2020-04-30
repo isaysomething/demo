@@ -24,6 +24,25 @@
           </el-col>
 
           <el-col>
+            <el-select
+              v-model="form.roles"
+              multiple
+              filterable
+              remote
+              reserve-keyword
+              placeholder="Roles"
+              :loading="loading"
+            >
+              <el-option
+                v-for="item in roleOptions"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              />
+            </el-select>
+          </el-col>
+
+          <el-col>
 
             <el-checkbox-group v-model="form.permissions">
               <el-form-item v-for="group in permissionGroups" :key="group.id" :label="group.name">
@@ -44,7 +63,7 @@
 
 <script>
 import Sticky from '@/components/Sticky'
-import { getRole, createRole, updateRole, queryPermissionGroups } from '@/api/role'
+import { queryRoles, queryRole, createRole, updateRole, queryPermissionGroups } from '@/api/role'
 
 export default {
   name: 'RoleDetail',
@@ -80,7 +99,8 @@ export default {
         content: [{ validator: validateRequire }]
       },
       tempRoute: {},
-      permissionGroups: []
+      permissionGroups: [],
+      roleOptions: []
     }
   },
   computed: {
@@ -89,11 +109,12 @@ export default {
     }
   },
   created() {
-    this.getPermissions()
     if (this.isEdit) {
       this.form.id = this.$route.params && this.$route.params.id
       this.fetchData()
     }
+    this.getPermissions()
+    this.queryRoles()
 
     // Why need to make a copy of this.$route here?
     // Because if you enter this page and quickly switch tag, may be in the execution of the setTagsViewTitle function, this.$route is no longer pointing to the current page
@@ -105,7 +126,7 @@ export default {
       console.log(arg1, arg2)
     },
     fetchData() {
-      getRole(this.form.id).then(response => {
+      queryRole(this.form.id).then(response => {
         this.form = response.data
         console.log(this.form.permissions)
 
@@ -126,7 +147,7 @@ export default {
       })
     },
     setTagsViewTitle() {
-      const title = this.lang === 'zh' ? '编辑文章' : 'Edit Article'
+      const title = this.$t('role.editRole')
       const route = Object.assign({}, this.tempRoute, { title: `${title}-${this.form.id}` })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     },
@@ -136,7 +157,7 @@ export default {
     },
     createRole() {
       this.loading = true
-      if (this.form.id) {
+      if (this.isEdit) {
         updateRole(this.form.id, this.form).then(response => {
           this.$notify({
             title: '成功',
@@ -173,7 +194,6 @@ export default {
       console.log(this.form)
       this.$refs.form.validate(valid => {
         if (valid) {
-          this.form.status = 1
           this.createRole()
         } else {
           console.log('error submit!!')
@@ -181,16 +201,10 @@ export default {
         }
       })
     },
-    draftForm() {
-      if (this.form.content.length === 0 || this.form.title.length === 0) {
-        this.$message({
-          message: '请填写必要的标题和内容',
-          type: 'warning'
-        })
-        return
-      }
-      this.form.status = 0
-      this.createPost()
+    queryRoles() {
+      queryRoles({ exclude: [this.form.id] }).then(response => {
+        this.roleOptions = response.data.items
+      })
     }
   }
 }

@@ -132,7 +132,7 @@ func initializeAPIServer() (*core.Server, func(), error) {
 	resource := user.New(application, captchasManager, jwtManager, enforcer, service)
 	postService := post.NewService(db, userManager)
 	postResource := post.New(application, postService)
-	authzService := authz.NewService(db)
+	authzService := authz.NewService(db, enforcer)
 	authzResource := authz.New(application, enforcer, authzService)
 	captchaCaptcha := captcha.New(captchasManager)
 	server := provideAPIServer(logger, application, captchasManager, jwtManager, userManager, authenticator, corsMiddleware, authzMiddleware, resource, postResource, authzResource, captchaCaptcha)

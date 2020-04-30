@@ -16,6 +16,7 @@ func NewErrorHandler() *ErrorHandler {
 }
 
 func (h *ErrorHandler) Handle(ctx *clevergo.Context, err error) {
+	log.Println(err)
 	status := http.StatusOK
 	if e, ok := err.(clevergo.Error); ok {
 		status = e.Status()

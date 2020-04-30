@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export function queryRoles() {
+export function queryRoles(query) {
   return request({
     url: '/roles',
-    method: 'get'
+    method: 'get',
+    params: query
   })
 }
 
@@ -30,7 +31,7 @@ export function deleteRole(name) {
   })
 }
 
-export function getRole(name) {
+export function queryRole(name) {
   return request({
     url: `/roles/${name}`,
     method: 'get'

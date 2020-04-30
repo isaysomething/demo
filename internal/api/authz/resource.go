@@ -1,7 +1,6 @@
 package authz
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/Masterminds/squirrel"
@@ -30,9 +29,9 @@ func New(app *api.Application, enforcer *casbin.Enforcer, service Service) *Reso
 func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 	router.Get("/roles", r.queryRoles)
 	router.Post("/roles", r.createRole)
-	router.Get("/roles/:name", r.getRole)
-	router.Put("/roles/:name", r.updateRole)
-	router.Delete("/roles/:name", r.deleteRole)
+	router.Get("/roles/:id", r.getRole)
+	router.Put("/roles/:id", r.updateRole)
+	router.Delete("/roles/:id", r.deleteRole)
 	router.Get("/permissions", r.queryPermissions)
 	router.Get("/permission-groups", r.permissionGroups)
 }
@@ -43,7 +42,11 @@ func (r *Resource) queryRoles(ctx *clevergo.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	p.Items, err = r.service.Query(p.Limit, p.Offset())
+	qps := new(QueryParams)
+	if err = api.DecodeQueryParams(qps, ctx); err != nil {
+		return err
+	}
+	p.Items, err = r.service.Query(p.Limit, p.Offset(), qps)
 	if err != nil {
 		return err
 	}
@@ -51,40 +54,13 @@ func (r *Resource) queryRoles(ctx *clevergo.Context) (err error) {
 }
 
 func (r *Resource) getRole(ctx *clevergo.Context) error {
-	name := ctx.Params.String("name")
-	if !r.hasRole(name) {
-		ctx.NotFound()
-		return nil
-	}
-
-	query := squirrel.Select("id").From("auth_items").Where(squirrel.Eq{"item_type": rbac.TypePermission})
-	policies, err := r.enforcer.GetImplicitPermissionsForUser(name)
+	id := ctx.Params.String("id")
+	role, err := r.service.Get(id)
 	if err != nil {
 		return err
 	}
-	or := squirrel.Or{}
-	for _, v := range policies {
-		or = append(or, squirrel.Eq{
-			"obj": v[1],
-			"act": v[2],
-		})
-	}
-	query = query.Where(or)
-	sql, args, err := query.ToSql()
-	permissions := []string{}
-	rows, err := r.DB().Queryx(sql, args...)
-	id := ""
-	for rows.Next() {
-		if err = rows.Scan(&id); err != nil {
-			return err
-		}
-		permissions = append(permissions, id)
-	}
 
-	return ctx.JSON(http.StatusOK, jsend.New(clevergo.Map{
-		"name":        name,
-		"permissions": permissions,
-	}))
+	return ctx.JSON(http.StatusOK, jsend.New(role))
 }
 
 func (r *Resource) hasRole(name string) bool {
@@ -98,7 +74,18 @@ func (r *Resource) hasRole(name string) bool {
 }
 
 func (r *Resource) createRole(ctx *clevergo.Context) error {
-	return nil
+	form := new(Form)
+	if err := ctx.Decode(form); err != nil {
+		return err
+	}
+	if err := form.Validate(); err != nil {
+		return err
+	}
+	role, err := r.service.Create(form)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, jsend.New(role))
 }
 
 func (r *Resource) updateRole(ctx *clevergo.Context) error {
@@ -118,24 +105,12 @@ func isReservedRole(name string) bool {
 }
 
 func (r *Resource) deleteRole(ctx *clevergo.Context) error {
-	name := ctx.Params.String("name")
-	if !r.hasRole(name) {
-		ctx.NotFound()
-		return nil
-	}
-	if isReservedRole(name) {
-		return fmt.Errorf("role %q is reserved, you cannot delete it", name)
-	}
-
-	ok, err := r.enforcer.DeleteRole(name)
-	if err != nil {
+	id := ctx.Params.String("id")
+	if err := r.service.Delete(id); err != nil {
 		return err
 	}
-	if !ok {
-		return fmt.Errorf("failed to delete role %q", name)
-	}
 
-	return nil
+	return ctx.JSON(http.StatusOK, jsend.New(nil))
 }
 
 type Permission struct {

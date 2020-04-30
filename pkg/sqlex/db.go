@@ -78,3 +78,22 @@ func (db *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
 	defer db.log(time.Now(), query, args...)
 	return db.DB.Exec(query, args...)
 }
+
+func (db *DB) Transact(fn func(tx *sql.Tx) error) (err error) {
+	tx, err := db.Begin()
+	if err != nil {
+		return
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+	err = fn(tx)
+	return err
+}

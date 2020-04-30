@@ -11,6 +11,7 @@ var decoder = schema.NewDecoder()
 
 func init() {
 	decoder.IgnoreUnknownKeys(true)
+	decoder.SetAliasTag("json")
 }
 
 func DecodeQueryParams(dst interface{}, ctx *clevergo.Context) (err error) {
