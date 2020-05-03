@@ -15,10 +15,9 @@ require (
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/stores/redisstore v0.1.2
 	github.com/clevergo/clevergo v1.11.1-0.20200415031733-c805f2c51b89
-	github.com/clevergo/form v1.2.0
+	github.com/clevergo/form v1.3.0
 	github.com/clevergo/i18n v1.0.2
 	github.com/clevergo/jet-packrloader v0.1.0
-	github.com/clevergo/jetpackr v0.1.1 // indirect
 	github.com/clevergo/jetrenderer v0.1.0
 	github.com/clevergo/jsend v1.1.0
 	github.com/clevergo/log v0.3.0
@@ -26,7 +25,6 @@ require (
 	github.com/clevergo/middleware v1.0.1
 	github.com/clevergo/strutil v1.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/docker/docker v1.4.2-0.20200213202729-31a86c4ab209
 	github.com/eko/gocache v1.0.0
 	github.com/fatih/color v1.9.0
 	github.com/go-mail/mail v2.3.1+incompatible
@@ -50,6 +48,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/cobra v1.0.0
+	github.com/stretchr/testify v1.5.1
 	github.com/tdewolff/minify/v2 v2.7.3
 	go.uber.org/zap v1.14.1
 	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
