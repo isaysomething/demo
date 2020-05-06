@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Masterminds/squirrel"
+	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/clevergo/strutil"
 	"golang.org/x/crypto/bcrypt"
@@ -71,7 +73,7 @@ func (u *User) VerifyEmail(db *sqlex.DB) error {
 }
 
 func (u *User) UpdatePassword(db *sqlex.DB, password string) error {
-	password, err := generatePassword(password)
+	password, err := GeneratePassword(password)
 	if err != nil {
 		return err
 	}
@@ -124,7 +126,7 @@ func (u *User) GenerateVerificationToken(db *sqlex.DB) error {
 	return nil
 }
 
-func generatePassword(password string) (string, error) {
+func GeneratePassword(password string) (string, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return "", err
@@ -134,27 +136,32 @@ func generatePassword(password string) (string, error) {
 }
 
 func CreateUser(db *sqlex.DB, username, email, password string) (*User, error) {
-	hashedPassword, err := generatePassword(password)
+	hashedPassword, err := GeneratePassword(password)
 	if err != nil {
 		return nil, err
 	}
 	verificationToken := generateToken(64)
-	res, err := db.NamedExec(
-		`INSERT INTO users (username, email, verification_token, hashed_password, state, created_at) 
-		VALUES (:username, :email, :verification_token, :hashed_password, :state, :created_at)`,
-		map[string]interface{}{
-			"username":           username,
-			"email":              email,
-			"verification_token": verificationToken,
-			"hashed_password":    hashedPassword,
-			"state":              UserStateInactive,
-			"created_at":         time.Now(),
-		},
-	)
+	now := time.Now()
+	query, args, err := squirrel.Insert("users").SetMap(clevergo.Map{
+		"username":           username,
+		"email":              email,
+		"verification_token": verificationToken,
+		"hashed_password":    hashedPassword,
+		"state":              UserStateInactive,
+		"created_at":         now,
+		"updated_at":         sqlex.ToNullTime(now),
+	}).ToSql()
 	if err != nil {
 		return nil, err
 	}
-	id, _ := res.LastInsertId()
+	res, err := db.Exec(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
 	return GetUser(db, id)
 }
 

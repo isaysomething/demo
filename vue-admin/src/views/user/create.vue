@@ -1,13 +1,13 @@
 <template>
-  <role-detail :is-edit="false" />
+  <user-detail :is-edit="false" />
 </template>
 
 <script>
-import RoleDetail from './components/RoleDetail'
+import UserDetail from './components/UserDetail'
 
 export default {
   name: 'CreateRole',
-  components: { RoleDetail }
+  components: { UserDetail }
 }
 </script>
 

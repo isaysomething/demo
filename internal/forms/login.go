@@ -20,10 +20,10 @@ type Login struct {
 	user           *users.User
 	identity       *models.User
 	captchaManager *captchas.Manager
-	CaptchaID      string `json:"captcha_id"`
-	Captcha        string `json:"captcha"`
-	Email          string `json:"email"`
-	Password       string `json:"password"`
+	CaptchaID      string `schema:"captcha_id" json:"captcha_id"`
+	Captcha        string `schema:"captcha" json:"captcha"`
+	Email          string `schema:"email" json:"email"`
+	Password       string `schema:"password" json:"password"`
 }
 
 // NewLogin returns a login form.
@@ -90,9 +90,6 @@ func (l *Login) getIdentity() *models.User {
 // Handle handles login request.
 func (l *Login) Handle(ctx *clevergo.Context) (*models.User, error) {
 	if err := ctx.Decode(l); err != nil {
-		return nil, err
-	}
-	if err := l.Validate(); err != nil {
 		return nil, err
 	}
 	identity := l.getIdentity()

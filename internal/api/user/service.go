@@ -6,9 +6,14 @@ import (
 	"github.com/clevergo/demo/pkg/sqlex"
 )
 
+type User struct {
+	models.User
+}
+
 type Service interface {
 	Count() (uint64, error)
 	Query(limit, offset uint64, qps *QueryParams) ([]models.User, error)
+	Create(form *CreateForm) (*User, error)
 }
 
 func NewService(db *sqlex.DB) Service {
@@ -52,4 +57,14 @@ func (s *service) Query(limit, offset uint64, qps *QueryParams) (users []models.
 	users = []models.User{}
 	err = s.db.Select(&users, sql, args...)
 	return
+}
+
+func (s *service) Create(form *CreateForm) (*User, error) {
+	user, err := models.CreateUser(s.db, form.Username, form.Email, form.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		User: *user,
+	}, nil
 }
