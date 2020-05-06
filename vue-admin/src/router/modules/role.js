@@ -7,29 +7,25 @@ const roleRouter =
   path: '/role',
   component: Layout,
   redirect: '/role/index',
-  meta: {
-    title: 'role',
-    icon: 'role'
-  },
   children: [
     {
       path: 'index',
       component: () => import('@/views/role/index'),
       name: 'Role',
-      meta: { title: 'role', icon: 'role', affix: true }
+      meta: { title: 'role', icon: 'role', affix: true, permissions: ['role:list'] }
     },
     {
       path: 'create',
       component: () => import('@/views/role/create'),
       name: 'CreateRole',
-      meta: { title: 'createRole', icon: 'edit' },
+      meta: { title: 'createRole', icon: 'edit', permissions: ['role:create'] },
       hidden: true
     },
     {
       path: 'edit/:id(\\w+)',
       component: () => import('@/views/role/edit'),
       name: 'EditRole',
-      meta: { title: 'editRole', noCache: true, activeMenu: '/role/list' },
+      meta: { title: 'editRole', noCache: true, activeMenu: '/role/list', permissions: ['role:edit'] },
       hidden: true
     }
   ]

@@ -7,7 +7,8 @@ const state = {
   name: '',
   avatar: '',
   introduction: '',
-  roles: []
+  roles: [],
+  permissions: []
 }
 
 const mutations = {
@@ -25,6 +26,9 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_PERMISSIONS: (state, permissions) => {
+    state.permissions = permissions
   }
 }
 
@@ -53,7 +57,7 @@ const actions = {
           reject('Verification failed, please Login again.')
         }
 
-        const { roles, username } = data
+        const { roles, permissions, username } = data
 
         // roles must be a non-empty array
         if (!roles || roles.length <= 0) {
@@ -61,6 +65,7 @@ const actions = {
         }
 
         commit('SET_ROLES', roles)
+        commit('SET_PERMISSIONS', permissions)
         commit('SET_NAME', username)
         commit('SET_AVATAR', '')
         commit('SET_INTRODUCTION', '')
@@ -77,6 +82,7 @@ const actions = {
       logout(state.token).then(() => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
+        commit('SET_PERMISSIONS', [])
         removeToken()
         resetRouter()
 
@@ -96,6 +102,7 @@ const actions = {
     return new Promise(resolve => {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
+      commit('SET_PERMISSIONS', [])
       removeToken()
       resolve()
     })
@@ -109,12 +116,12 @@ const actions = {
       commit('SET_TOKEN', token)
       setToken(token)
 
-      const { roles } = await dispatch('getInfo')
+      const { permissions } = await dispatch('getInfo')
 
       resetRouter()
 
       // generate accessible routes map based on roles
-      const accessRoutes = await dispatch('permission/generateRoutes', roles, { root: true })
+      const accessRoutes = await dispatch('permission/generateRoutes', permissions, { root: true })
 
       // dynamically add accessible routes
       router.addRoutes(accessRoutes)

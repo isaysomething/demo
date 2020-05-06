@@ -17,8 +17,20 @@ type CreateForm struct {
 
 func (f *CreateForm) Validate() error {
 	return validation.ValidateStruct(f,
-		validation.Field(&f.Username, validation.Required, validation.By(validations.ValidateUsername)),
-		validation.Field(&f.Password, validation.Required, validation.By(validations.ValidatePassword)),
+		validation.Field(&f.Email,
+			validation.Required,
+			is.Email,
+			validation.By(validations.IsEmailAvailable),
+		),
+		validation.Field(&f.Username,
+			validation.Required,
+			validation.By(validations.ValidateUsername),
+			validation.By(validations.IsUsernameAvailable),
+		),
+		validation.Field(&f.Password,
+			validation.Required,
+			validation.By(validations.ValidatePassword),
+		),
 		validation.Field(&f.Roles, validation.Required),
 	)
 }

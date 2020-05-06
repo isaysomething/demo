@@ -14,6 +14,7 @@ func NewAuthzMiddleware(enforcer *casbin.Enforcer, userManager *UserManager) Aut
 		"/v1/captcha",
 		"/v1/check-captcha",
 		"/v1/user/login",
+		"/v1/user/logout",
 	)
 
 	return AuthzMiddleware(authorization.Middleware())

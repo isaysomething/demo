@@ -7,29 +7,25 @@ const postRouter =
   path: '/post',
   component: Layout,
   redirect: '/post/index',
-  meta: {
-    title: 'post',
-    icon: 'post'
-  },
   children: [
     {
       path: 'index',
       component: () => import('@/views/post/index'),
       name: 'Post',
-      meta: { title: 'post', icon: 'post', affix: true }
+      meta: { title: 'post', icon: 'post', affix: true, permissions: ['post:list'] }
     },
     {
       path: 'create',
       component: () => import('@/views/post/create'),
       name: 'CreatePost',
-      meta: { title: 'createPost', icon: 'edit' },
+      meta: { title: 'createPost', icon: 'edit', permissions: ['post:create'] },
       hidden: true
     },
     {
       path: 'edit/:id(\\d+)',
       component: () => import('@/views/post/edit'),
       name: 'EditPost',
-      meta: { title: 'editPost', noCache: true, activeMenu: '/post/list' },
+      meta: { title: 'editPost', noCache: true, activeMenu: '/post/list', permissions: ['post:edit'] },
       hidden: true
     }
   ]

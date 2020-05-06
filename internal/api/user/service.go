@@ -70,11 +70,15 @@ func (s *service) Query(limit, offset uint64, qps *QueryParams) (users []oldmode
 
 func (s *service) Create(form *CreateForm) (u *models.User, err error) {
 	ctx := context.TODO()
+	hashedPassword, err := utils.GeneratePassword(form.Password)
+	if err != nil {
+		return
+	}
 	err = utils.Tx(ctx, func(tx *sql.Tx) (err error) {
 		u = &models.User{}
 		u.Email = form.Email
 		u.Username = form.Username
-		u.HashedPassword = form.Password
+		u.HashedPassword = hashedPassword
 		u.State = form.State
 		err = u.Insert(ctx, tx, boil.Infer())
 		if err != nil {
