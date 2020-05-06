@@ -1,0 +1,1 @@
+sqlboiler mysql --output internal/models

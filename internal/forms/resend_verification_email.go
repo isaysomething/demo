@@ -7,7 +7,7 @@ import (
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/internal/validations"
 	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/go-mail/mail"
@@ -19,7 +19,7 @@ type ResendVerificationEmail struct {
 	db             *sqlex.DB
 	mailer         *mail.Dialer
 	captchaManager *captchas.Manager
-	user           *models.User
+	user           *oldmodels.User
 	Email          string `valid:"required,email" json:"email" xml:"email"`
 	Captcha        string `valid:"required" json:"captcha" xml:"captcha"`
 	CaptchaID      string `valid:"required" json:"captcha_id" xml:"captcha_id"`
@@ -53,9 +53,9 @@ func (f *ResendVerificationEmail) validateEmail(value interface{}) error {
 	return nil
 }
 
-func (f *ResendVerificationEmail) getUser() (*models.User, error) {
+func (f *ResendVerificationEmail) getUser() (*oldmodels.User, error) {
 	if f.user == nil {
-		user, err := models.GetUserByEmail(f.db, f.Email)
+		user, err := oldmodels.GetUserByEmail(f.db, f.Email)
 		if err != nil {
 			return nil, err
 		}

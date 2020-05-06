@@ -29,9 +29,9 @@
           >
             <el-option
               v-for="item in stateOptions"
-              :key="item.key"
+              :key="item.value"
               :label="item.label"
-              :value="item.key"
+              :value="item.value"
             />
           </el-select>
         </el-form-item>
@@ -153,7 +153,7 @@ export default {
         updateUser(this.form.id, this.form).then(response => {
           this.$notify({
             title: this.$t('notify.success'),
-            message: this.$t('notify.update_successfully'),
+            message: this.$t('notify.updated_successfully'),
             type: 'success',
             duration: 2000
           })
@@ -167,7 +167,7 @@ export default {
         createUser(this.form).then(response => {
           this.$notify({
             title: this.$t('notify.success'),
-            message: this.$t('notify.create_successfully'),
+            message: this.$t('notify.created_successfully'),
             type: 'success',
             duration: 2000
           })

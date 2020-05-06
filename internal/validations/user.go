@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/pkg/sqlex"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -18,7 +18,7 @@ var (
 )
 
 // UserPassword validates user password.
-func UserPassword(user *models.User) validation.RuleFunc {
+func UserPassword(user *oldmodels.User) validation.RuleFunc {
 	return func(value interface{}) error {
 		password, _ := value.(string)
 		if user == nil {
@@ -35,7 +35,7 @@ func UserPassword(user *models.User) validation.RuleFunc {
 func IsUsernameTaken(db *sqlex.DB) validation.RuleFunc {
 	return func(value interface{}) error {
 		username, _ := value.(string)
-		_, err := models.GetUserByUsername(db, username)
+		_, err := oldmodels.GetUserByUsername(db, username)
 		if err == nil {
 			return fmt.Errorf("username %s was taken", username)
 		}
@@ -47,7 +47,7 @@ func IsUsernameTaken(db *sqlex.DB) validation.RuleFunc {
 func IsUserEmailTaken(db *sqlex.DB) validation.RuleFunc {
 	return func(value interface{}) error {
 		email, _ := value.(string)
-		if _, err := models.GetUserByEmail(db, email); err == nil || err != sql.ErrNoRows {
+		if _, err := oldmodels.GetUserByEmail(db, email); err == nil || err != sql.ErrNoRows {
 			return ErrEmailWasTaken
 		}
 		return nil

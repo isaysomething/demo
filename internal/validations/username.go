@@ -11,7 +11,7 @@ var usernameRegexp = regexp.MustCompile(`^[[:alnum:]]{5,}$`)
 
 func ValidateUsername(value interface{}) error {
 	s := value.(string)
-	if usernameRegexp.MatchString(s) {
+	if !usernameRegexp.MatchString(s) {
 		return ErrUsername
 	}
 	return nil

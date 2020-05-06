@@ -4,14 +4,14 @@ import (
 	"errors"
 
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/pkg/sqlex"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type ResetPassword struct {
 	db       *sqlex.DB
-	user     *models.User
+	user     *oldmodels.User
 	Token    string `json:"token"`
 	Password string `json:"password"`
 }
@@ -47,9 +47,9 @@ func (f *ResetPassword) validateToken(value interface{}) error {
 	return nil
 }
 
-func (f *ResetPassword) getUser() (*models.User, error) {
+func (f *ResetPassword) getUser() (*oldmodels.User, error) {
 	if f.user == nil {
-		user, err := models.GetUserByPasswordResetToken(f.db, f.Token)
+		user, err := oldmodels.GetUserByPasswordResetToken(f.db, f.Token)
 		if err != nil {
 			return nil, err
 		}

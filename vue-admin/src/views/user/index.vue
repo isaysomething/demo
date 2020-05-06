@@ -62,22 +62,75 @@
 
       <el-table-column align="center" :label="$t('table.actions')" width="120">
         <template slot-scope="scope">
-          <router-link :to="'/user/edit/'+scope.row.id">
-            <el-button type="primary" size="small" icon="el-icon-edit" />
-          </router-link>
+          <el-button type="primary" size="mini" icon="el-icon-edit" @click="handleUpdate(scope.row)" />
           <el-popconfirm title="Are you sure you want to delete this item?" @onConfirm="handleDelete(scope.row.id)">
-            <el-button slot="reference" type="danger" size="small" icon="el-icon-delete" />
+            <el-button slot="reference" type="danger" size="mini" icon="el-icon-delete" />
           </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+        <el-form-item prop="username" :label="$t('user.username')">
+          <el-input v-model="temp.username" />
+        </el-form-item>
+        <el-form-item prop="email" :label="$t('user.email')">
+          <el-input v-model="temp.email" type="email" />
+        </el-form-item>
+        <el-form-item prop="name" :label="$t('user.password')">
+          <el-input v-model="temp.password" type="password" />
+        </el-form-item>
+        <el-form-item prop="name" :label="$t('table.state')">
+          <el-select
+            v-model="temp.state"
+            placeholder="$t('table.state')"
+          >
+            <el-option
+              v-for="item in stateOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="name" :label="$t('user.roles')">
+          <el-select
+            v-model="temp.roles"
+            multiple
+            filterable
+            remote
+            reserve-keyword
+            placeholder="角色"
+            :remote-method="queryRoles"
+            :loading="loading"
+          >
+            <el-option
+              v-for="item in roleOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">
+          {{ $t('button.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
+          {{ $t('button.confirm') }}
+        </el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { queryUsers, deleteUser } from '@/api/user'
+import { queryUsers, deleteUser, createUser, updateUser } from '@/api/user'
+import { queryRoles } from '@/api/role'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import UserStates from '@/constants/user-states'
 
@@ -85,10 +138,28 @@ export default {
   name: 'UserList',
   components: { Pagination },
   data() {
+    const validateRequire = (rule, value, callback) => {
+      if (value === '') {
+        this.$message({
+          message: rule.field + '为必传项',
+          type: 'error'
+        })
+        callback(new Error(rule.field + '为必传项'))
+      } else {
+        callback()
+      }
+    }
     return {
       list: null,
       total: 0,
       listLoading: true,
+      loading: false,
+      rules: {
+        username: [{ validator: validateRequire }],
+        email: [{ validator: validateRequire }],
+        state: [{ validator: validateRequire }],
+        roles: [{ validator: validateRequire }]
+      },
       listQuery: {
         page: 1,
         limit: 10,
@@ -106,11 +177,27 @@ export default {
       directionOptions: [
         { value: 'asc', label: this.$t('table.asc') },
         { value: 'desc', label: this.$t('table.desc') }
-      ]
+      ],
+      roleOptions: [],
+      temp: {
+        id: undefined,
+        username: '',
+        email: '',
+        password: '',
+        state: UserStates.ACTIVE,
+        roles: []
+      },
+      dialogFormVisible: false,
+      dialogStatus: '',
+      textMap: {
+        update: 'Edit',
+        create: 'Create'
+      }
     }
   },
   created() {
     this.getList()
+    this.queryRoles()
   },
   methods: {
     getList() {
@@ -121,14 +208,76 @@ export default {
         this.listLoading = false
       })
     },
+    queryRoles(query) {
+      queryRoles({ name: query }).then(response => {
+        this.roleOptions = response.data.items
+      })
+    },
     handleDelete(id) {
       deleteUser(id).then(response => {
         this.getList()
       })
     },
+    resetTemp() {
+      this.temp = {
+        id: undefined,
+        username: '',
+        email: '',
+        password: '',
+        state: undefined,
+        roles: []
+      }
+    },
     handleCreate() {
-      this.$router.push({
-        name: 'CreateUser'
+      this.dialogStatus = 'create'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    createData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          createUser(this.temp).then((response) => {
+            this.temp = response.data
+            this.list.unshift(this.temp)
+            this.dialogFormVisible = false
+            this.$notify({
+              title: this.$t('notify.success'),
+              message: this.$t('notify.created_successfully'),
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
+    },
+    handleUpdate(row) {
+      this.temp = Object.assign({}, row) // copy obj
+      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
+    },
+    updateData() {
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          const tempData = Object.assign({}, this.temp)
+          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
+          updateUser(tempData.id, tempData).then(() => {
+            const index = this.list.findIndex(v => v.id === this.temp.id)
+            this.list.splice(index, 1, this.temp)
+            this.dialogFormVisible = false
+            this.$notify({
+              title: 'Success',
+              message: 'Update Successfully',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
       })
     },
     handleFilter() {

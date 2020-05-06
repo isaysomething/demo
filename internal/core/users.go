@@ -7,7 +7,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/clevergo/auth"
 	"github.com/clevergo/auth/authenticators"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/clevergo/demo/pkg/users"
 )
@@ -35,7 +35,7 @@ func (s *IdentityStore) GetIdentity(id string) (auth.Identity, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid ID %q: %s", id, err)
 	}
-	user, err := models.GetUser(s.db, intID)
+	user, err := oldmodels.GetUser(s.db, intID)
 	return user, err
 }
 
@@ -45,7 +45,7 @@ func (s *IdentityStore) GetIdentityByToken(token, tokenType string) (auth.Identi
 	if err != nil {
 		return nil, err
 	}
-	user, err := models.GetUser(s.db, claims.Subject)
+	user, err := oldmodels.GetUser(s.db, claims.Subject)
 	if err != nil {
 		return nil, err
 	}

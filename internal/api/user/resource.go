@@ -13,7 +13,7 @@ import (
 	"github.com/clevergo/demo/internal/api"
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/internal/rbac"
 	"github.com/clevergo/jsend"
 )
@@ -47,6 +47,7 @@ func (r *Resource) RegisterRoutes(router clevergo.IRouter) {
 	router.Get("/user/info", r.info)
 	router.Post("/user/logout", r.logout)
 	router.Get("/users", r.query)
+	router.Post("/users", r.create)
 	router.Get("/users/:id", r.get)
 	router.Delete("/users/:id", r.delete)
 }
@@ -66,6 +67,18 @@ func (r *Resource) query(ctx *clevergo.Context) (err error) {
 		return err
 	}
 	return ctx.JSON(200, jsend.New(p))
+}
+
+func (r *Resource) create(ctx *clevergo.Context) error {
+	form := new(CreateForm)
+	if err := ctx.Decode(form); err != nil {
+		return err
+	}
+	u, err := r.service.Create(form)
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusCreated, jsend.New(u))
 }
 
 func (r *Resource) get(ctx *clevergo.Context) error {
@@ -140,7 +153,7 @@ func (r *Resource) info(ctx *clevergo.Context) error {
 		permissions = append(permissions, id)
 	}
 
-	identity, _ := user.GetIdentity().(*models.User)
+	identity, _ := user.GetIdentity().(*oldmodels.User)
 	return ctx.JSON(http.StatusOK, jsend.New(core.Map{
 		"id":          identity.ID,
 		"username":    identity.Username,

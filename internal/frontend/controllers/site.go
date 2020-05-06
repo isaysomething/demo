@@ -10,7 +10,7 @@ import (
 	"github.com/clevergo/demo/internal/core"
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/frontend"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/pkg/bootstrap"
 	"github.com/clevergo/demo/pkg/rest/pagination"
 	"github.com/clevergo/jsend"
@@ -39,7 +39,7 @@ func (s *Site) RegisterRoutes(router clevergo.IRouter) {
 func (s *Site) index(ctx *clevergo.Context) error {
 	pagination := pagination.NewFromContext(ctx)
 	sql, args, err := squirrel.Select("count(*)").
-		Where(squirrel.Eq{"state": models.PostStatePublished}).
+		Where(squirrel.Eq{"state": oldmodels.PostStatePublished}).
 		From("posts").
 		ToSql()
 	if err != nil {
@@ -50,7 +50,7 @@ func (s *Site) index(ctx *clevergo.Context) error {
 	}
 
 	sql, args, err = squirrel.Select("*").
-		Where(squirrel.Eq{"state": models.PostStatePublished}).
+		Where(squirrel.Eq{"state": oldmodels.PostStatePublished}).
 		From("posts").
 		OrderBy("created_at DESC").
 		Offset(pagination.Offset()).
@@ -59,7 +59,7 @@ func (s *Site) index(ctx *clevergo.Context) error {
 	if err != nil {
 		return err
 	}
-	posts := []models.Post{}
+	posts := []oldmodels.Post{}
 	if err = s.DB().Select(&posts, sql, args...); err != nil {
 		return err
 	}

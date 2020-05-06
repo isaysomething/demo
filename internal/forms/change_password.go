@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/pkg/sqlex"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -12,13 +12,13 @@ import (
 // ChangePassword changes password.
 type ChangePassword struct {
 	db          *sqlex.DB
-	user        *models.User
+	user        *oldmodels.User
 	Password    string `json:"password"`     // current password.
 	NewPassword string `json:"new_password"` // new password.
 }
 
 // NewChangePassword returns a form to change password.
-func NewChangePassword(db *sqlex.DB, user *models.User) *ChangePassword {
+func NewChangePassword(db *sqlex.DB, user *oldmodels.User) *ChangePassword {
 	return &ChangePassword{
 		db:   db,
 		user: user,

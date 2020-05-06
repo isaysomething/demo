@@ -9,12 +9,12 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/clevergo/clevergo"
 	"github.com/clevergo/demo/internal/api"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/pkg/sqlex"
 )
 
 type Post struct {
-	models.Post
+	oldmodels.Post
 	MarkdownContent string `json:"markdown_content"`
 }
 
@@ -22,7 +22,7 @@ type Service interface {
 	Get(id int64) (*Post, error)
 	Create(*clevergo.Context) (*Post, error)
 	Count() (uint64, error)
-	Query(limit, offset uint64, qps *QueryParams) ([]models.Post, error)
+	Query(limit, offset uint64, qps *QueryParams) ([]oldmodels.Post, error)
 	Update(id int64, form *Form) (*Post, error)
 	Delete(id int64) error
 }
@@ -52,7 +52,7 @@ func (s *service) Get(id int64) (*Post, error) {
 		return nil, err
 	}
 
-	markdownContent, err := models.GetPostMeta(s.db, id, models.PostMetaMarkdownContent)
+	markdownContent, err := oldmodels.GetPostMeta(s.db, id, oldmodels.PostMetaMarkdownContent)
 	if err == nil {
 		post.MarkdownContent = markdownContent.Value
 	}
@@ -78,7 +78,7 @@ func (s *service) Create(ctx *clevergo.Context) (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = s.createPostMeta(tx, post.ID, models.PostMetaMarkdownContent, form.MarkdownContent, now); err != nil {
+	if err = s.createPostMeta(tx, post.ID, oldmodels.PostMetaMarkdownContent, form.MarkdownContent, now); err != nil {
 		return nil, err
 	}
 	if err = tx.Commit(); err != nil {
@@ -126,7 +126,7 @@ func (s *service) createPostMeta(tx *sql.Tx, postID int64, key, value string, no
 }
 
 func (s *service) updatePostMeta(tx *sql.Tx, postID int64, key, value string, now time.Time) error {
-	_, err := models.GetPostMeta(s.db, postID, key)
+	_, err := oldmodels.GetPostMeta(s.db, postID, key)
 	if err != nil && sql.ErrNoRows == err {
 		return s.createPostMeta(tx, postID, key, value, now)
 	}
@@ -171,7 +171,7 @@ func (s *service) Update(id int64, form *Form) (post *Post, err error) {
 	if _, err = tx.Exec(sql, args...); err != nil {
 		return nil, err
 	}
-	if err = s.updatePostMeta(tx, id, models.PostMetaMarkdownContent, form.MarkdownContent, now); err != nil {
+	if err = s.updatePostMeta(tx, id, oldmodels.PostMetaMarkdownContent, form.MarkdownContent, now); err != nil {
 		return nil, err
 	}
 	if err = tx.Commit(); err != nil {
@@ -182,7 +182,7 @@ func (s *service) Update(id int64, form *Form) (post *Post, err error) {
 
 func (s *service) Count() (count uint64, err error) {
 	sql, args, err := squirrel.Select("COUNT(*)").From("posts").
-		Where(squirrel.NotEq{"state": models.PostStateDeleted}).
+		Where(squirrel.NotEq{"state": oldmodels.PostStateDeleted}).
 		ToSql()
 	if err != nil {
 		return 0, err
@@ -192,12 +192,12 @@ func (s *service) Count() (count uint64, err error) {
 }
 
 var states = map[string]int{
-	"published": models.PostStatePublished,
-	"draft":     models.PostStateDraft,
+	"published": oldmodels.PostStatePublished,
+	"draft":     oldmodels.PostStateDraft,
 }
 
-func (s *service) Query(limit, offset uint64, qps *QueryParams) ([]models.Post, error) {
-	query := squirrel.Select("*").From("posts").Where(squirrel.NotEq{"state": models.PostStateDeleted})
+func (s *service) Query(limit, offset uint64, qps *QueryParams) ([]oldmodels.Post, error) {
+	query := squirrel.Select("*").From("posts").Where(squirrel.NotEq{"state": oldmodels.PostStateDeleted})
 	if qps.Title != "" {
 		query = query.Where(squirrel.Like{"title": fmt.Sprintf("%%%s%%", qps.Title)})
 	}
@@ -213,7 +213,7 @@ func (s *service) Query(limit, offset uint64, qps *QueryParams) ([]models.Post, 
 		return nil, err
 	}
 
-	posts := []models.Post{}
+	posts := []oldmodels.Post{}
 	err = s.db.Select(&posts, sql, args...)
 	return posts, err
 }
@@ -224,7 +224,7 @@ func (s *service) Delete(id int64) error {
 		return err
 	}
 	sql, args, err := squirrel.Update("posts").
-		Set("state", models.PostStateDeleted).
+		Set("state", oldmodels.PostStateDeleted).
 		Where(squirrel.Eq{
 			"id": id,
 		}).ToSql()

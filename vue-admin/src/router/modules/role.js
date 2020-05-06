@@ -7,7 +7,6 @@ const roleRouter =
   path: '/role',
   component: Layout,
   redirect: '/role/index',
-  name: 'Role',
   meta: {
     title: 'role',
     icon: 'role'

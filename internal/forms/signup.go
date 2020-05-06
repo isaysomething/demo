@@ -5,7 +5,7 @@ import (
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/internal/validations"
 	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/clevergo/demo/pkg/users"
@@ -18,7 +18,7 @@ var (
 )
 
 type AfterSignupEvent struct {
-	User *models.User
+	User *oldmodels.User
 }
 
 type Signup struct {
@@ -62,7 +62,7 @@ func (su *Signup) RegisterOnAfterSignup(f func(AfterSignupEvent)) {
 	su.onAfterSignup = append(su.onAfterSignup, f)
 }
 
-func (su *Signup) Handle(ctx *clevergo.Context) (*models.User, error) {
+func (su *Signup) Handle(ctx *clevergo.Context) (*oldmodels.User, error) {
 	if err := ctx.Decode(su); err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (su *Signup) Handle(ctx *clevergo.Context) (*models.User, error) {
 	if err := su.Validate(); err != nil {
 		return nil, err
 	}
-	user, err := models.CreateUser(su.db, su.Username, su.Email, su.Password)
+	user, err := oldmodels.CreateUser(su.db, su.Username, su.Email, su.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (su *Signup) Handle(ctx *clevergo.Context) (*models.User, error) {
 	return user, nil
 }
 
-func (su *Signup) afterSignup(user *models.User) {
+func (su *Signup) afterSignup(user *oldmodels.User) {
 	event := AfterSignupEvent{user}
 	for _, f := range su.onAfterSignup {
 		f(event)

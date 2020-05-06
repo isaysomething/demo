@@ -160,17 +160,6 @@ export const asyncRoutes = [
     ]
   },
 
-  {
-    'path': 'external-link',
-    'component': Layout,
-    'children': [
-      {
-        'path': 'http://localhost:8080',
-        'meta': { 'title': 'Frontend', 'icon': 'link' }
-      }
-    ]
-  },
-
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

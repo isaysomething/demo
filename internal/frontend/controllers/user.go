@@ -9,7 +9,7 @@ import (
 	"github.com/clevergo/demo/internal/forms"
 	"github.com/clevergo/demo/internal/frontend"
 	"github.com/clevergo/demo/internal/listeners"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/pkg/bootstrap"
 	"github.com/clevergo/jsend"
 )
@@ -207,7 +207,7 @@ func (u *User) changePassword(ctx *clevergo.Context) (err error) {
 		return nil
 	}
 
-	identity, _ := user.GetIdentity().(*models.User)
+	identity, _ := user.GetIdentity().(*oldmodels.User)
 	form := forms.NewChangePassword(u.DB(), identity)
 	if err := form.Handle(ctx); err != nil {
 		return jsend.Error(ctx.Response, err.Error())

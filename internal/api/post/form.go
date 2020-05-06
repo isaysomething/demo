@@ -2,7 +2,7 @@ package post
 
 import (
 	"github.com/clevergo/demo/internal/api"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 )
@@ -19,7 +19,7 @@ func (f *Form) Validate() error {
 		validation.Field(&f.Title, validation.Required),
 		validation.Field(&f.Content, validation.Required),
 		validation.Field(&f.MarkdownContent, validation.Required),
-		validation.Field(&f.State, validation.In(models.PostStateDraft, models.PostStatePublished)),
+		validation.Field(&f.State, validation.In(oldmodels.PostStateDraft, oldmodels.PostStatePublished)),
 	)
 }
 

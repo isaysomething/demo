@@ -14,7 +14,7 @@ require (
 	github.com/clevergo/captchas v0.3.2
 	github.com/clevergo/captchas/drivers v0.3.2
 	github.com/clevergo/captchas/stores/redisstore v0.1.2
-	github.com/clevergo/clevergo v1.11.1-0.20200415031733-c805f2c51b89
+	github.com/clevergo/clevergo v1.12.1
 	github.com/clevergo/form v1.3.0
 	github.com/clevergo/i18n v1.0.2
 	github.com/clevergo/jet-packrloader v0.1.0
@@ -27,12 +27,14 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/eko/gocache v1.0.0
 	github.com/fatih/color v1.9.0
+	github.com/friendsofgo/errors v0.9.2
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-ozzo/ozzo-validation/v4 v4.1.0
 	github.com/go-redis/redis/v7 v7.2.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gobuffalo/packr/v2 v2.8.0
+	github.com/gofrs/uuid v3.3.0+incompatible // indirect
 	github.com/golang-migrate/migrate/v4 v4.10.0
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/wire v0.4.0
@@ -41,6 +43,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/karrick/godirwalk v1.15.6 // indirect
+	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/knadh/koanf v0.9.1
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/memwey/casbin-sqlx-adapter v0.2.0
@@ -48,8 +51,14 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/cobra v1.0.0
+	github.com/spf13/viper v1.6.3
 	github.com/stretchr/testify v1.5.1
 	github.com/tdewolff/minify/v2 v2.7.3
+	github.com/volatiletech/null/v8 v8.1.0
+	github.com/volatiletech/randomize v0.0.1
+	github.com/volatiletech/sqlboiler v3.7.1+incompatible
+	github.com/volatiletech/sqlboiler/v4 v4.1.1
+	github.com/volatiletech/strmangle v0.0.1
 	go.uber.org/zap v1.14.1
 	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect

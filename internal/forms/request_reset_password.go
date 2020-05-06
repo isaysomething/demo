@@ -7,7 +7,7 @@ import (
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/internal/validations"
 	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/go-mail/mail"
@@ -19,7 +19,7 @@ type RequestResetPassword struct {
 	db             *sqlex.DB
 	mailer         *mail.Dialer
 	captchaManager *captchas.Manager
-	user           *models.User
+	user           *oldmodels.User
 	Email          string `json:"email"`
 	Captcha        string `json:"captcha"`
 	CaptchaID      string `json:"captcha_id"`
@@ -54,9 +54,9 @@ func (f *RequestResetPassword) validateEmail(value interface{}) error {
 	return nil
 }
 
-func (f *RequestResetPassword) getUser() (*models.User, error) {
+func (f *RequestResetPassword) getUser() (*oldmodels.User, error) {
 	if f.user == nil {
-		user, err := models.GetUserByEmail(f.db, f.Email)
+		user, err := oldmodels.GetUserByEmail(f.db, f.Email)
 		if err != nil {
 			return nil, err
 		}

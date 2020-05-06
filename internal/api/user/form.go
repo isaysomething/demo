@@ -8,16 +8,15 @@ import (
 )
 
 type CreateForm struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Roles    string `json:"roles"`
+	Username string   `schema:"username"`
+	Email    string   `schema:"email"`
+	Password string   `schema:"password"`
+	State    int      `schema:"state"`
+	Roles    []string `schema:"roles[]"`
 }
 
 func (f *CreateForm) Validate() error {
 	return validation.ValidateStruct(f,
-		validation.Field(&f.ID, validation.Required),
 		validation.Field(&f.Username, validation.Required, validation.By(validations.ValidateUsername)),
 		validation.Field(&f.Password, validation.Required, validation.By(validations.ValidatePassword)),
 		validation.Field(&f.Roles, validation.Required),

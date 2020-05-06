@@ -75,8 +75,8 @@ export default {
   },
   notify: {
     success: 'Success',
-    create_successfully: 'Create successfully',
-    update_successfully: 'Update successfully'
+    created_successfully: 'Created successfully',
+    updated_successfully: 'Updated successfully'
   },
   user: {
     username: 'Username',
@@ -87,6 +87,14 @@ export default {
     account: 'Account',
     edit_user: 'Edit user',
     roles: 'Roles'
+  },
+  button: {
+    'cancel': 'Cancel',
+    'confirm': 'Confirm',
+    'submit': 'Submit',
+    'edit': 'Edit',
+    'add': 'Add',
+    'delete': 'Delete'
   },
   navbar: {
     dashboard: 'Dashboard',

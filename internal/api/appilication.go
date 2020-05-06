@@ -11,6 +11,7 @@ import (
 	"github.com/clevergo/jsend"
 	"github.com/clevergo/log"
 	"github.com/go-mail/mail"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 // Application API application.
@@ -40,6 +41,8 @@ func New(
 	mailer *mail.Dialer,
 	accessManager *access.Manager,
 ) *Application {
+	boil.SetDB(db)
+	boil.DebugMode = true
 	opts := []core.Option{
 		core.SetParams(params),
 		core.SetLogger(logger),

@@ -7,7 +7,6 @@ const postRouter =
   path: '/post',
   component: Layout,
   redirect: '/post/index',
-  name: 'Post',
   meta: {
     title: 'post',
     icon: 'post'

@@ -2,14 +2,14 @@ package forms
 
 import (
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/pkg/sqlex"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type VerifyEmail struct {
 	db    *sqlex.DB
-	user  *models.User
+	user  *oldmodels.User
 	Token string `json:"token"`
 }
 
@@ -38,9 +38,9 @@ func (f *VerifyEmail) validateUser(value interface{}) error {
 	return nil
 }
 
-func (f *VerifyEmail) getUser() (*models.User, error) {
+func (f *VerifyEmail) getUser() (*oldmodels.User, error) {
 	if f.user == nil {
-		user, err := models.GetUserByVerificationToken(f.db, f.Token)
+		user, err := oldmodels.GetUserByVerificationToken(f.db, f.Token)
 		if err != nil {
 			return nil, err
 		}

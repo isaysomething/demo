@@ -6,7 +6,7 @@ import (
 
 	"github.com/clevergo/captchas"
 	"github.com/clevergo/clevergo"
-	"github.com/clevergo/demo/internal/models"
+	"github.com/clevergo/demo/internal/oldmodels"
 	"github.com/clevergo/demo/internal/validations"
 	"github.com/clevergo/demo/pkg/sqlex"
 	"github.com/clevergo/demo/pkg/users"
@@ -18,7 +18,7 @@ import (
 type Login struct {
 	db             *sqlex.DB
 	user           *users.User
-	identity       *models.User
+	identity       *oldmodels.User
 	captchaManager *captchas.Manager
 	CaptchaID      string `schema:"captcha_id" json:"captcha_id"`
 	Captcha        string `schema:"captcha" json:"captcha"`
@@ -75,9 +75,9 @@ func (l *Login) validateUser(_ interface{}) error {
 	return nil
 }
 
-func (l *Login) getIdentity() *models.User {
+func (l *Login) getIdentity() *oldmodels.User {
 	if l.identity == nil {
-		identity, err := models.GetUserByEmail(l.db, l.Email)
+		identity, err := oldmodels.GetUserByEmail(l.db, l.Email)
 		if err == nil {
 			l.identity = identity
 		}
@@ -88,7 +88,7 @@ func (l *Login) getIdentity() *models.User {
 }
 
 // Handle handles login request.
-func (l *Login) Handle(ctx *clevergo.Context) (*models.User, error) {
+func (l *Login) Handle(ctx *clevergo.Context) (*oldmodels.User, error) {
 	if err := ctx.Decode(l); err != nil {
 		return nil, err
 	}
